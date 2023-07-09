@@ -1,0 +1,7 @@
+{
+  "name": "TVFISH Monitor",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
