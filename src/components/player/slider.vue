@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import './theme.css';
+import '@/theme/slider.css';
 import VueSlider from 'vue-slider-component';
 import PlayerPopover from './popover.vue';
 import { useVModel } from '@vueuse/core';

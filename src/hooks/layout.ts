@@ -1,4 +1,4 @@
-import layoutConfig from './config';
+import layoutConfig from '@/config/layout';
 export const getPlayerCode = (key: number) => String.fromCharCode(97 + key);
 const layout = layoutConfig.map((item) => {
   const num = Array.from(new Set(item.replace(/'|\n/g, '').split(' ')));

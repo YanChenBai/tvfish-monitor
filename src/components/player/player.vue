@@ -1,5 +1,5 @@
 <template>
-  <div class="live-danmu-player" :ref="(node: any) => drag(drop(node))">
+  <div class="live-danmu-player">
     <div ref="danmakuWrapRef" class="danmu-wrap" @click="openControl()">
       <VueDanmuKu
         style="width: 100%; height: 100%"
@@ -23,26 +23,28 @@
       ref="controlRef"
       :title="title"
       :name="name"
+      :lines="lines"
+      :qualitys="qualitys"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useDrag, useDrop } from 'vue3-dnd';
-import { onMounted, ref, watch } from 'vue';
-import Control from './control.vue';
 import VueDanmuKu from 'vue3-danmaku';
+import { onMounted, ref, watch } from 'vue';
 import { onClickOutside } from '@vueuse/core';
-import { Config, ConfigType } from './type';
-import Player from './index';
+import Control from '@/components/player/control.vue';
+import { ConfigType } from '@/hooks/player';
+import Player from '@/hooks/player';
+import { QualityType, LineType } from '@/types/player';
 
 defineOptions({ name: 'LiveDanmuPlayer' });
 
 const props = withDefaults(
   defineProps<{
     title?: string;
-    lines?: Array<{ label: string; value: string }>;
-    qualitys?: Array<{ label: string; value: string }>;
+    lines?: LineType[];
+    qualitys?: QualityType[];
     url: string;
     type: ConfigType;
     name: string;
@@ -93,27 +95,11 @@ onMounted(() => {
 watch(
   (): [string, ConfigType] => [props.url, props.type],
   (val) => {
-    if (val[0].length !== 0 && val !== null) {
-      refresh();
+    if (val[0] !== '') {
+      setTimeout(() => refresh(), 0);
     }
   },
 );
-
-// 创建拖拽
-const [, drag] = useDrag({
-  type: 'video',
-  item: {
-    type: 'player',
-  },
-});
-
-// 创建拖拽放置
-const [, drop] = useDrop({
-  accept: ['box', 'video'],
-  drop: (item: any) => {
-    alert(item);
-  },
-});
 
 // 暴露函数
 defineExpose({

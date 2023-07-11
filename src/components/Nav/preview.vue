@@ -13,24 +13,30 @@
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <div style="text-align: center; font-size: 20px; padding: 10px 0">
-        当前布局: {{ layoutIndex + 1 }}
-      </div>
-      <div class="preview-list">
-        <template v-for="(item, index) in layout">
-          <div
-            class="preview-item"
-            :style="{ 'grid-template-areas': item.area }"
-            @click="updateLayout(index)"
-          >
-            <div class="item-num">{{ index + 1 }}</div>
-            <div
-              v-for="key in item.num"
-              class="preview-win"
-              :style="{ 'grid-area': String.fromCharCode(97 + key - 1) }"
-            ></div>
-          </div>
-        </template>
+      <div class="content hide-scrollbar">
+        <div style="text-align: center; font-size: 20px; padding: 10px 0">
+          当前布局: {{ layoutIndex + 1 }}
+        </div>
+        <ion-grid>
+          <ion-row>
+            <template v-for="(item, index) in layout">
+              <ion-col size="3" size-sm="3">
+                <div
+                  class="preview-item"
+                  :style="{ 'grid-template-areas': item.area }"
+                  @click="updateLayout(index)"
+                >
+                  <div class="item-num">{{ index + 1 }}</div>
+                  <div
+                    v-for="key in item.num"
+                    class="preview-win"
+                    :style="{ 'grid-area': String.fromCharCode(97 + key - 1) }"
+                  ></div>
+                </div>
+              </ion-col>
+            </template>
+          </ion-row>
+        </ion-grid>
       </div>
     </ion-content>
   </ion-modal>
@@ -45,12 +51,15 @@ import {
   IonToolbar,
   IonContent,
   IonTitle,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/vue';
-import layout from '@/components/Layout/index';
+import layout from '@/hooks/layout';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
 import { ref } from 'vue';
-
+import '@/theme/hideScrollbar.css';
 defineOptions({ name: 'layoutPreview' });
 
 const layoutModal = ref();
@@ -71,22 +80,21 @@ function updateLayout(index: number) {
   width: 100%;
   text-align: center;
 }
-.preview-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
+.content {
+  height: 100%;
+  overflow-y: scroll;
+  padding-bottom: 20px;
+  box-sizing: border-box;
 }
-
 .preview-item {
   display: grid;
-  width: 120px;
+  width: 100%;
   height: 70px;
   border: 2px solid #e8e8e8;
   background: #e8e8e8;
   border-radius: 4px;
   cursor: pointer;
   position: relative;
-  margin: 5px;
   box-sizing: border-box;
 }
 

@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { IonButton } from '@ionic/vue';
-import LayoutModal from './layoutPreview.vue';
+import LayoutModal from './preview.vue';
 import MenuPlayer from '@/components/Menu/index.vue';
 import { ref } from 'vue';
 defineOptions({ name: 'index' });

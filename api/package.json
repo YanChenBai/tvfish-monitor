@@ -1,0 +1,21 @@
+{
+  "name": "tv_fish_monitor",
+  "description": "电视鱼监控室",
+  "author": "白厌尘yanchen",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "start": "node servers.js"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "js-md5": "^0.7.3",
+    "koa": "^2.13.4",
+    "koa-router": "^12.0.0",
+    "koa2-cors": "^2.0.6",
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "validator": "^13.7.0"
+  }
+}

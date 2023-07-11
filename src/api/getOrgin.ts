@@ -1,9 +1,63 @@
-export async function getOrgin(roomId: number, type: string): Promise<any> {
-  const res = await fetch(
-    `http://139.159.151.227:9889/getLiveInfo?roomid=${roomId}&type=${type}&rate=0`,
-  );
-  const data = (await res.json()) as {
-    data: { url: string; nowUrl: string };
-  };
-  return data.data;
+import axios from 'axios';
+
+axios.defaults.baseURL = 'http://192.168.2.11:9889/';
+
+export async function getDouyuOrgin(
+  roomId: number,
+  qn: number | null,
+  line: string | null,
+): Promise<any> {
+  try {
+    const res = await axios(
+      `/getLiveInfo?roomId=${roomId}&type=douyu&qn=${qn ? qn : ''}&line=${
+        line ? line : ''
+      }`,
+    );
+    return res.data;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function getBiliOrgin(
+  roomId: number,
+  qn: number | null,
+  line: number | null,
+): Promise<any> {
+  try {
+    const res = await axios(
+      `/getLiveInfo?roomId=${roomId}&type=bili&qn=${qn ? qn : ''}&line=${
+        line ? line : ''
+      }`,
+    );
+    console.log(res.data);
+
+    return res.data;
+  } catch (error) {
+    return false;
+  }
+}
+
+interface RoomInfo {
+  face: string;
+  keyframe: string;
+  live_status: number;
+  name: string;
+  news: string;
+  room_id: string;
+  short_id: string;
+  title: string;
+  uid: number;
+}
+
+export async function getRoomInfo(
+  roomId: number,
+  type: string,
+): Promise<RoomInfo | false> {
+  try {
+    const res = await axios(`/getRoomInfo?roomId=${roomId}&type=${type}`);
+    return res.data.data;
+  } catch (error) {
+    return false;
+  }
 }

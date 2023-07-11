@@ -16,29 +16,25 @@
       v-for="(_index, key) in layout[layoutIndex].num"
       :style="{ 'grid-area': getPlayerCode(key) }"
     >
-      <!-- <LivePlayer
-        :name="getPlayerCode(key)"
-        :key="`player-${getPlayerCode(key)}`"
-      ></LivePlayer> -->
-      <LiveDanmuPlayer
-        :title="`[]`"
+      <PlayerWrap
+        :title="``"
         :type="type"
         :url="url"
-        :name="getPlayerCode(key).toLocaleUpperCase()"
+        :name="getPlayerCode(key)"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import LiveDanmuPlayer from '@/components/LiveDanmuPlayer/index.vue';
-import layout, { getPlayerCode } from './index';
+import PlayerWrap from '@/components/playerWrap.vue';
+import layout, { getPlayerCode } from '@/hooks/layout';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
 import { ref } from 'vue';
-import { ConfigType } from '../LiveDanmuPlayer/type';
+
 defineOptions({ name: 'index' });
-const type = ref(ConfigType.Flv),
+const type = ref(null),
   url = ref('');
 const { layoutIndex } = storeToRefs(usePlayerStore());
 </script>

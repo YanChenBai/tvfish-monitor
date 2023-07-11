@@ -18,9 +18,11 @@ export enum Platform {
 export interface RoomListItem {
   roomId: number;
   platform: Platform;
-  name?: string;
-  face?: string;
-  title?: string;
+  name: string;
+  face: string;
+  title: string;
+  news: string;
+  keyframe: string;
 }
 
 export const usePlayerStore = defineStore(

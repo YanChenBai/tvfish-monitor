@@ -1,7 +1,15 @@
 import Hls from 'hls.js';
 import FlvJs from 'flv.js';
-import { ConfigType, Config } from './type';
 import { ref } from 'vue';
+
+export enum ConfigType {
+  Flv = 'flv',
+  Hls = 'hls',
+}
+export interface Config {
+  url: string;
+  type: ConfigType;
+}
 
 export default class LiveDanmuPlayer {
   el: HTMLMediaElement | null = null;

@@ -2,7 +2,12 @@
   <Transition name="control">
     <div v-show="show" class="control-wrap" @mouseleave="closeControl()">
       <div class="control-wrap-top" ref="topRef">
-        <div class="title">{{ name }} | {{ title }}</div>
+        <div class="title">
+          <div class="name">{{ name }}</div>
+          <n-ellipsis style="max-width: 200px">
+            {{ title }}
+          </n-ellipsis>
+        </div>
         <ion-button color="danger" fill="clear" size="small" @click="destroy()">
           <ion-icon :icon="close"></ion-icon>
         </ion-button>
@@ -68,6 +73,7 @@
 </template>
 
 <script setup lang="ts">
+import { NEllipsis } from 'naive-ui';
 import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
@@ -81,6 +87,7 @@ import {
 import { useVModel } from '@vueuse/core';
 import { Ref, ref, watch } from 'vue';
 import VueDanmuKu from 'vue3-danmaku';
+import { QualityType, LineType } from '@/types/player';
 
 defineOptions({ name: 'PlayerControl' });
 
@@ -89,6 +96,8 @@ const props = defineProps<{
   title: string; // 左上标题
   name: string;
   danmakuRef: InstanceType<typeof VueDanmuKu> | undefined;
+  lines?: LineType[];
+  qualitys?: QualityType[];
 }>();
 const emit = defineEmits([
   'update:show',
@@ -180,6 +189,7 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .control-wrap-bottom {
@@ -196,6 +206,21 @@ defineExpose({
 }
 .volume {
   width: 24px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  line-height: 18px;
+  padding-left: 6px;
+}
+
+.name {
+  background-color: #333333;
+  padding: 2px 10px;
+  border-radius: 4px;
+  margin-right: 4px;
+  text-transform: uppercase;
 }
 
 .control-enter-active,

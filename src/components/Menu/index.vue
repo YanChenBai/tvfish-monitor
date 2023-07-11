@@ -1,7 +1,7 @@
 <template>
   <Transition name="menu">
     <div class="menu-wrap" ref="menuWrap" v-show="show">
-      <div class="menu-content">
+      <div class="menu-content hide-scrollbar">
         <div v-for="item in roomList" class="menu-content-item">
           <MenuItem :info="item"></MenuItem>
         </div>
@@ -28,20 +28,28 @@
           <ion-label position="stacked">房间 ID</ion-label>
           <ion-input
             ref="input"
+            label=""
             type="text"
+            v-model:modelValue="data.roomId"
             placeholder="请输入直播间的 ID"
           ></ion-input>
         </ion-item>
 
         <ion-item>
           <ion-label position="stacked">房间 ID</ion-label>
-          <ion-select placeholder="直播平台">
+          <ion-select
+            placeholder="直播平台"
+            v-model:modelValue="data.type"
+            label=""
+          >
             <ion-select-option value="douyu">斗鱼</ion-select-option>
             <ion-select-option value="bili">b站</ion-select-option>
           </ion-select>
         </ion-item>
 
-        <ion-button style="margin-top: 20px; width: 100%">添加</ion-button>
+        <ion-button style="margin-top: 20px; width: 100%" @click="add()"
+          >添加</ion-button
+        >
       </div>
     </ion-content>
   </ion-modal>
@@ -62,11 +70,17 @@ import {
   IonInput,
   IonItem,
 } from '@ionic/vue';
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import MenuItem from './item.vue';
 import { onClickOutside, useVModel } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
-import { usePlayerStore, type RoomListItem } from '@/stores/playerStore';
+import {
+  usePlayerStore,
+  type RoomListItem,
+  Platform,
+} from '@/stores/playerStore';
+import { getRoomInfo } from '@/api/getOrgin';
+import '@/theme/hideScrollbar.css';
 defineOptions({ name: 'Menu' });
 
 const { layoutIndex, roomList } = storeToRefs(usePlayerStore());
@@ -78,6 +92,10 @@ const props = withDefaults(
     show: false,
   },
 );
+const data = reactive({
+  roomId: undefined,
+  type: Platform.Bili,
+});
 const emit = defineEmits(['update:show']);
 const show = useVModel(props, 'show', emit);
 const menuModal = ref(),
@@ -90,15 +108,63 @@ function cancel() {
 onClickOutside(menuWrap, () => (show.value = false), {
   ignore: [menuModal],
 });
+
+async function add() {
+  const type = data.type;
+  const roomId = data.roomId!;
+
+  let flag = false;
+  for (let item of roomList.value) {
+    if (item.platform === type && roomId === item.roomId) {
+      console.log(item);
+
+      flag = true;
+    }
+  }
+  console.log(flag);
+
+  if (flag) {
+    return;
+  }
+  try {
+    let res = await getRoomInfo(roomId, type);
+    if (res === false) {
+      return;
+    }
+
+    res.keyframe =
+      type === Platform.Bili
+        ? 'https://images.weserv.nl/?url=' + res.keyframe
+        : res.keyframe;
+
+    res.face =
+      type === Platform.Bili
+        ? 'https://images.weserv.nl/?url=' + res.face
+        : res.face;
+
+    roomList.value.push({
+      roomId: roomId,
+      platform: type,
+      name: res.name,
+      face: res.face,
+      title: res.title,
+      news: res.news,
+      keyframe: res.keyframe,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
 </script>
 
 <style scoped>
+@import '@/theme/hideScrollbar.css';
 .menu-wrap {
-  width: 220px;
+  width: 300px;
   position: fixed;
   top: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(20, 20, 20, 0.9);
   z-index: 9999;
   padding: 10px;
 }
@@ -115,16 +181,6 @@ onClickOutside(menuWrap, () => (show.value = false), {
   margin-top: 10px;
 }
 
-/* 隐藏 Chrome、Safari 和 Opera 的滚动条 */
-.menu-content::-webkit-scrollbar {
-  display: none;
-}
-
-/* 隐藏 IE、Edge 和 Firefox 的滚动条 */
-.menu-content {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
 .padding {
   width: 100%;
   padding: 10px;
