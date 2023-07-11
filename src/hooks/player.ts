@@ -9,6 +9,7 @@ export enum ConfigType {
 export interface Config {
   url: string;
   type: ConfigType;
+  defVol: number;
 }
 
 export default class LiveDanmuPlayer {
@@ -40,7 +41,7 @@ export default class LiveDanmuPlayer {
     const hlsPlayer = new Hls();
     hlsPlayer.attachMedia(this.el!);
     hlsPlayer.loadSource(this.config.url);
-    this.el!.volume = 0;
+    this.el!.volume = this.config.defVol;
     this.player = hlsPlayer;
     this.destroy = () => hlsPlayer.destroy();
   }
@@ -53,7 +54,7 @@ export default class LiveDanmuPlayer {
     });
     flvPlayer.attachMediaElement(this.el!);
     flvPlayer.load();
-    flvPlayer.volume = 0;
+    flvPlayer.volume = this.config.defVol;
     flvPlayer.play();
     this.player = flvPlayer;
     this.destroy = () => flvPlayer.destroy();

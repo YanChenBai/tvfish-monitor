@@ -2,12 +2,8 @@
   <ion-modal ref="layoutModal" trigger="layoutModal">
     <ion-header>
       <ion-toolbar>
-        <ion-title>
-          <div class="title">布局</div>
-        </ion-title>
-        <ion-buttons
-          style="position: absolute; right: 10px; top: 0; height: 100%"
-        >
+        <ion-title> 布局 </ion-title>
+        <ion-buttons slot="end">
           <ion-button @click="cancel()">关闭</ion-button>
         </ion-buttons>
       </ion-toolbar>

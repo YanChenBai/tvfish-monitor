@@ -37,21 +37,25 @@ import Control from '@/components/player/control.vue';
 import { ConfigType } from '@/hooks/player';
 import Player from '@/hooks/player';
 import { QualityType, LineType } from '@/types/player';
+import { showBar } from '@/utils/barStatus';
+import { RoomListItem, usePlayerStore } from '@/stores/playerStore';
+import { storeToRefs } from 'pinia';
 
 defineOptions({ name: 'LiveDanmuPlayer' });
 
+const { playerListConfig } = storeToRefs(usePlayerStore());
 const props = withDefaults(
   defineProps<{
     title?: string;
-    lines?: LineType[];
-    qualitys?: QualityType[];
+    lines: LineType[];
+    qualitys: QualityType[];
     url: string;
     type: ConfigType;
     name: string;
   }>(),
   { title: '' },
 );
-
+const emit = defineEmits(['volumeChange']);
 const show = ref(false);
 const player = ref<Player | null>(null);
 const controlRef = ref<InstanceType<typeof Control>>(),
@@ -70,6 +74,7 @@ function refresh() {
   const config = {
     url: props.url,
     type: props.type,
+    defVol: playerListConfig.value[props.name].volume,
   };
   if (player.value === null) {
     player.value = new Player(videoRef.value!, config);
@@ -80,6 +85,7 @@ function refresh() {
 }
 
 function modifyVolume(val: number) {
+  emit('volumeChange', val);
   if (player.value === null) return;
   player.value.modifyVolume(val);
 }
@@ -104,6 +110,7 @@ watch(
 // 暴露函数
 defineExpose({
   refresh,
+  modifyVolume,
 });
 </script>
 

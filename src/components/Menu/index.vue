@@ -7,9 +7,8 @@
         </div>
       </div>
       <div class="add">
-        <ion-button style="width: 100%; height: 60px" id="menuModal"
-          >添加</ion-button
-        >
+        <ion-button style="height: 60px" id="menuModal">添加</ion-button>
+        <ion-button style="height: 60px" id="outModal">导出 / 导出</ion-button>
       </div>
     </div>
   </Transition>
@@ -18,7 +17,7 @@
       <ion-toolbar>
         <ion-title>添加直播间</ion-title>
         <ion-buttons slot="end">
-          <ion-button @click="cancel()">关闭</ion-button>
+          <ion-button @click="cancel(menuModal)">关闭</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -53,6 +52,33 @@
       </div>
     </ion-content>
   </ion-modal>
+
+  <ion-modal ref="outModal" trigger="outModal">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>添加直播间</ion-title>
+        <ion-buttons slot="end">
+          <ion-button @click="cancel(outModal)">关闭</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <div class="padding">
+        <ion-item>
+          <ion-label position="stacked">房间 ID</ion-label>
+          <ion-input
+            ref="input"
+            label=""
+            type="text"
+            v-model:modelValue="data.roomId"
+            placeholder="请输入直播间的 ID"
+          ></ion-input>
+        </ion-item>
+        <ion-button style="margin-top: 10px; width: 100%">导入</ion-button>
+        <ion-button style="margin-top: 10px; width: 100%">导出</ion-button>
+      </div>
+    </ion-content>
+  </ion-modal>
 </template>
 
 <script setup lang="ts">
@@ -81,6 +107,8 @@ import {
 } from '@/stores/playerStore';
 import { getRoomInfo } from '@/api/getOrgin';
 import '@/theme/hideScrollbar.css';
+import { useClipboard } from '@vueuse/core';
+
 defineOptions({ name: 'Menu' });
 
 const { layoutIndex, roomList } = storeToRefs(usePlayerStore());
@@ -99,15 +127,13 @@ const data = reactive({
 const emit = defineEmits(['update:show']);
 const show = useVModel(props, 'show', emit);
 const menuModal = ref(),
-  menuWrap = ref();
+  menuWrap = ref(),
+  outModal = ref(),
+  code = ref('');
 
-function cancel() {
-  menuModal.value.$el.dismiss(null, 'cancel');
+function cancel(vn: any) {
+  vn.$el.dismiss(null, 'cancel');
 }
-
-onClickOutside(menuWrap, () => (show.value = false), {
-  ignore: [menuModal],
-});
 
 async function add() {
   const type = data.type;
@@ -155,6 +181,10 @@ async function add() {
     console.log(error);
   }
 }
+
+onClickOutside(menuWrap, () => (show.value = false), {
+  ignore: [menuModal],
+});
 </script>
 
 <style scoped>
@@ -179,6 +209,7 @@ async function add() {
 .add {
   height: 60px;
   margin-top: 10px;
+  display: flex;
 }
 
 .padding {

@@ -50,7 +50,7 @@
             @click="danmuSwitch()"
             >弹幕 {{ danmuState ? '关' : '开' }}</ion-button
           >
-          <PopoverSelect :list="[]">
+          <PopoverSelect :list="qualitys">
             <template #target>
               <ion-button color="light" fill="clear" size="small">
                 清晰度
@@ -58,7 +58,7 @@
             </template>
             清晰度
           </PopoverSelect>
-          <PopoverSelect :list="[]">
+          <PopoverSelect :list="lines">
             <template #target>
               <ion-button color="light" fill="clear" size="small">
                 线路
@@ -73,6 +73,8 @@
 </template>
 
 <script setup lang="ts">
+import { RoomListItem, usePlayerStore } from '@/stores/playerStore';
+import { storeToRefs } from 'pinia';
 import { NEllipsis } from 'naive-ui';
 import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
@@ -91,13 +93,14 @@ import { QualityType, LineType } from '@/types/player';
 
 defineOptions({ name: 'PlayerControl' });
 
+const { playerListConfig, navState } = storeToRefs(usePlayerStore());
 const props = defineProps<{
   show: boolean; // 控制栏显示状态
   title: string; // 左上标题
   name: string;
   danmakuRef: InstanceType<typeof VueDanmuKu> | undefined;
-  lines?: LineType[];
-  qualitys?: QualityType[];
+  lines: LineType[];
+  qualitys: QualityType[];
 }>();
 const emit = defineEmits([
   'update:show',
@@ -116,10 +119,11 @@ const danmuState = ref(false),
   topRef = ref<HTMLElement>(),
   bottomRef = ref<HTMLElement>(),
   playState = ref(true),
-  volume = ref(0);
+  volume = ref(playerListConfig.value[props.name].volume * 100);
 
 function openControl() {
   show.value = true;
+  navState.value = true;
   emit('open');
 }
 

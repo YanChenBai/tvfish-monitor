@@ -46,16 +46,18 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
     const { playurl_info } = res.data.data;
 
     // http_hls, http_stream
-    const stream = playurl_info.playurl.stream.find(item => item.protocol_name === 'http_hls');
-    const format = stream.format.find(item => item.format_name == 'ts');
+    const stream = playurl_info.playurl.stream.find(
+      (item) => item.protocol_name === 'http_hls',
+    );
+    const format = stream.format.find((item) => item.format_name == 'ts');
     const codec = format.codec[codecIndex];
     const baseUrl = codec.base_url;
     const host = codec.url_info[line].host;
     const extra = codec.url_info[line].extra;
     const findQuality = playurl_info.playurl.g_qn_desc.filter(
-      item => codec.accept_qn.indexOf(item.qn) !== -1
+      (item) => codec.accept_qn.indexOf(item.qn) !== -1,
     );
-    const quality = findQuality.map(item => ({
+    const quality = findQuality.map((item) => ({
       qn: item.qn,
       name: item.desc,
     }));
@@ -72,7 +74,7 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
       line,
       // format: format.format_name,
       // codec: codec.codec_name,
-      info: roomInfoRes,
+      info: roomInfoRes.data,
     });
   } catch (e) {
     console.log(e);

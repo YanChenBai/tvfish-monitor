@@ -8,7 +8,7 @@
     </template>
     <template v-else>
       <div class="player-popover-item" v-for="item in list">
-        {{ item.title }}
+        {{ item.name }}
       </div>
     </template>
   </PlayerPopover>
@@ -17,8 +17,8 @@
 <script setup lang="ts">
 import PlayerPopover from './popover.vue';
 defineOptions({ name: 'PopoverSelect' });
-
-withDefaults(defineProps<{ list: Array<{ title: string; value: any }> }>(), {
+import { QualityType, LineType } from '@/types/player';
+withDefaults(defineProps<{ list: LineType[] | QualityType[] }>(), {
   list: Array,
 });
 </script>

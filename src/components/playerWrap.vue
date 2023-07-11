@@ -5,15 +5,16 @@
       :url="url"
       :type="type"
       :name="name"
-      :lines="[]"
-      :qualitys="[]"
+      :lines="lines"
+      :qualitys="qualitys"
+      @volume-change="volumeChange"
+      ref="player"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import LiveDanmuPlayer from '@/components/player/player.vue';
-import layout, { getPlayerCode } from '@/hooks/layout';
 import { ConfigType } from '@/hooks/player';
 import { useDrag, useDrop } from 'vue3-dnd';
 import { DropType } from '@/types/drop';
@@ -26,7 +27,7 @@ import { storeToRefs } from 'pinia';
 
 defineOptions({ name: 'playerWrap' });
 
-const { playerList } = storeToRefs(usePlayerStore());
+const { playerList, playerListConfig } = storeToRefs(usePlayerStore());
 
 const props = defineProps<{
   name: string;
@@ -35,10 +36,12 @@ const props = defineProps<{
 const getPlayerParams = computed<RoomListItem>(() => {
   return (playerList.value as any)[props.name];
 });
-
 const title = ref(getPlayerParams.value ? getPlayerParams.value.title : ''),
+  player = ref<InstanceType<typeof LiveDanmuPlayer>>(),
   url = ref(''),
-  type = ref(ConfigType.Flv);
+  type = ref(ConfigType.Flv),
+  qualitys = ref<QualityType[]>([]),
+  lines = ref<LineType[]>([]);
 
 // 创建拖拽
 const [, drag] = useDrag({
@@ -54,7 +57,7 @@ const [, drop] = useDrop({
   accept: [DropType.MenuItem, DropType.PlayerDrap],
   drop: (item: { type: DropType; info: RoomListItem; name: string }) => {
     if (item.type === DropType.MenuItem) {
-      (playerList.value as any)[props.name] = item.info;
+      playerList.value[props.name] = item.info;
     } else if (item.type === DropType.PlayerDrap) {
       console.log(item.name);
     }
@@ -62,6 +65,11 @@ const [, drop] = useDrop({
   },
 });
 
+function volumeChange(val: number) {
+  playerListConfig.value[props.name].volume = val;
+}
+
+// 获取直播源
 async function getOrgin(roomId: number, type: Platform) {
   // getBiliOrgin, getDouyuOrgin
   let res;
@@ -76,6 +84,7 @@ async function getOrgin(roomId: number, type: Platform) {
   return res;
 }
 
+// 更新数据
 async function update() {
   if (getPlayerParams.value !== null) {
     const res: any = await getOrgin(
@@ -92,15 +101,18 @@ async function update() {
         getPlayerParams.value.platform === Platform.Bili
           ? ConfigType.Hls
           : ConfigType.Flv;
-      console.log(type.value);
+      qualitys.value = res.data.quality;
+      lines.value = res.data.lines;
     }
   }
 }
 
-onMounted(() => {
-  update();
+onMounted(async () => {
+  await update();
+  player.value!.modifyVolume(playerListConfig.value[props.name].volume);
 });
 
+// 自动更新
 watch(getPlayerParams, async (val) => {
   update();
 });

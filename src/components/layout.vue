@@ -2,6 +2,7 @@
   <div
     class="live-wrap"
     :style="{
+      height: navState ? ' calc(100vh - 40px)' : ' calc(100vh)',
       'grid-template-areas': layout[layoutIndex].area,
       'grid-template-columns': `repeat(${layout[layoutIndex].col}, ${
         100 / layout[layoutIndex].col
@@ -36,13 +37,12 @@ import { ref } from 'vue';
 defineOptions({ name: 'index' });
 const type = ref(null),
   url = ref('');
-const { layoutIndex } = storeToRefs(usePlayerStore());
+const { layoutIndex, navState } = storeToRefs(usePlayerStore());
 </script>
 
 <style scoped>
 .live-wrap {
   display: grid;
-  height: calc(100vh - 40px);
   width: 100%;
 }
 .live-item {

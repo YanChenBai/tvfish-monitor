@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://192.168.2.11:9889/';
+axios.defaults.baseURL = 'http://192.168.3.67:9889/';
 
 export async function getDouyuOrgin(
   roomId: number,
