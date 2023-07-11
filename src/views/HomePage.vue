@@ -1,56 +1,47 @@
 <template>
-  <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar>
-        <ion-title>Blank</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
-        </ion-toolbar>
-      </ion-header>
-
-      <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-      </div>
-    </ion-content>
+  <ion-page style="height: 100vh; overflow: hidden">
+    <DndProvider :backend="isMobile() ? TouchBackend : HTML5Backend">
+      <!-- <ion-content :fullscreen="true"> -->
+      <NavPlayer></NavPlayer>
+      <!-- <div style="display: flex; flex-wrap: wrap">
+          <div style="width: 100%; height: 50vh">
+            <LiveDanmuPlayer title="王拉奇" :type="typeDy" :url="urlDy" />
+          </div>
+          <div style="width: 100%; height: 50vh">
+            <LiveDanmuPlayer title="菠萝塞东" :type="typeBl" :url="urlBl" />
+          </div>
+        </div> -->
+      <Layout></Layout>
+      <!-- </ion-content> -->
+    </DndProvider>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
+import { DndProvider } from 'vue3-dnd';
+import NavPlayer from '@/components/Nav/index.vue';
+import Layout from '@/components/Layout/index.vue';
+import LiveDanmuPlayer from '@/components/LiveDanmuPlayer/index.vue';
+import { getOrgin } from '@/api/getOrgin';
+import { IonContent, IonPage } from '@ionic/vue';
+import { ConfigType } from '@/components/LiveDanmuPlayer/type';
+import { onMounted, ref } from 'vue';
+const urlDy = ref(''),
+  videoRef = ref(),
+  typeDy = ref(ConfigType.Flv),
+  urlBl = ref(''),
+  typeBl = ref(ConfigType.Hls);
+
+function isMobile() {
+  let flag = navigator.userAgent.match(
+    /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i,
+  );
+  return flag;
+}
+
+onMounted(() => {});
 </script>
 
-<style scoped>
-#container {
-  text-align: center;
-  
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-  
-  color: #8c8c8c;
-  
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
-</style>
+<style scoped></style>
