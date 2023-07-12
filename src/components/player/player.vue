@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import VueDanmuKu from 'vue3-danmaku';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { onClickOutside, useDebounceFn } from '@vueuse/core';
 import Control from '@/components/player/control.vue';
 import { ConfigType } from '@/hooks/player';
@@ -62,7 +62,9 @@ const emit = defineEmits([
   'updateLiveOrgin',
 ]);
 
-const { playerListConfig, playerList } = storeToRefs(usePlayerStore());
+const { playerListConfig, playerList, layoutIndex } = storeToRefs(
+  usePlayerStore(),
+);
 
 const show = ref(false),
   player = ref<Player | null>(null),
@@ -72,7 +74,7 @@ const show = ref(false),
   danmakuWrapRef = ref(),
   videoRef = ref<HTMLMediaElement>();
 
-let closeDanmu = () => {};
+let closeDanmu = (): any => ({});
 
 // 打开控制栏
 const openControl = () =>
@@ -105,25 +107,35 @@ function refresh() {
 function updateLiveOrgin() {
   emit('updateLiveOrgin');
 }
+
+function biliDanmu(id: number) {
+  const { close } = startListen(id, {
+    onIncomeDanmu: (msg: any) => danmakuRef.value?.insert(msg.body.content),
+  });
+  closeDanmu = close;
+}
+
+function douyuDanmu(id: string) {
+  const danmu = new DouyuDanmu(id, (msg: string) =>
+    danmakuRef.value?.insert(msg),
+  );
+  danmu.connect();
+  closeDanmu = () => {
+    danmu.ws ? danmu.ws.close() : '';
+  };
+}
+
 function danmuStart() {
+  if (playerList.value[props.name] === null) return;
+  const item = playerList.value[props.name];
+  if (item === null) return;
   closeDanmu();
   switch (playerList.value[props.name]?.platform) {
     case Platform.Bili:
-      const { close } = startListen(
-        Number(playerList.value[props.name]!.realId),
-        {
-          onIncomeDanmu: (msg) => danmakuRef.value?.insert(msg.body.content),
-        },
-      );
-      closeDanmu = close;
+      biliDanmu(Number(item.realId));
       break;
     case Platform.Douyu:
-      let danmu = new DouyuDanmu(
-        playerList.value[props.name]!.realId.toString(),
-        (msg: string) => danmakuRef.value?.insert(msg),
-      );
-      danmu.connect();
-      closeDanmu = () => danmu.ws!.close();
+      douyuDanmu(item.realId);
       break;
   }
 }
@@ -156,6 +168,10 @@ watch(
   },
 );
 
+watch(layoutIndex, () => {
+  danmakuRef.value?.resize();
+});
+
 const debouncedFn = useDebounceFn(() => {
   danmakuRef.value?.resize();
 }, 1000);
@@ -180,7 +196,7 @@ defineExpose({
 }
 .live-danmu-player {
   position: relative;
-  background: rgb(31, 31, 31);
+  background: rgb(0, 0, 0);
   display: flex;
   align-items: center;
   justify-content: center;

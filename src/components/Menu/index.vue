@@ -2,13 +2,17 @@
   <Transition name="menu">
     <div class="menu-wrap" ref="menuWrap" v-show="show">
       <div class="menu-content hide-scrollbar">
-        <div v-for="item in roomList" class="menu-content-item">
-          <MenuItem :info="item"></MenuItem>
+        <div
+          v-for="item in roomList"
+          class="menu-content-item"
+          :key="`${item.realId}@${item.platform}`"
+        >
+          <MenuItem :info="item" @drag="dragItem"></MenuItem>
         </div>
       </div>
       <div class="add">
-        <ion-button style="height: 60px" id="menuModal">添加</ion-button>
-        <ion-button style="height: 60px" id="outModal">导出 / 导出</ion-button>
+        <ion-button style="height: 36px" id="menuModal">添加</ion-button>
+        <ion-button style="height: 36px" id="outModal">导出 / 导出</ion-button>
       </div>
     </div>
   </Transition>
@@ -65,17 +69,21 @@
     <ion-content>
       <div class="padding">
         <ion-item>
-          <ion-label position="stacked">房间 ID</ion-label>
+          <ion-label position="stacked">JSON</ion-label>
           <ion-input
             ref="input"
             label=""
             type="text"
-            v-model:modelValue="data.roomId"
-            placeholder="请输入直播间的 ID"
+            v-model:modelValue="jsonData"
+            placeholder="输入JSON代码 - 导入会覆盖原数据"
           ></ion-input>
         </ion-item>
-        <ion-button style="margin-top: 10px; width: 100%">导入</ion-button>
-        <ion-button style="margin-top: 10px; width: 100%">导出</ion-button>
+        <ion-button style="margin-top: 10px; width: 100%" @click="input"
+          >导入</ion-button
+        >
+        <ion-button style="margin-top: 10px; width: 100%" @click="out"
+          >导出</ion-button
+        >
       </div>
     </ion-content>
   </ion-modal>
@@ -100,18 +108,15 @@ import { reactive, ref } from 'vue';
 import MenuItem from './item.vue';
 import { onClickOutside, useVModel } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
-import {
-  usePlayerStore,
-  type RoomListItem,
-  Platform,
-} from '@/stores/playerStore';
+import { usePlayerStore, Platform } from '@/stores/playerStore';
 import { getRoomInfo } from '@/api/getOrgin';
+import { Clipboard } from '@capacitor/clipboard';
 import '@/theme/hideScrollbar.css';
-import { useClipboard } from '@vueuse/core';
+import { toastController } from '@ionic/vue';
 
-defineOptions({ name: 'Menu' });
+defineOptions({ name: 'MenuList' });
 
-const { layoutIndex, roomList } = storeToRefs(usePlayerStore());
+const { roomList } = storeToRefs(usePlayerStore());
 const props = withDefaults(
   defineProps<{
     show: boolean;
@@ -129,31 +134,31 @@ const show = useVModel(props, 'show', emit);
 const menuModal = ref(),
   menuWrap = ref(),
   outModal = ref(),
-  code = ref('');
+  jsonData = ref('');
 
 function cancel(vn: any) {
   vn.$el.dismiss(null, 'cancel');
 }
 
 async function add() {
+  if (data.roomId === undefined) return;
   const type = data.type;
-  const roomId = data.roomId!;
+  const roomId = data.roomId;
 
   let flag = false;
-  for (let item of roomList.value) {
+  for (const item of roomList.value) {
     if (item.platform === type && roomId === item.roomId) {
       console.log(item);
 
       flag = true;
     }
   }
-  console.log(flag);
 
   if (flag) {
     return;
   }
   try {
-    let res = await getRoomInfo(roomId, type);
+    const res = await getRoomInfo(roomId, type);
     if (res === false) {
       return;
     }
@@ -177,10 +182,43 @@ async function add() {
       title: res.title,
       news: res.news,
       keyframe: res.keyframe,
+      status: res.live_status,
     });
+
+    const toast = await toastController.create({
+      message: '成功!',
+      duration: 1000,
+      position: 'top',
+    });
+    await toast.present();
   } catch (error) {
     console.log(error);
   }
+}
+
+function dragItem() {
+  show.value = false;
+}
+
+function input() {
+  try {
+    const tmp = JSON.parse(jsonData.value);
+    roomList.value = tmp;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function out() {
+  await Clipboard.write({
+    string: JSON.stringify(roomList.value),
+  });
+  const toast = await toastController.create({
+    message: '复制成功!',
+    duration: 1000,
+    position: 'top',
+  });
+  await toast.present();
 }
 
 onClickOutside(menuWrap, () => (show.value = false), {
@@ -200,7 +238,7 @@ onClickOutside(menuWrap, () => (show.value = false), {
   padding: 10px;
 }
 .menu-content {
-  height: calc(100vh - 90px);
+  height: calc(100vh - 66px);
   width: 100%;
   overflow-y: scroll;
 }
@@ -221,11 +259,11 @@ onClickOutside(menuWrap, () => (show.value = false), {
 
 .menu-enter-active,
 .menu-leave-active {
-  transition: opacity 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .menu-enter-from,
 .menu-leave-to {
-  opacity: 0;
+  transform: translateX(100%);
 }
 </style>

@@ -1,6 +1,5 @@
 import Hls from 'hls.js';
 import FlvJs from 'flv.js';
-import { ref } from 'vue';
 
 export enum ConfigType {
   Flv = 'flv',

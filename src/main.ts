@@ -26,7 +26,7 @@ import pinia from '@/stores';
 
 const app = createApp(App).use(IonicVue).use(pinia).use(router);
 
-console.warn = () => {};
+console.warn = () => ({});
 router.isReady().then(() => {
   app.mount('#app');
 });

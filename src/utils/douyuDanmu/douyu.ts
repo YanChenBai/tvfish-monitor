@@ -2,7 +2,7 @@ import { codingMessage, decodeMessage } from './douyu.codec.js';
 
 const DoyuDanmu = class {
   roomId: string;
-  ws: WebSocket | null = null;
+  ws: WebSocket | any;
   onMessage: any;
   info = null;
   timer: any;
@@ -13,20 +13,20 @@ const DoyuDanmu = class {
   }
 
   async connect() {
-    let { loginReqBuffer, joinGroupBuffer, heartbeatBuff } = this.encoding(
+    const { loginReqBuffer, joinGroupBuffer, heartbeatBuff } = this.encoding(
       this.roomId,
     );
     this.ws = new WebSocket('wss://danmuproxy.douyu.com:8506/');
     this.ws.onopen = () => {
       console.log(this.ws);
       console.log('连接成功！');
-      this.ws!.send(loginReqBuffer);
+      this.ws.send(loginReqBuffer);
       setTimeout(() => {
-        this.ws!.send(joinGroupBuffer);
+        this.ws.send(joinGroupBuffer);
       }, 1000);
 
       this.timer = setInterval(() => {
-        this.ws!.send(heartbeatBuff);
+        this.ws.send(heartbeatBuff);
       }, 45000);
     };
 
@@ -45,13 +45,13 @@ const DoyuDanmu = class {
   }
 
   encoding(roomId: string) {
-    let loginReqStr = `type@=loginreq/roomid@=${roomId}/\0`;
-    let loginReqBuffer = codingMessage(loginReqStr);
+    const loginReqStr = `type@=loginreq/roomid@=${roomId}/\0`;
+    const loginReqBuffer = codingMessage(loginReqStr);
 
-    let joinGroupStr = `type@=joingroup/rid@=${roomId}/gid@=-9999/\0`;
-    let joinGroupBuffer = codingMessage(joinGroupStr);
+    const joinGroupStr = `type@=joingroup/rid@=${roomId}/gid@=-9999/\0`;
+    const joinGroupBuffer = codingMessage(joinGroupStr);
 
-    let heartbeatBuff = codingMessage('type@=mrkl/\0');
+    const heartbeatBuff = codingMessage('type@=mrkl/\0');
     return { loginReqBuffer, joinGroupBuffer, heartbeatBuff };
   }
 };

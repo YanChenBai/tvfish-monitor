@@ -5,8 +5,9 @@ const config: CapacitorConfig = {
   appName: 'TVFISH Monitor',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
-  }
+    // androidScheme: 'https'
+    cleartext: true,
+  },
 };
 
 export default config;

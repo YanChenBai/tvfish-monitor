@@ -1,8 +1,8 @@
 const getResponseBody = require('./response.js');
-const { getUserInfo, getRoomInfo } = require('./bili_info.js');
+const { getUserInfo } = require('./bili_info.js');
 const axios = require('axios');
 
-let defParams = {
+const defParams = {
   protocol: '0,1',
   format: '0,1,2',
   codec: '0,1',
@@ -14,7 +14,7 @@ let defParams = {
 // 获取直播源
 async function getLiveInfo(roomId, qn = 10000, line = 0) {
   let res;
-  let params = { ...defParams };
+  const params = { ...defParams };
   if (line === null) {
     line = 0;
   }
@@ -25,7 +25,7 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
   }
 
   // 获取真实的房间ID
-  let roomInfoRes = await getUserInfo(roomId);
+  const roomInfoRes = await getUserInfo(roomId);
   if (roomInfoRes.code !== 200) {
     return roomInfoRes;
   }

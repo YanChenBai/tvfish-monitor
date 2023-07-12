@@ -63,7 +63,15 @@ const [, drop] = useDrop({
     if (item.type === DropType.MenuItem) {
       playerList.value[props.name] = item.info;
     } else if (item.type === DropType.PlayerDrap) {
-      console.log(item.name);
+      if (item.name === props.name) return;
+      const tmp = playerList.value[props.name];
+      if (tmp === null) {
+        playerList.value[props.name] = playerList.value[item.name];
+        playerList.value[item.name] = null;
+      } else {
+        playerList.value[props.name] = playerList.value[item.name];
+        playerList.value[item.name] = tmp;
+      }
     }
     // getOrgin(item.info.roomId, item.info.platform);
   },
@@ -113,11 +121,6 @@ async function update() {
           : ConfigType.Flv;
       qualitys.value = res.data.quality;
       lines.value = res.data.lines;
-    }
-    switch (getPlayerParams.value.platform) {
-      case Platform.Douyu:
-
-      case Platform.Bili:
     }
   }
 }
