@@ -22,6 +22,7 @@
     "@ionic/vue-router": "^7.0.0",
     "@vueuse/core": "^10.2.1",
     "axios": "^1.4.0",
+    "blive-message-listener": "^0.4.6",
     "flv.js": "^1.6.2",
     "hls.js": "^1.4.8",
     "ionicons": "^7.0.0",

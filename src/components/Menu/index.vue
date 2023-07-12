@@ -170,6 +170,7 @@ async function add() {
 
     roomList.value.push({
       roomId: roomId,
+      realId: res.room_id,
       platform: type,
       name: res.name,
       face: res.face,

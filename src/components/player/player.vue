@@ -5,10 +5,11 @@
         style="width: 100%; height: 100%"
         autoplay
         ref="danmakuRef"
-        :danmus="[]"
+        :danmus="danmus"
         :channels="5"
         :speeds="60"
         :fontSize="22"
+        extraStyle="color: rgb(63, 149, 224);text-shadow: 1px 1px 1px #000;"
       ></VueDanmuKu>
     </div>
     <div class="video-wrap">
@@ -16,65 +17,73 @@
     </div>
     <Control
       @destroy="destroy()"
-      @refresh="refresh()"
+      @refresh="updateLiveOrgin()"
       @volume-change="modifyVolume"
       v-model:show="show"
       :danmakuRef="danmakuRef"
       ref="controlRef"
-      :title="title"
       :name="name"
       :lines="lines"
       :qualitys="qualitys"
+      @qualityChange="qualityChange"
+      @lineChange="lineChange"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import VueDanmuKu from 'vue3-danmaku';
-import { onMounted, ref, watch } from 'vue';
-import { onClickOutside } from '@vueuse/core';
+import { computed, onMounted, ref, watch } from 'vue';
+import { onClickOutside, useDebounceFn } from '@vueuse/core';
 import Control from '@/components/player/control.vue';
 import { ConfigType } from '@/hooks/player';
 import Player from '@/hooks/player';
 import { QualityType, LineType } from '@/types/player';
-import { showBar } from '@/utils/barStatus';
-import { RoomListItem, usePlayerStore } from '@/stores/playerStore';
+import { Platform, usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
+import DouyuDanmu from '@/utils/douyuDanmu/douyu';
+import { startListen } from 'blive-message-listener/browser';
 
 defineOptions({ name: 'LiveDanmuPlayer' });
 
-const { playerListConfig } = storeToRefs(usePlayerStore());
-const props = withDefaults(
-  defineProps<{
-    title?: string;
-    lines: LineType[];
-    qualitys: QualityType[];
-    url: string;
-    type: ConfigType;
-    name: string;
-  }>(),
-  { title: '' },
-);
-const emit = defineEmits(['volumeChange']);
-const show = ref(false);
-const player = ref<Player | null>(null);
-const controlRef = ref<InstanceType<typeof Control>>(),
+const props = defineProps<{
+  lines: LineType[];
+  qualitys: QualityType[];
+  url: string;
+  type: ConfigType;
+  name: string;
+}>();
+
+const emit = defineEmits([
+  'qualityChange', // 清晰切换
+  'lineChange', // 线路切换
+  'updateLiveOrgin',
+]);
+
+const { playerListConfig, playerList } = storeToRefs(usePlayerStore());
+
+const show = ref(false),
+  player = ref<Player | null>(null),
+  danmus = ref([]),
+  controlRef = ref<InstanceType<typeof Control>>(),
   danmakuRef = ref<InstanceType<typeof VueDanmuKu>>(),
   danmakuWrapRef = ref(),
   videoRef = ref<HTMLMediaElement>();
+
+let closeDanmu = () => {};
 
 // 打开控制栏
 const openControl = () =>
   controlRef.value ? controlRef.value.openControl() : '';
 function destroy() {
-  player.value!.destroy();
+  if (player.value) player.value.destroy();
 }
 
 function refresh() {
   const config = {
     url: props.url,
     type: props.type,
-    defVol: playerListConfig.value[props.name].volume,
+    volume: playerListConfig.value[props.name].volume,
   };
   if (player.value === null) {
     player.value = new Player(videoRef.value!, config);
@@ -84,17 +93,47 @@ function refresh() {
   }
 }
 
+function updateLiveOrgin() {
+  emit('updateLiveOrgin');
+}
+function danmuStart() {
+  closeDanmu();
+  switch (playerList.value[props.name]?.platform) {
+    case Platform.Bili:
+      const { close } = startListen(
+        Number(playerList.value[props.name]!.realId),
+        {
+          onIncomeDanmu: (msg) => danmakuRef.value?.insert(msg.body.content),
+        },
+      );
+      closeDanmu = close;
+      break;
+    case Platform.Douyu:
+      let danmu = new DouyuDanmu(
+        playerList.value[props.name]!.realId.toString(),
+        (msg: string) => danmakuRef.value?.insert(msg),
+      );
+      danmu.connect();
+      closeDanmu = () => danmu.ws!.close();
+      break;
+  }
+}
+
 function modifyVolume(val: number) {
-  emit('volumeChange', val);
   if (player.value === null) return;
   player.value.modifyVolume(val);
+  playerListConfig.value[props.name].volume = val;
 }
+
+const qualityChange = (item: QualityType) => emit('qualityChange', item);
+const lineChange = (item: LineType) => emit('lineChange', item);
 
 onMounted(() => {
   // 关闭控制栏
   onClickOutside(danmakuWrapRef, () => controlRef.value!.closeControl(), {
     ignore: [...controlRef.value!.getIgnore()],
   });
+  setTimeout(() => danmakuRef.value?.resize(), 0);
 });
 
 // 自动切换配置
@@ -102,14 +141,22 @@ watch(
   (): [string, ConfigType] => [props.url, props.type],
   (val) => {
     if (val[0] !== '') {
-      setTimeout(() => refresh(), 0);
+      refresh();
+      danmuStart();
     }
   },
 );
 
+const debouncedFn = useDebounceFn(() => {
+  danmakuRef.value?.resize();
+}, 1000);
+
+window.addEventListener('resize', debouncedFn);
+
 // 暴露函数
 defineExpose({
-  refresh,
+  updateLiveOrgin,
+  destroy,
   modifyVolume,
 });
 </script>

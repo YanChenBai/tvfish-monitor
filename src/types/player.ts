@@ -1,8 +1,8 @@
 export interface QualityType {
   name: string;
-  line: string;
+  qn: number;
 }
 export interface LineType {
   name: string;
-  qn: string;
+  line: string | number;
 }

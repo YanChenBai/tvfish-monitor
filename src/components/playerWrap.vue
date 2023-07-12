@@ -7,7 +7,9 @@
       :name="name"
       :lines="lines"
       :qualitys="qualitys"
-      @volume-change="volumeChange"
+      @qualityChange="qualityChange"
+      @lineChange="lineChange"
+      @updateLiveOrgin="updateLiveOrgin"
       ref="player"
     />
   </div>
@@ -41,7 +43,9 @@ const title = ref(getPlayerParams.value ? getPlayerParams.value.title : ''),
   url = ref(''),
   type = ref(ConfigType.Flv),
   qualitys = ref<QualityType[]>([]),
-  lines = ref<LineType[]>([]);
+  lines = ref<LineType[]>([]),
+  quality = ref<number | null>(null),
+  line = ref<string | null | number>(null);
 
 // 创建拖拽
 const [, drag] = useDrag({
@@ -65,9 +69,13 @@ const [, drop] = useDrop({
   },
 });
 
-function volumeChange(val: number) {
-  playerListConfig.value[props.name].volume = val;
-}
+const qualityChange = (item: QualityType) => {
+  console.log(item.qn);
+
+  quality.value = item.qn;
+};
+const lineChange = (item: LineType) => (line.value = item.line);
+const updateLiveOrgin = () => update();
 
 // 获取直播源
 async function getOrgin(roomId: number, type: Platform) {
@@ -75,10 +83,10 @@ async function getOrgin(roomId: number, type: Platform) {
   let res;
   switch (type) {
     case Platform.Douyu:
-      res = await getDouyuOrgin(roomId, null, null);
+      res = await getDouyuOrgin(roomId, quality.value, line.value as string);
       break;
     case Platform.Bili:
-      res = await getBiliOrgin(roomId, null, null);
+      res = await getBiliOrgin(roomId, quality.value, line.value as number);
       break;
   }
   return res;
@@ -94,6 +102,8 @@ async function update() {
 
     if (res.code === -5) {
       title.value = res.data.title;
+      url.value = '';
+      player.value?.destroy();
     } else {
       title.value = res.data.info.title;
       url.value = res.data.url;
@@ -104,6 +114,11 @@ async function update() {
       qualitys.value = res.data.quality;
       lines.value = res.data.lines;
     }
+    switch (getPlayerParams.value.platform) {
+      case Platform.Douyu:
+
+      case Platform.Bili:
+    }
   }
 }
 
@@ -113,9 +128,12 @@ onMounted(async () => {
 });
 
 // 自动更新
-watch(getPlayerParams, async (val) => {
-  update();
-});
+watch(
+  () => [getPlayerParams.value, quality.value, line.value],
+  async () => {
+    update();
+  },
+);
 </script>
 
 <style scoped lang="scss"></style>

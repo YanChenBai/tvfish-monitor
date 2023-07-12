@@ -21,6 +21,7 @@ export interface RoomListItem {
   platform: Platform;
   name: string;
   face: string;
+  realId: string;
   title: string;
   news: string;
   keyframe: string;
