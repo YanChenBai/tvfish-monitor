@@ -2,14 +2,16 @@
   "name": "tvfish-monitor",
   "private": true,
   "version": "0.0.1",
-  "type": "module",
+  "main": "./electron.js",
+  "homepage": "./",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
-    "lint": "eslint"
+    "lint": "eslint",
+    "electron": "electron ."
   },
   "dependencies": {
     "@capacitor/android": "5.1.1",
@@ -51,7 +53,9 @@
     "typescript": "^5.1.6",
     "vite": "^4.3.9",
     "vitest": "^0.32.2",
-    "vue-tsc": "^1.0.24"
+    "vue-tsc": "^1.0.24",
+    "electron": "^24.4.0",
+    "electron-builder": "^24.4.0"
   },
   "description": "An Ionic project"
 }

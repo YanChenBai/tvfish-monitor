@@ -6,9 +6,11 @@
         autoplay
         ref="danmakuRef"
         :danmus="danmus"
-        :channels="5"
+        :channels="3"
         :speeds="60"
         :fontSize="22"
+        :debounce="200"
+        :isSuspend="true"
         extraStyle="color: rgb(63, 149, 224);text-shadow: 1px 1px 1px #000;"
       ></VueDanmuKu>
     </div>
@@ -76,7 +78,14 @@ let closeDanmu = () => {};
 const openControl = () =>
   controlRef.value ? controlRef.value.openControl() : '';
 function destroy() {
-  if (player.value) player.value.destroy();
+  if (player.value) {
+    player.value.destroy();
+    danmakuRef.value?.stop();
+    closeDanmu();
+    playerList.value[props.name] = null;
+  } else {
+    playerList.value[props.name] = null;
+  }
 }
 
 function refresh() {

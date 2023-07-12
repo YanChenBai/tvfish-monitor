@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:9889/';
+axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
 
 export async function getDouyuOrgin(
   roomId: number,

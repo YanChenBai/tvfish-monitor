@@ -130,7 +130,8 @@ function closeControl() {
 const danmuSwitch = () => {
   let tmp = !playerListConfig.value[props.name].danmu;
   playerListConfig.value[props.name].danmu = tmp;
-  tmp ? props.danmakuRef?.show() : props.danmakuRef?.hide();
+  // tmp ? props.danmakuRef?.show() : props.danmakuRef?.hide();
+  tmp ? props.danmakuRef?.play() : props.danmakuRef?.stop();
   emit('danmuSwitch', tmp);
 };
 
@@ -154,11 +155,7 @@ const lineChange = (item: LineType) => emit('lineChange', item);
 
 watchOnce(
   () => props.danmakuRef,
-  () => {
-    playerListConfig.value[props.name].danmu
-      ? props.danmakuRef?.show()
-      : props.danmakuRef?.hide();
-  },
+  () => danmuSwitch(),
 );
 
 // 暴露函数
