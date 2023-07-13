@@ -15,6 +15,7 @@
     <div
       class="live-item"
       v-for="(_index, key) in layout[layoutIndex].num"
+      :key="'player' + key"
       :style="{ 'grid-area': getPlayerCode(key) }"
     >
       <PlayerWrap
@@ -34,7 +35,7 @@ import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
 import { ref } from 'vue';
 
-defineOptions({ name: 'index' });
+defineOptions({ name: 'LayoutWrap' });
 const type = ref(null),
   url = ref('');
 const { layoutIndex, navState } = storeToRefs(usePlayerStore());
@@ -44,6 +45,7 @@ const { layoutIndex, navState } = storeToRefs(usePlayerStore());
 .live-wrap {
   display: grid;
   width: 100%;
+  transition: all 0.1s;
 }
 .live-item {
   height: 100%;

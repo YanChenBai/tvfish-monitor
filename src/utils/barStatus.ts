@@ -1,11 +1,19 @@
 import { StatusBar } from '@capacitor/status-bar';
 
 export async function hideBar() {
-  await StatusBar.hide();
-  StatusBar.setOverlaysWebView({ overlay: true });
+  try {
+    await StatusBar.hide();
+    StatusBar.setOverlaysWebView({ overlay: true });
+  } catch (error) {
+    error;
+  }
 }
 
 export async function showBar() {
-  await StatusBar.show();
-  StatusBar.setOverlaysWebView({ overlay: false });
+  try {
+    await StatusBar.show();
+    StatusBar.setOverlaysWebView({ overlay: false });
+  } catch (error) {
+    error;
+  }
 }

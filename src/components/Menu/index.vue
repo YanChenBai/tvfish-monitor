@@ -13,7 +13,9 @@
       <div class="add">
         <ion-button style="height: 36px" id="menuModal">添加</ion-button>
         <ion-button style="height: 36px" id="outModal">导出 / 入</ion-button>
-        <ion-button style="height: 36px" id="outModal">更新全部</ion-button>
+        <ion-button style="height: 36px" id="updateAll" @click="updateAll"
+          >更新全部</ion-button
+        >
       </div>
     </div>
   </Transition>
@@ -88,6 +90,12 @@
       </div>
     </ion-content>
   </ion-modal>
+  <ion-loading
+    :message="updateMessage"
+    duration="0"
+    spinner="circles"
+    :isOpen="updateLoading"
+  ></ion-loading>
 </template>
 
 <script setup lang="ts">
@@ -104,8 +112,9 @@ import {
   IonTitle,
   IonInput,
   IonItem,
+  IonLoading,
 } from '@ionic/vue';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import MenuItem from './item.vue';
 import { onClickOutside, useVModel } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
@@ -118,7 +127,8 @@ import { IMAGE_PROXY } from '@/config/proxy';
 
 defineOptions({ name: 'MenuList' });
 
-const { roomList, menuItemIsDragging } = storeToRefs(usePlayerStore());
+const playerStore = usePlayerStore();
+const { roomList } = storeToRefs(playerStore);
 const props = withDefaults(
   defineProps<{
     show: boolean;
@@ -136,7 +146,12 @@ const show = useVModel(props, 'show', emit);
 const menuModal = ref(),
   menuWrap = ref(),
   outModal = ref(),
-  jsonData = ref('');
+  jsonData = ref(''),
+  updateLoading = ref(false),
+  updateIndex = ref(0),
+  updateMessage = computed(
+    () => `加载中 ${updateIndex.value} / ${roomList.value.length}`,
+  );
 
 function cancel(vn: any) {
   vn.$el.dismiss(null, 'cancel');
@@ -206,6 +221,23 @@ async function out() {
     string: JSON.stringify(roomList.value),
   });
   await message('复制成功!');
+}
+
+async function updateAll() {
+  updateLoading.value = true;
+  updateIndex.value = 0;
+  for (let index = 0; index < roomList.value.length; index++) {
+    try {
+      await playerStore.updateRoomInfo(
+        roomList.value[index].realId,
+        roomList.value[index].platform,
+      );
+      updateIndex.value = index;
+    } catch (error) {
+      updateIndex.value = index;
+    }
+  }
+  updateLoading.value = false;
 }
 
 onClickOutside(menuWrap, () => (show.value = false), {

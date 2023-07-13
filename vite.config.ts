@@ -10,6 +10,7 @@ export default defineConfig({
   base: './',
   build: {
     assetsDir: null,
+    chunkSizeWarningLimit: 10240,
   },
   plugins: [DefineOptions(), vue(), legacy()],
   resolve: {

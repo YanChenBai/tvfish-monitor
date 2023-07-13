@@ -198,6 +198,7 @@ watch(collect, (val) => {
 }
 .keyframe img {
   width: 100%;
+  height: 155px;
   border-radius: 4px;
   user-select: none;
 }

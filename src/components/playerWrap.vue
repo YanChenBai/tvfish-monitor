@@ -23,7 +23,7 @@ import { DropType } from '@/types/drop';
 import { RoomListItem, usePlayerStore } from '@/stores/playerStore';
 import { QualityType, LineType } from '@/types/player';
 import { Platform } from '@/stores/playerStore';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
 

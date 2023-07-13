@@ -30,7 +30,6 @@ export async function getBiliOrgin(
         line ? line : ''
       }`,
     );
-    console.log(res.data);
 
     return res.data;
   } catch (error) {

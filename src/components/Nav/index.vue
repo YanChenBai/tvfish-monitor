@@ -14,7 +14,13 @@
       >
         <ion-icon :icon="peopleOutline"></ion-icon>
       </ion-button>
-      <ion-button size="small" color="light" fill="clear" @click="hideBar()">
+      <ion-button
+        size="small"
+        color="light"
+        fill="clear"
+        @click="hideBar()"
+        v-if="isPhone()"
+      >
         <ion-icon :icon="eyeOffOutline"></ion-icon>
       </ion-button>
       <ion-button
@@ -27,6 +33,7 @@
       </ion-button>
     </div>
   </div>
+
   <LayoutModal />
   <MenuPlayer v-model:show="showMenu" />
 </template>
@@ -46,6 +53,7 @@ import { ref } from 'vue';
 import { hideBar } from '@/utils/barStatus';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
+import { isPhone } from '@/utils/isMobile';
 
 defineOptions({ name: 'PlayerIndex' });
 const playerStore = usePlayerStore();
@@ -59,12 +67,12 @@ const showMenu = ref(false);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.1s;
 }
 
 .electron-drag {
   width: calc(100% - 250px);
   height: 100%;
-  transition: all 0.3s;
   -webkit-app-region: drag;
 }
 </style>

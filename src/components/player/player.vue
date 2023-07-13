@@ -168,6 +168,16 @@ watch(
   },
 );
 
+watch(
+  () => playerList.value[props.name],
+  (val) => {
+    if (val === null) {
+      player.value ? player.value.destroy() : '';
+      closeDanmu();
+    }
+  },
+);
+
 watch(layoutIndex, () => {
   danmakuRef.value?.resize();
 });
