@@ -13,13 +13,13 @@
     </div>
     <div class="info">
       <div class="name">
-        <n-ellipsis style="max-width: 180px">{{ info.name }}</n-ellipsis>
+        <n-ellipsis style="max-width: 150px">{{ info.name }}</n-ellipsis>
       </div>
       <div class="title">
-        <n-ellipsis style="max-width: 180px">{{ info.title }}</n-ellipsis>
+        <n-ellipsis style="max-width: 150px">{{ info.title }}</n-ellipsis>
       </div>
       <div class="news">
-        <n-ellipsis style="max-width: 180px">公告：{{ info.news }}</n-ellipsis>
+        <n-ellipsis style="max-width: 150px">公告：{{ info.news }}</n-ellipsis>
       </div>
     </div>
   </div>
@@ -65,15 +65,17 @@ const [, drag] = useDrag({
 <style scoped>
 .item-wrap {
   display: flex;
-  height: 80px;
+  height: 64px;
   width: 100%;
   background: rgb(56, 56, 56);
-  border-radius: 4px;
+  border-radius: 5px;
   color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
 }
 .face {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   border-radius: 4px;
   position: relative;
 }
@@ -92,13 +94,13 @@ const [, drag] = useDrag({
 }
 
 .info {
-  width: 200px;
+  width: 160px;
   padding: 0px 10px;
 }
 .title,
 .news {
   color: #bbb9b9;
-  font-size: 14px;
+  font-size: 12px;
 }
 .name {
   width: calc(100%);

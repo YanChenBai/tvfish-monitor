@@ -128,7 +128,7 @@ function closeControl() {
 }
 
 const danmuSwitch = () => {
-  let tmp = !playerListConfig.value[props.name].danmu;
+  const tmp = !playerListConfig.value[props.name].danmu;
   playerListConfig.value[props.name].danmu = tmp;
   // tmp ? props.danmakuRef?.show() : props.danmakuRef?.hide();
   tmp ? props.danmakuRef?.play() : props.danmakuRef?.stop();

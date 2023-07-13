@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
 import { getRoomInfo } from '@/api/getOrgin';
-
+import { toastController } from '@ionic/vue';
 export interface PlayerList {
   [key: string]: RoomListItem | null;
 }
@@ -61,7 +61,7 @@ export const usePlayerStore = defineStore(
     async function updateRoomInfo(roomId: string, platform: Platform) {
       const res = await getRoomInfo(Number(roomId), platform);
       if (res) {
-        alert(JSON.stringify(res));
+        // alert(JSON.stringify(res));
         const item = roomList.value.find(
           (item) => item.realId === res.room_id && item.platform === platform,
         );
@@ -73,6 +73,13 @@ export const usePlayerStore = defineStore(
         item.news = res.news;
         item.keyframe = 'https://images.weserv.nl/?url=' + res.keyframe;
         item.status = res.live_status;
+
+        const toast = await toastController.create({
+          message: '更新成功!',
+          duration: 1000,
+          position: 'top',
+        });
+        await toast.present();
       }
     }
 

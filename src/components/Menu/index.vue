@@ -239,7 +239,9 @@ onClickOutside(menuWrap, () => (show.value = false), {
 }
 .menu-content {
   height: calc(100vh - 66px);
-  width: 100%;
+  box-sizing: border-box;
+  padding-right: 50px;
+  width: calc(100%);
   overflow-y: scroll;
 }
 .menu-content-item:not(:first-child) {
