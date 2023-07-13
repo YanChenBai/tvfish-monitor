@@ -263,7 +263,7 @@ onClickOutside(menuWrap, () => (show.value = false), {
   overflow-y: scroll;
 }
 .menu-content-item:not(:first-child) {
-  margin-top: 10px;
+  margin-top: 20px;
 }
 .add {
   height: 60px;

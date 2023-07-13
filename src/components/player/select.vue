@@ -10,6 +10,7 @@
       <div
         class="player-popover-item"
         v-for="item in list"
+        :key="item.name"
         @click="selectOption(item)"
       >
         {{ item.name }}
@@ -33,11 +34,12 @@ function selectOption(val: any) {
 
 <style scoped>
 .player-popover-item {
-  padding: 2px 4px;
+  padding: 2px 10px;
   box-sizing: border-box;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
+  border-radius: 2px;
 }
 
 .player-popover-item:hover {

@@ -1,27 +1,23 @@
 <template>
-  <div class="player-popover-wrap" ref="popoverRef">
-    <div @click="showPopover()" @touchstart="showPopover()">
+  <n-popover trigger="click" :to="false" :show-arrow="false">
+    <template #trigger>
       <slot name="target"></slot>
-    </div>
-
-    <Transition name="popover">
-      <div class="player-popover" v-show="show">
-        <slot></slot>
-      </div>
-    </Transition>
-  </div>
+    </template>
+    <slot></slot>
+  </n-popover>
 </template>
 
 <script setup lang="ts">
+import { NPopover } from 'naive-ui';
 import { onClickOutside } from '@vueuse/core';
 import { ref } from 'vue';
 
 defineOptions({ name: 'PlayerPopover' });
 
-const props = withDefaults(defineProps<{ width?: string }>(), {
+withDefaults(defineProps<{ width?: string }>(), {
   width: '100px',
 });
-const width = props.width;
+
 const show = ref(false);
 const popoverRef = ref();
 

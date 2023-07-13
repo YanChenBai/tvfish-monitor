@@ -57,6 +57,15 @@
             </template>
             线路
           </PopoverSelect>
+
+          <ion-button
+            color="light"
+            fill="clear"
+            size="small"
+            @click="closeControl()"
+          >
+            <ion-icon :icon="close"></ion-icon>
+          </ion-button>
         </div>
       </div>
     </div>
@@ -64,21 +73,15 @@
 </template>
 
 <script setup lang="ts">
-import { RoomListItem, usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { NEllipsis } from 'naive-ui';
 import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
-import {
-  pause,
-  play,
-  refresh as refreshIcon,
-  volumeHigh,
-  close,
-} from 'ionicons/icons';
+import { refresh as refreshIcon, volumeHigh, close } from 'ionicons/icons';
 import { useVModel, watchOnce } from '@vueuse/core';
-import { Ref, computed, onMounted, ref, watch } from 'vue';
+import { Ref, computed, ref } from 'vue';
 import VueDanmuKu from 'vue3-danmaku';
 import { QualityType, LineType } from '@/types/player';
 

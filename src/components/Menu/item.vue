@@ -8,13 +8,28 @@
     </div>
     <div class="info">
       <div class="name">
-        <n-ellipsis class="ellipsis-width">{{ info.name }}</n-ellipsis>
+        <n-ellipsis class="ellipsis-width">
+          {{ info.name }}
+          <template #tooltip>
+            <div class="ellipsis-width">{{ info.name }}</div>
+          </template>
+        </n-ellipsis>
       </div>
       <div class="title">
-        <n-ellipsis class="ellipsis-width">{{ info.title }}</n-ellipsis>
+        <n-ellipsis class="ellipsis-width">
+          {{ info.title }}
+          <template #tooltip>
+            <div class="ellipsis-width">{{ info.title }}</div>
+          </template>
+        </n-ellipsis>
       </div>
       <div class="news">
-        <n-ellipsis class="ellipsis-width">公告：{{ info.news }}</n-ellipsis>
+        <n-ellipsis class="ellipsis-width">
+          公告：{{ info.news }}
+          <template #tooltip>
+            <div class="ellipsis-width">{{ info.news }}</div>
+          </template>
+        </n-ellipsis>
       </div>
     </div>
     <div class="drag" :ref="drag">
@@ -29,33 +44,14 @@
       >
         {{ info.platform === 'bili' ? 'b站' : '斗鱼' }}
       </div>
-      <n-config-provider
-        :theme="darkTheme"
-        :theme-overrides="{
-          common: {
-            primaryColor: '#428cff',
-            primaryColorHover: '#5598ff',
-            primaryColorPressed: '#3a7be0',
-            primaryColorSuppl: '#3a7be0',
-          },
-          Button: {
-            textColorPrimary: '#fff',
-            textColorHoverPrimary: '#fff',
-            textColorFocusPrimary: '#fff',
-            textColorDisabledPrimary: '#fff',
-          },
-        }"
-      >
-        <n-popconfirm @positive-click="remove">
-          删除
-          <template #trigger>
-            <div class="remove" @click.prevent="() => {}">
-              <ion-icon :icon="trashOutline"></ion-icon>
-            </div>
-          </template>
-        </n-popconfirm>
-      </n-config-provider>
-
+      <n-popconfirm @positive-click="remove">
+        删除
+        <template #trigger>
+          <div class="remove" @click.prevent="() => {}">
+            <ion-icon :icon="trashOutline"></ion-icon>
+          </div>
+        </template>
+      </n-popconfirm>
       <img draggable="false" :src="info.keyframe" />
     </div>
   </div>
@@ -64,12 +60,8 @@
 <script setup lang="ts">
 import { IonIcon } from '@ionic/vue';
 import { moveOutline, trashOutline } from 'ionicons/icons';
-import { NEllipsis, NPopconfirm, NConfigProvider, darkTheme } from 'naive-ui';
-import {
-  usePlayerStore,
-  Platform,
-  type RoomListItem,
-} from '@/stores/playerStore';
+import { NEllipsis, NPopconfirm } from 'naive-ui';
+import { usePlayerStore, type RoomListItem } from '@/stores/playerStore';
 import { DropType } from '@/types/drop';
 import { useDrag } from 'vue3-dnd';
 import { watch } from 'vue';
@@ -152,7 +144,7 @@ watch(collect, (val) => {
   padding: 0px 10px;
 }
 .ellipsis-width {
-  width: 156px;
+  max-width: 156px;
 }
 .title,
 .news {

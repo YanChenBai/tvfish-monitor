@@ -1,14 +1,33 @@
 <template>
   <ion-page style="height: 100vh; overflow: hidden">
-    <div
-      class="night-overlay"
-      v-if="showNightOverlay"
-      @click="showNightOverlay = false"
-    ></div>
-    <DndProvider :backend="isMobile() ? TouchBackend : HTML5Backend">
-      <NavPlayer></NavPlayer>
-      <Layout></Layout>
-    </DndProvider>
+    <n-config-provider
+      abstract
+      :theme="darkTheme"
+      :theme-overrides="{
+        common: {
+          primaryColor: '#428cff',
+          primaryColorHover: '#5598ff',
+          primaryColorPressed: '#3a7be0',
+          primaryColorSuppl: '#3a7be0',
+        },
+        Button: {
+          textColorPrimary: '#fff',
+          textColorHoverPrimary: '#fff',
+          textColorFocusPrimary: '#fff',
+          textColorDisabledPrimary: '#fff',
+        },
+      }"
+    >
+      <div
+        class="night-overlay"
+        v-if="showNightOverlay"
+        @click="showNightOverlay = false"
+      ></div>
+      <DndProvider :backend="isMobile() ? TouchBackend : HTML5Backend">
+        <NavPlayer></NavPlayer>
+        <Layout></Layout>
+      </DndProvider>
+    </n-config-provider>
   </ion-page>
 </template>
 
@@ -22,6 +41,7 @@ import { IonPage } from '@ionic/vue';
 import isMobile from '@/utils/isMobile';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
+import { NConfigProvider, darkTheme } from 'naive-ui';
 const { showNightOverlay } = storeToRefs(usePlayerStore());
 </script>
 
