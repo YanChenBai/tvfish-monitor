@@ -12,7 +12,8 @@
       </div>
       <div class="add">
         <ion-button style="height: 36px" id="menuModal">添加</ion-button>
-        <ion-button style="height: 36px" id="outModal">导出 / 导出</ion-button>
+        <ion-button style="height: 36px" id="outModal">导出 / 入</ion-button>
+        <ion-button style="height: 36px" id="outModal">更新全部</ion-button>
       </div>
     </div>
   </Transition>
@@ -112,11 +113,12 @@ import { usePlayerStore, Platform } from '@/stores/playerStore';
 import { getRoomInfo } from '@/api/getOrgin';
 import { Clipboard } from '@capacitor/clipboard';
 import '@/theme/hideScrollbar.css';
-import { toastController } from '@ionic/vue';
+import { message } from '@/utils/message';
+import { IMAGE_PROXY } from '@/config/proxy';
 
 defineOptions({ name: 'MenuList' });
 
-const { roomList } = storeToRefs(usePlayerStore());
+const { roomList, menuItemIsDragging } = storeToRefs(usePlayerStore());
 const props = withDefaults(
   defineProps<{
     show: boolean;
@@ -164,14 +166,9 @@ async function add() {
     }
 
     res.keyframe =
-      type === Platform.Bili
-        ? 'https://images.weserv.nl/?url=' + res.keyframe
-        : res.keyframe;
+      type === Platform.Bili ? IMAGE_PROXY + res.keyframe : res.keyframe;
 
-    res.face =
-      type === Platform.Bili
-        ? 'https://images.weserv.nl/?url=' + res.face
-        : res.face;
+    res.face = type === Platform.Bili ? IMAGE_PROXY + res.face : res.face;
 
     roomList.value.push({
       roomId: roomId,
@@ -185,12 +182,7 @@ async function add() {
       status: res.live_status,
     });
 
-    const toast = await toastController.create({
-      message: '成功!',
-      duration: 1000,
-      position: 'top',
-    });
-    await toast.present();
+    await message('添加成功!');
   } catch (error) {
     console.log(error);
   }
@@ -213,12 +205,7 @@ async function out() {
   await Clipboard.write({
     string: JSON.stringify(roomList.value),
   });
-  const toast = await toastController.create({
-    message: '复制成功!',
-    duration: 1000,
-    position: 'top',
-  });
-  await toast.present();
+  await message('复制成功!');
 }
 
 onClickOutside(menuWrap, () => (show.value = false), {
@@ -240,7 +227,6 @@ onClickOutside(menuWrap, () => (show.value = false), {
 .menu-content {
   height: calc(100vh - 66px);
   box-sizing: border-box;
-  padding-right: 50px;
   width: calc(100%);
   overflow-y: scroll;
 }
@@ -249,7 +235,7 @@ onClickOutside(menuWrap, () => (show.value = false), {
 }
 .add {
   height: 60px;
-  margin-top: 10px;
+  margin-top: 6px;
   display: flex;
 }
 
@@ -267,5 +253,24 @@ onClickOutside(menuWrap, () => (show.value = false), {
 .menu-enter-from,
 .menu-leave-to {
   transform: translateX(100%);
+}
+
+.remove {
+  position: absolute;
+  background-color: #ff4961;
+  box-sizing: border-box;
+  border-radius: 30px;
+  border: 2px solid #fca5b0;
+  width: 60px;
+  height: 60px;
+  z-index: 99999;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+  color: #fff;
 }
 </style>

@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
 import { getRoomInfo } from '@/api/getOrgin';
-import { toastController } from '@ionic/vue';
+import { message } from '@/utils/message';
+import { IMAGE_PROXY } from '@/config/proxy';
+
 export interface PlayerList {
   [key: string]: RoomListItem | null;
 }
@@ -37,6 +39,7 @@ export const usePlayerStore = defineStore(
     const showNightOverlay = ref(false);
     const roomList = ref<RoomListItem[]>([]);
     const menuState = ref(false);
+    const menuItemIsDragging = ref(false);
     const playerList = reactive<PlayerList>({
       a: null,
       b: null,
@@ -61,25 +64,28 @@ export const usePlayerStore = defineStore(
     async function updateRoomInfo(roomId: string, platform: Platform) {
       const res = await getRoomInfo(Number(roomId), platform);
       if (res) {
-        // alert(JSON.stringify(res));
         const item = roomList.value.find(
           (item) => item.realId === res.room_id && item.platform === platform,
         );
         if (item === undefined) return;
         item.name = res.name;
-        item.face = 'https://images.weserv.nl/?url=' + res.face;
+        item.face = IMAGE_PROXY + res.face;
         item.realId = res.room_id;
         item.title = res.title;
         item.news = res.news;
-        item.keyframe = 'https://images.weserv.nl/?url=' + res.keyframe;
+        item.keyframe = IMAGE_PROXY + res.keyframe;
         item.status = res.live_status;
 
-        const toast = await toastController.create({
-          message: '更新成功!',
-          duration: 1000,
-          position: 'top',
-        });
-        await toast.present();
+        await message('更新成功!');
+      }
+    }
+    async function removeRoom(roomId: string, platform: Platform) {
+      const findIndex = roomList.value.findIndex(
+        (item) => item.realId === roomId && item.platform === platform,
+      );
+      if (findIndex !== -1) {
+        roomList.value.splice(findIndex, 1);
+        await message('更新成功!');
       }
     }
 
@@ -91,7 +97,9 @@ export const usePlayerStore = defineStore(
       navState,
       playerListConfig,
       showNightOverlay,
+      menuItemIsDragging,
       updateRoomInfo,
+      removeRoom,
     };
   },
   {
