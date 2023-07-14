@@ -1,9 +1,17 @@
 <template>
   <Transition name="menu">
     <div class="menu-wrap" ref="menuWrap" v-show="show">
-      <div class="menu-content hide-scrollbar">
+      <div>
+        <ion-input
+          style="min-height: 26px; margin-bottom: 10px; color: #ffff"
+          color="primary"
+          placeholder="搜索主播"
+          v-model:modelValue="searchKeyWorld"
+        ></ion-input>
+      </div>
+      <div class="menu-content hide-scrollbar" ref="menuContentRef">
         <div
-          v-for="item in roomList"
+          v-for="item in searchByName"
           class="menu-content-item"
           :key="`${item.realId}@${item.platform}`"
         >
@@ -11,11 +19,22 @@
         </div>
       </div>
       <div class="add">
-        <ion-button style="height: 36px" id="menuModal">添加</ion-button>
-        <ion-button style="height: 36px" id="outModal">导出 / 入</ion-button>
-        <ion-button style="height: 36px" id="updateAll" @click="updateAll"
-          >更新全部</ion-button
-        >
+        <ion-button id="menuModal">
+          <ion-icon :icon="personAddOutline"></ion-icon>
+        </ion-button>
+        <ion-button id="outModal">
+          <ion-icon :icon="balloonOutline"></ion-icon>
+        </ion-button>
+        <ion-button id="updateAll" @click="updateAll" :disabled="updateLoading">
+          <ion-icon :icon="refresh" v-if="!updateLoading"></ion-icon>
+          <div v-else style="display: flex; align-items: center">
+            <ion-spinner name="bubbles"></ion-spinner>
+            {{ updateIndex + 1 }} / {{ roomList.length }}
+          </div>
+        </ion-button>
+        <ion-button id="updateAll" @click="goTop">
+          <ion-icon :icon="arrowUpOutline"></ion-icon>
+        </ion-button>
       </div>
     </div>
   </Transition>
@@ -90,12 +109,6 @@
       </div>
     </ion-content>
   </ion-modal>
-  <ion-loading
-    :message="updateMessage"
-    duration="0"
-    spinner="circles"
-    :isOpen="updateLoading"
-  ></ion-loading>
 </template>
 
 <script setup lang="ts">
@@ -112,9 +125,17 @@ import {
   IonTitle,
   IonInput,
   IonItem,
-  IonLoading,
+  IonIcon,
+  IonSpinner,
 } from '@ionic/vue';
+
 import { computed, reactive, ref } from 'vue';
+import {
+  personAddOutline,
+  balloonOutline,
+  arrowUpOutline,
+  refresh,
+} from 'ionicons/icons';
 import MenuItem from './item.vue';
 import { onClickOutside, useVModel } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
@@ -149,9 +170,8 @@ const menuModal = ref(),
   jsonData = ref(''),
   updateLoading = ref(false),
   updateIndex = ref(0),
-  updateMessage = computed(
-    () => `加载中 ${updateIndex.value} / ${roomList.value.length}`,
-  );
+  searchKeyWorld = ref(''),
+  menuContentRef = ref();
 
 function cancel(vn: any) {
   vn.$el.dismiss(null, 'cancel');
@@ -198,6 +218,7 @@ async function add() {
     });
 
     await message('添加成功!');
+    sortList();
   } catch (error) {
     console.log(error);
   }
@@ -231,14 +252,41 @@ async function updateAll() {
       await playerStore.updateRoomInfo(
         roomList.value[index].realId,
         roomList.value[index].platform,
+        false,
       );
       updateIndex.value = index;
     } catch (error) {
       updateIndex.value = index;
     }
   }
+  await message('更新完成!');
+  sortList();
   updateLoading.value = false;
 }
+
+function checkStatus(status: number) {
+  if (status === 1) return 1;
+  else return 0;
+}
+
+function sortList() {
+  roomList.value = roomList.value.sort((a, b) => {
+    return checkStatus(Number(b.status)) - checkStatus(Number(a.status));
+  });
+}
+
+function goTop() {
+  menuContentRef.value.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+}
+
+const searchByName = computed(() => {
+  return roomList.value.filter(
+    (item) => item.name.search(searchKeyWorld.value) !== -1,
+  );
+});
 
 onClickOutside(menuWrap, () => (show.value = false), {
   ignore: [menuModal],
@@ -252,12 +300,12 @@ onClickOutside(menuWrap, () => (show.value = false), {
   position: fixed;
   top: 0;
   right: 0;
-  background: rgba(20, 20, 20, 0.9);
+  background: rgba(20, 20, 20, 1);
   z-index: 9999;
   padding: 10px;
 }
 .menu-content {
-  height: calc(100vh - 66px);
+  height: calc(100vh - 66px - 36px);
   box-sizing: border-box;
   width: calc(100%);
   overflow-y: scroll;
@@ -267,8 +315,11 @@ onClickOutside(menuWrap, () => (show.value = false), {
 }
 .add {
   height: 60px;
-  margin-top: 6px;
   display: flex;
+  padding-top: 6px;
+  box-sizing: border-box;
+  justify-content: left;
+  align-items: top;
 }
 
 .padding {

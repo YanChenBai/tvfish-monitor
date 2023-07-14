@@ -15,7 +15,11 @@
       ></VueDanmuKu>
     </div>
     <div class="video-wrap">
-      <video ref="videoRef" autoplay></video>
+      <video
+        ref="videoRef"
+        v-show="url !== '' || url !== null || url !== undefined"
+        autoplay
+      ></video>
     </div>
     <Control
       @destroy="destroy()"

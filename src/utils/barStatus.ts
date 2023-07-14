@@ -18,5 +18,7 @@ export async function showBar() {
   }
 }
 
-export const autoHideBar = async () =>
+export const autoHideBar = async () => {
+  await hideBar();
   setInterval(async () => await hideBar(), 5000);
+};

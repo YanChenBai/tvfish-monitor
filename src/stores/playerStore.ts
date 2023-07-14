@@ -61,7 +61,11 @@ export const usePlayerStore = defineStore(
       h: { volume: 0, danmu: false },
     });
 
-    async function updateRoomInfo(roomId: string, platform: Platform) {
+    async function updateRoomInfo(
+      roomId: string,
+      platform: Platform,
+      msg = true,
+    ) {
       const res = await getRoomInfo(Number(roomId), platform);
       if (res) {
         const item = roomList.value.find(
@@ -75,8 +79,7 @@ export const usePlayerStore = defineStore(
         item.news = res.news;
         item.keyframe = IMAGE_PROXY + res.keyframe;
         item.status = res.live_status;
-
-        await message('更新成功!');
+        if (msg) await message('更新成功!');
       }
     }
     async function removeRoom(roomId: string, platform: Platform) {
