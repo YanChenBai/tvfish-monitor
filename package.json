@@ -1,8 +1,9 @@
 {
   "name": "tvfish-monitor",
+  "description": "An Ionic project",
   "private": false,
   "version": "0.0.1",
-  "main": "./electron/main.js",
+  "main": "./electron.main.js",
   "homepage": "./",
   "scripts": {
     "dev": "vite",
@@ -12,7 +13,7 @@
     "test:unit": "vitest",
     "lint": "eslint",
     "dev:electron": "electron .",
-    "build:electron": "electron-builder --config ./electron/electron.config.json",
+    "build:electron": "electron-builder --config ./electron.config.json",
     "build:web:": "ionic build",
     "build:android:": "ionic capacitor build android"
   },
@@ -67,6 +68,5 @@
     "validator": "^13.7.0",
     "electron": "^24.4.0",
     "electron-builder": "^24.4.0"
-  },
-  "description": "An Ionic project"
+  }
 }

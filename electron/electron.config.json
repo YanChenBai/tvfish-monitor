@@ -1,7 +1,0 @@
-{
-    "files": [
-        "./main.js",
-        "../dist",
-        "./server"
-    ]
-}
