@@ -81,10 +81,10 @@
             placeholder="输入JSON代码 - 导入会覆盖原数据"
           ></ion-input>
         </ion-item>
-        <ion-button style="margin-top: 10px; width: 100%" @click="input"
+        <ion-button style="margin-top: 10px; width: 100%" @click="inputData"
           >导入</ion-button
         >
-        <ion-button style="margin-top: 10px; width: 100%" @click="out"
+        <ion-button style="margin-top: 10px; width: 100%" @click="outData"
           >导出</ion-button
         >
       </div>
@@ -207,7 +207,7 @@ function dragItem() {
   show.value = false;
 }
 
-function input() {
+function inputData() {
   try {
     const tmp = JSON.parse(jsonData.value);
     roomList.value = tmp;
@@ -216,7 +216,7 @@ function input() {
   }
 }
 
-async function out() {
+async function outData() {
   await Clipboard.write({
     string: JSON.stringify(roomList.value),
   });

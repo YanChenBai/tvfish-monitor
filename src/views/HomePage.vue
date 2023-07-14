@@ -43,8 +43,23 @@ import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { NConfigProvider, darkTheme } from 'naive-ui';
 import { autoHideBar } from '@/utils/barStatus';
+import { BackgroundMode } from '@awesome-cordova-plugins/background-mode';
+
 const { showNightOverlay } = storeToRefs(usePlayerStore());
-if (isPhone()) autoHideBar();
+
+if (isPhone()) {
+  document.addEventListener(
+    'deviceready',
+    function () {
+      BackgroundMode.enable();
+      BackgroundMode.on('activate').subscribe(function () {
+        BackgroundMode.disableWebViewOptimizations();
+      });
+    },
+    false,
+  );
+  autoHideBar();
+}
 </script>
 
 <style scoped>

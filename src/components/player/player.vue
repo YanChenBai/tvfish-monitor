@@ -168,6 +168,7 @@ watch(
   },
 );
 
+// UPDATE 需要优化播放器移动后的清空逻辑 OR rewrite这个更新逻辑
 watch(
   () => playerList.value[props.name],
   (val) => {
