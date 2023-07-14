@@ -1,8 +1,9 @@
 <template>
   <div class="nav" v-show="navState">
     <div class="electron-drag"></div>
-    <div>
+    <div class="btns">
       <NightOverlay></NightOverlay>
+      <Setting></Setting>
       <ion-button color="light" fill="clear" id="layoutModal" size="small">
         <ion-icon :icon="layersOutline"></ion-icon>
       </ion-button>
@@ -23,6 +24,9 @@
       >
         <ion-icon :icon="eyeOffOutline"></ion-icon>
       </ion-button>
+      <ion-button size="small" color="light" fill="clear" id="settingModal">
+        <ion-icon :icon="settingsOutline"></ion-icon>
+      </ion-button>
       <ion-button
         size="small"
         color="light"
@@ -41,11 +45,13 @@
 <script setup lang="ts">
 import NightOverlay from './nightOverlay.vue';
 import { IonButton, IonIcon } from '@ionic/vue';
+import Setting from '@/components/nav/setting.vue';
 import {
   eyeOffOutline,
   peopleOutline,
   layersOutline,
   close,
+  settingsOutline,
 } from 'ionicons/icons';
 import LayoutModal from './preview.vue';
 import MenuPlayer from '@/components/menu/index.vue';
@@ -68,11 +74,17 @@ const showMenu = ref(false);
   align-items: center;
   justify-content: space-between;
   transition: all 0.1s;
+  overflow: hidden;
 }
 
 .electron-drag {
   width: calc(100% - 250px);
   height: 100%;
   -webkit-app-region: drag;
+}
+.btns {
+  height: 38px;
+  display: flex;
+  align-items: center;
 }
 </style>

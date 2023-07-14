@@ -19,7 +19,7 @@ import '@ionic/vue/css/text-alignment.css';
 import '@ionic/vue/css/text-transformation.css';
 import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
-
+import '@/theme/slider.css';
 /* Theme variables */
 import './theme/variables.css';
 import pinia from '@/stores';

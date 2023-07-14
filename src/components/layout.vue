@@ -2,7 +2,7 @@
   <div
     class="live-wrap"
     :style="{
-      height: navState ? ' calc(100vh - 40px)' : ' calc(100vh)',
+      height: navState ? ' calc(100vh - 38px)' : ' calc(100vh)',
       'grid-template-areas': layout[layoutIndex].area,
       'grid-template-columns': `repeat(${layout[layoutIndex].col}, ${
         100 / layout[layoutIndex].col

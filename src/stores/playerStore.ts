@@ -39,6 +39,7 @@ export const usePlayerStore = defineStore(
     const showNightOverlay = ref(false);
     const roomList = ref<RoomListItem[]>([]);
     const menuState = ref(false);
+    const nightOverlayOpacity = ref(80);
     const menuItemIsDragging = ref(false);
     const playerList = reactive<PlayerList>({
       a: null,
@@ -103,11 +104,18 @@ export const usePlayerStore = defineStore(
       menuItemIsDragging,
       updateRoomInfo,
       removeRoom,
+      nightOverlayOpacity,
     };
   },
   {
     persist: {
-      paths: ['layoutIndex', 'roomList', 'playerList', 'playerListConfig'],
+      paths: [
+        'layoutIndex',
+        'roomList',
+        'playerList',
+        'playerListConfig',
+        'nightOverlayOpacity',
+      ],
     },
   },
 );

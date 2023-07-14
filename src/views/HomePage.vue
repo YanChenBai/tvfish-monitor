@@ -16,10 +16,12 @@
           textColorFocusPrimary: '#fff',
           textColorDisabledPrimary: '#fff',
         },
+        Slider: {},
       }"
     >
       <div
         class="night-overlay"
+        :style="{ opacity: nightOverlayOpacity / 100 }"
         v-if="showNightOverlay"
         @click="showNightOverlay = false"
       ></div>
@@ -44,7 +46,7 @@ import { storeToRefs } from 'pinia';
 import { NConfigProvider, darkTheme } from 'naive-ui';
 import { autoHideBar } from '@/utils/barStatus';
 
-const { showNightOverlay } = storeToRefs(usePlayerStore());
+const { showNightOverlay, nightOverlayOpacity } = storeToRefs(usePlayerStore());
 
 if (isPhone()) {
   autoHideBar();
@@ -59,6 +61,6 @@ if (isPhone()) {
   width: 100vw;
   height: 100vh;
   z-index: 9999;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 1);
 }
 </style>

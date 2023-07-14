@@ -15,19 +15,27 @@
         </div>
         <ion-grid>
           <ion-row>
-            <template v-for="(item, index) in layout">
+            <template
+              v-for="(item, index) in layout"
+              :key="`layoutIndex_item_${index}`"
+            >
               <ion-col size="3" size-sm="3">
-                <div
-                  class="preview-item"
-                  :style="{ 'grid-template-areas': item.area }"
-                  @click="updateLayout(index)"
-                >
-                  <div class="item-num">{{ index + 1 }}</div>
+                <div class="preview-item-wrap">
                   <div
-                    v-for="key in item.num"
-                    class="preview-win"
-                    :style="{ 'grid-area': String.fromCharCode(97 + key - 1) }"
-                  ></div>
+                    class="preview-item"
+                    :style="{ 'grid-template-areas': item.area }"
+                    @click="updateLayout(index)"
+                  >
+                    <div
+                      v-for="key in item.num"
+                      :key="`layoutIndex_item_block_${index}_${key}`"
+                      class="preview-win"
+                      :style="{
+                        'grid-area': String.fromCharCode(97 + key - 1),
+                      }"
+                    ></div>
+                  </div>
+                  <div class="item-num">{{ index + 1 }}</div>
                 </div>
               </ion-col>
             </template>
@@ -82,12 +90,15 @@ function updateLayout(index: number) {
   padding-bottom: 20px;
   box-sizing: border-box;
 }
+.preview-item-wrap {
+  background: #e8e8e8;
+  border-radius: 4px;
+}
 .preview-item {
   display: grid;
   width: 100%;
   height: 70px;
-  border: 2px solid #e8e8e8;
-  background: #e8e8e8;
+  border: 2px solid rgba(0, 0, 0, 0);
   border-radius: 4px;
   cursor: pointer;
   position: relative;
@@ -106,16 +117,13 @@ function updateLayout(index: number) {
 }
 
 .item-num {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  background: white;
+  /* position: absolute; */
+  width: 100%;
   color: #3472d6;
   text-align: center;
-  line-height: 30px;
-  left: calc(50% - 15px);
-  top: calc(50% - 15px);
-  border-radius: 30px;
+  height: 20px;
+  line-height: 20px;
+  font-size: 16px;
 }
 
 .tips {

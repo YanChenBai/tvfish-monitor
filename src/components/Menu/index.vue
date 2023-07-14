@@ -23,7 +23,7 @@
           <ion-icon :icon="personAddOutline"></ion-icon>
         </ion-button>
         <ion-button id="outModal">
-          <ion-icon :icon="balloonOutline"></ion-icon>
+          <ion-icon :icon="planetOutline"></ion-icon>
         </ion-button>
         <ion-button id="updateAll" @click="updateAll" :disabled="updateLoading">
           <ion-icon :icon="refresh" v-if="!updateLoading"></ion-icon>
@@ -31,6 +31,9 @@
             <ion-spinner name="bubbles"></ion-spinner>
             {{ updateIndex + 1 }} / {{ roomList.length }}
           </div>
+        </ion-button>
+        <ion-button id="updateAll" @click="sortList">
+          <ion-icon :icon="swapVerticalOutline"></ion-icon>
         </ion-button>
         <ion-button id="updateAll" @click="goTop">
           <ion-icon :icon="arrowUpOutline"></ion-icon>
@@ -132,9 +135,10 @@ import {
 import { computed, reactive, ref } from 'vue';
 import {
   personAddOutline,
-  balloonOutline,
+  swapVerticalOutline,
   arrowUpOutline,
   refresh,
+  planetOutline,
 } from 'ionicons/icons';
 import MenuItem from './item.vue';
 import { onClickOutside, useVModel } from '@vueuse/core';
@@ -320,6 +324,7 @@ onClickOutside(menuWrap, () => (show.value = false), {
   box-sizing: border-box;
   justify-content: left;
   align-items: top;
+  justify-content: space-between;
 }
 
 .padding {
