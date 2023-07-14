@@ -22,6 +22,7 @@ import '@ionic/vue/css/display.css';
 import '@/theme/slider.css';
 /* Theme variables */
 import './theme/variables.css';
+import '@/theme/title.center.css';
 import pinia from '@/stores';
 
 const app = createApp(App).use(IonicVue).use(pinia).use(router);

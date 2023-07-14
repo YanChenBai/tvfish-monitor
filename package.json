@@ -2,7 +2,7 @@
   "name": "tvfish-monitor",
   "description": "An Ionic project",
   "private": false,
-  "version": "0.0.1",
+  "version": "2.0.0",
   "main": "./electron.main.js",
   "homepage": "./",
   "scripts": {

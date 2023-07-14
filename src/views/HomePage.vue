@@ -21,10 +21,15 @@
     >
       <div
         class="night-overlay"
-        :style="{ opacity: nightOverlayOpacity / 100 }"
+        ref="nightOverlayRef"
+        @dblclick="closeNightOverlay()"
+        :style="{ background: `rgba(0,0,0,${nightOverlayOpacity / 100})` }"
         v-if="showNightOverlay"
-        @click="showNightOverlay = false"
-      ></div>
+      >
+        <div v-show="showTips">
+          {{ isPhone() ? '长按3S关闭增强黑暗模式' : '双击关闭增强黑暗模式' }}
+        </div>
+      </div>
       <DndProvider :backend="isMobile() ? TouchBackend : HTML5Backend">
         <NavPlayer></NavPlayer>
         <Layout></Layout>
@@ -45,9 +50,34 @@ import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { NConfigProvider, darkTheme } from 'naive-ui';
 import { autoHideBar } from '@/utils/barStatus';
+import { onLongPress } from '@vueuse/core';
+import { ref, watch } from 'vue';
+import { message } from '@/utils/message';
 
 const { showNightOverlay, nightOverlayOpacity } = storeToRefs(usePlayerStore());
+const nightOverlayRef = ref(),
+  showTips = ref(false);
 
+onLongPress(nightOverlayRef, closeNightOverlay, {
+  modifiers: { prevent: true },
+  delay: 3000,
+});
+
+function closeNightOverlay() {
+  showNightOverlay.value = false;
+  message('已关闭!');
+}
+
+watch(showNightOverlay, (val) => {
+  if (val) {
+    showTips.value = true;
+    setTimeout(() => {
+      showTips.value = false;
+    }, 5000);
+  }
+});
+
+autoHideBar();
 if (isPhone()) {
   autoHideBar();
 }
@@ -62,5 +92,9 @@ if (isPhone()) {
   height: 100vh;
   z-index: 9999;
   background-color: rgba(0, 0, 0, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(156, 156, 156);
 }
 </style>

@@ -44,8 +44,8 @@
   <ion-modal ref="menuModal" trigger="menuModal">
     <ion-header>
       <ion-toolbar>
-        <ion-title>添加直播间</ion-title>
-        <ion-buttons slot="end">
+        <ion-title class="modal-title">添加直播间</ion-title>
+        <ion-buttons slot="end" class="modal-close">
           <ion-button @click="cancel(menuModal)">关闭</ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -85,8 +85,8 @@
   <ion-modal ref="outModal" trigger="outModal">
     <ion-header>
       <ion-toolbar>
-        <ion-title>添加直播间</ion-title>
-        <ion-buttons slot="end">
+        <ion-title class="modal-title">导入 / 出直播间</ion-title>
+        <ion-buttons slot="end" class="modal-close">
           <ion-button @click="cancel(outModal)">关闭</ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -108,6 +108,9 @@
         >
         <ion-button style="margin-top: 10px; width: 100%" @click="outData"
           >导出</ion-button
+        >
+        <ion-button style="margin-top: 10px; width: 100%" @click="inputDefData"
+          >导入默认数据</ion-button
         >
       </div>
     </ion-content>
@@ -149,6 +152,9 @@ import { Clipboard } from '@capacitor/clipboard';
 import '@/theme/hideScrollbar.css';
 import { message } from '@/utils/message';
 import { IMAGE_PROXY } from '@/config/proxy';
+import defRoomList from '@/config/roomList';
+import { isPhone } from '@/utils/isMobile';
+import { useBackButton } from '@ionic/vue';
 
 defineOptions({ name: 'MenuList' });
 
@@ -286,6 +292,11 @@ function goTop() {
   });
 }
 
+async function inputDefData() {
+  roomList.value = defRoomList;
+  await message('添加完成!');
+}
+
 const searchByName = computed(() => {
   return roomList.value.filter(
     (item) => item.name.search(searchKeyWorld.value) !== -1,
@@ -293,8 +304,15 @@ const searchByName = computed(() => {
 });
 
 onClickOutside(menuWrap, () => (show.value = false), {
-  ignore: [menuModal],
+  ignore: [menuModal, menuWrap, outModal],
 });
+
+if (isPhone()) {
+  // 监听系统返回
+  useBackButton(10, () => {
+    show.value = false;
+  });
+}
 </script>
 
 <style scoped>

@@ -1,9 +1,9 @@
 <template>
-  <div class="item-wrap">
+  <div
+    class="item-wrap"
+    :style="{ opacity: Number(info.status) === 1 ? '1' : '0.3' }"
+  >
     <div class="face" @click="update">
-      <div
-        :class="{ [Number(info.status) === 1 ? 'live' : 'unlive']: true }"
-      ></div>
       <img draggable="false" :src="info.face" />
     </div>
     <div class="info">
@@ -196,23 +196,23 @@ watch(collect, (val) => {
 }
 .platform {
   width: 50px;
+  height: 23px;
   position: absolute;
   left: 4px;
   top: 6px;
   text-align: center;
   background: #2080f0;
   border-radius: 4px;
-  opacity: 0.8;
 }
 .remove {
   width: 30px;
-  height: 30px;
+  height: 23px;
   position: absolute;
   font-size: 16px;
   right: 4px;
   top: 6px;
   text-align: center;
-  background: #ee3a3ada;
+  background: #ee3a3a;
   border-radius: 4px;
   display: flex;
   align-items: center;

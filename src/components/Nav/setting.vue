@@ -2,8 +2,8 @@
   <ion-modal ref="settingModal" trigger="settingModal">
     <ion-header>
       <ion-toolbar>
-        <ion-title> 设置 </ion-title>
-        <ion-buttons slot="end">
+        <ion-title class="modal-title"> 设置 </ion-title>
+        <ion-buttons slot="end" class="modal-close">
           <ion-button @click="cancel()">关闭</ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -16,6 +16,7 @@
           </div>
           <div>
             <vue-slider
+              :min="40"
               v-model="nightOverlayOpacity"
               tooltip="none"
             ></vue-slider>

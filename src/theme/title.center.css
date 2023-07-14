@@ -1,0 +1,9 @@
+.modal-title {
+  width: 100%;
+  text-align: center;
+}
+
+.modal-close {
+  position: absolute;
+  right: 10px;
+}

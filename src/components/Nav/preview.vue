@@ -2,8 +2,8 @@
   <ion-modal ref="layoutModal" trigger="layoutModal">
     <ion-header>
       <ion-toolbar>
-        <ion-title> 布局 </ion-title>
-        <ion-buttons slot="end">
+        <ion-title class="modal-title"> 布局 </ion-title>
+        <ion-buttons slot="end" class="modal-close">
           <ion-button @click="cancel()">关闭</ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -19,8 +19,11 @@
               v-for="(item, index) in layout"
               :key="`layoutIndex_item_${index}`"
             >
-              <ion-col size="3" size-sm="3">
-                <div class="preview-item-wrap">
+              <ion-col size="4" size-sm="3">
+                <div
+                  class="preview-item-wrap"
+                  :class="{ current: layoutIndex === index }"
+                >
                   <div
                     class="preview-item"
                     :style="{ 'grid-template-areas': item.area }"
@@ -35,7 +38,10 @@
                       }"
                     ></div>
                   </div>
-                  <div class="item-num">{{ index + 1 }}</div>
+                  <div class="item-num">
+                    <div class="num">{{ index + 1 }}</div>
+                    <div class="win-num">{{ item.num }}win</div>
+                  </div>
                 </div>
               </ion-col>
             </template>
@@ -91,47 +97,60 @@ function updateLayout(index: number) {
   box-sizing: border-box;
 }
 .preview-item-wrap {
-  background: #e8e8e8;
+  background: #4b4b4b;
   border-radius: 4px;
+  padding-bottom: 4px;
 }
 .preview-item {
   display: grid;
   width: 100%;
   height: 70px;
-  border: 2px solid rgba(0, 0, 0, 0);
+  padding: 2px;
   border-radius: 4px;
   cursor: pointer;
   position: relative;
   box-sizing: border-box;
 }
 
-.preview-item:hover .preview-win {
-  background: rgb(76, 129, 214);
+.preview-item-wrap:hover .preview-win,
+.preview-item-wrap:hover .num {
+  background: #252525;
+}
+.preview-item-wrap:hover .item-num {
+  color: #252525;
 }
 
 .preview-win {
   transition: all 0.3s;
-  border: 1px solid #fff;
+  margin: 2px;
   border-radius: 4px;
-  background: #2e62b6;
+  background: #121212;
 }
 
 .item-num {
-  /* position: absolute; */
   width: 100%;
-  color: #3472d6;
+  color: #121212;
   text-align: center;
   height: 20px;
   line-height: 20px;
   font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+  transition: all 0.3s;
 }
 
-.tips {
-  font-size: 12px;
+.num {
+  width: 20px;
+  height: 20px;
+  background: #292929;
+  border-radius: 10px;
+  color: #575757;
+  transition: all 0.3s;
 }
 
-.tips .underline {
-  color: #18a058;
-  text-decoration-line: underline;
+.current {
+  filter: brightness(1.7);
 }
 </style>
