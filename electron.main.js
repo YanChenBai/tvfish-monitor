@@ -1,5 +1,5 @@
 const { app, BrowserWindow, Menu } = require('electron');
-const { startServers } = require('./server/servers');
+const { startServers } = require('./server/servers.js');
 const path = require('path');
 let win;
 
@@ -15,7 +15,7 @@ function createWindow() {
 
   // 关闭菜单栏
   Menu.setApplicationMenu(null);
-  win.loadFile(path.resolve(__dirname, '../dist/index.html'));
+  win.loadFile(path.resolve(__dirname, './dist/index.html'));
 }
 
 // 确保窗口被关闭
