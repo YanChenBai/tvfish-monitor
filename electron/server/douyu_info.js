@@ -5,9 +5,9 @@ const axios = require('axios');
 async function getRealId(roomId) {
   let res = await axios.get('https://m.douyu.com/' + roomId);
   res = res.data;
-  let tmp_str = res.toString().match(/"rid":(\d{1,8}),"vipId"/g);
+  const tmp_str = res.toString().match(/"rid":(\d{1,8}),"vipId"/g);
   if (tmp_str) {
-    let realId = JSON.parse(`{${tmp_str}:123}`).rid;
+    const realId = JSON.parse(`{${tmp_str}:123}`).rid;
     return realId;
   } else {
     return null;
@@ -17,10 +17,10 @@ async function getRealId(roomId) {
 // 获取主播信息
 async function getUserInfoDouyu(roomId) {
   try {
-    let realId = await getRealId(roomId);
+    const realId = await getRealId(roomId);
     if (realId === null) return getResponseBody(404, '没找到对应主播！');
 
-    let res = await axios({
+    const res = await axios({
       method: 'get',
       url: `https://www.douyu.com/swf_api/h5room/${realId}`,
     });
@@ -38,7 +38,6 @@ async function getUserInfoDouyu(roomId) {
     };
     return getResponseBody(200, '请求成功！', reqData);
   } catch (err) {
-    console.log(err);
     return getResponseBody(500, '请求错误！', err);
   }
 }

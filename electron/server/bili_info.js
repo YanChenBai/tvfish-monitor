@@ -5,13 +5,13 @@ const axios = require('axios');
 async function getUserInfo(rooomId) {
   try {
     const res = await getRoomInfo(rooomId);
-    let userData = await axios.get(
-      `https://api.live.bilibili.com/live_user/v1/Master/info?uid=${res.data.uid}`
+    const userData = await axios.get(
+      `https://api.live.bilibili.com/live_user/v1/Master/info?uid=${res.data.uid}`,
     );
     const data = userData.data.data;
 
     if (userData.data.code === 0) {
-      let user_info = {
+      const user_info = {
         face: data.info.face,
         name: data.info.uname,
         news: data.room_news.content,
@@ -21,7 +21,6 @@ async function getUserInfo(rooomId) {
       return getResponseBody(500, '请求错误！');
     }
   } catch (e) {
-    console.log(e);
     return getResponseBody(500, '请求错误！');
   }
 }
@@ -29,14 +28,15 @@ async function getUserInfo(rooomId) {
 // 获取房间数据
 async function getRoomInfo(roomId) {
   try {
-    let res = await axios({
+    const res = await axios({
       method: 'GET',
       url: 'https://api.live.bilibili.com/room/v1/Room/get_info',
       params: {
         id: roomId,
       },
     });
-    const { uid, room_id, short_id, live_status, title, keyframe } = res.data.data;
+    const { uid, room_id, short_id, live_status, title, keyframe } =
+      res.data.data;
     if (res.data.code === 0) {
       return getResponseBody(200, '请求成功！', {
         uid,
@@ -50,7 +50,6 @@ async function getRoomInfo(roomId) {
       return getResponseBody(500, '请求错误！');
     }
   } catch (err) {
-    console.log(err);
     return getResponseBody(500, '请求错误！');
   }
 }

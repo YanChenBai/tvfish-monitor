@@ -77,7 +77,6 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
       info: roomInfoRes.data,
     });
   } catch (e) {
-    console.log(e);
     return getResponseBody(500, '请求错误！');
   }
 }

@@ -6,11 +6,11 @@ const { getUserInfoDouyu } = require('./douyu_info.js');
 
 // 获取真实url
 async function getRealUrl(roomId, qn = null, line = null) {
-  let did = '10000000000000000000000000001501';
-  let t10 = parseInt(new Date().getTime() / 1000).toString();
-  let t13 = new Date().getTime().toString();
-  let cdn = 'ws-h5';
-  let rate = 0;
+  const did = '10000000000000000000000000001501';
+  const t10 = parseInt(new Date().getTime() / 1000).toString();
+  const t13 = new Date().getTime().toString();
+  const cdn = 'ws-h5';
+  const rate = 0;
   if (!qn) {
     qn = rate;
   }
@@ -26,15 +26,17 @@ async function getRealUrl(roomId, qn = null, line = null) {
   const roomInfo = await getUserInfoDouyu(roomId);
   const realId = roomInfo.data.room_id;
 
-  let res = await axios.get('https://www.douyu.com/' + realId);
-  let result = res.data.match(/(vdwdae325w_64we[\s\S]*function ub98484234[\s\S]*?)function/);
-  let func_ub9 = result[1].replace(/eval.*?;}/g, 'strc;}');
+  const res = await axios.get('https://www.douyu.com/' + realId);
+  const result = res.data.match(
+    /(vdwdae325w_64we[\s\S]*function ub98484234[\s\S]*?)function/,
+  );
+  const func_ub9 = result[1].replace(/eval.*?;}/g, 'strc;}');
 
   let fun = executeStrJs(func_ub9, ['ub98484234']);
-  let js_res = fun.ub98484234();
+  const js_res = fun.ub98484234();
 
-  let v = js_res.match(/v=(\d+)/)[1];
-  let rb = md5(`${realId}${did}${t10}${v}`);
+  const v = js_res.match(/v=(\d+)/)[1];
+  const rb = md5(`${realId}${did}${t10}${v}`);
 
   let func_sign = js_res.replace(/return rt;}\);?/g, 'return rt;}');
   func_sign = func_sign.replace('(function (', 'function sign(');
@@ -44,24 +46,24 @@ async function getRealUrl(roomId, qn = null, line = null) {
   let params = fun.sign(realId, did, t10);
   params += `&cdn=${line}&rate=${qn}`;
 
-  let url = `https://www.douyu.com/lapi/live/getH5Play/${realId}?${params}`;
-  let resInfo = await axios({ method: 'POST', url });
+  const url = `https://www.douyu.com/lapi/live/getH5Play/${realId}?${params}`;
+  const resInfo = await axios({ method: 'POST', url });
 
   if (resInfo.data.error === 0) {
-    let data = resInfo.data.data;
-    let liveUrl = `${data['rtmp_url']}/${data['rtmp_live']}`;
-    let quality = [];
-    for (let item of data['multirates']) {
+    const data = resInfo.data.data;
+    const liveUrl = `${data['rtmp_url']}/${data['rtmp_live']}`;
+    const quality = [];
+    for (const item of data['multirates']) {
       quality.push({
         name: item.name,
         qn: item.rate,
       });
     }
-    const lines = data['cdnsWithName'].map(item => ({
+    const lines = data['cdnsWithName'].map((item) => ({
       name: item.name,
       line: item.cdn,
     }));
-    let reqData = {
+    const reqData = {
       quality,
       url: liveUrl,
       line: data['rtmp_cdn'],
