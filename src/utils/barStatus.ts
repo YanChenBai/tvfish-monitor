@@ -17,3 +17,6 @@ export async function showBar() {
     error;
   }
 }
+
+export const autoHideBar = async () =>
+  setInterval(async () => await hideBar(), 5000);

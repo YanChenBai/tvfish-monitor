@@ -38,11 +38,13 @@ import { DndProvider } from 'vue3-dnd';
 import NavPlayer from '@/components/nav/index.vue';
 import Layout from '@/components/layout.vue';
 import { IonPage } from '@ionic/vue';
-import isMobile from '@/utils/isMobile';
+import isMobile, { isPhone } from '@/utils/isMobile';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { NConfigProvider, darkTheme } from 'naive-ui';
+import { autoHideBar } from '@/utils/barStatus';
 const { showNightOverlay } = storeToRefs(usePlayerStore());
+if (isPhone()) autoHideBar();
 </script>
 
 <style scoped>

@@ -14,7 +14,6 @@
     "electron": "electron ."
   },
   "dependencies": {
-    "@awesome-cordova-plugins/background-mode": "^6.4.0",
     "@capacitor/android": "5.1.1",
     "@capacitor/app": "5.0.5",
     "@capacitor/clipboard": "^5.0.5",
@@ -27,6 +26,7 @@
     "@vueuse/core": "^10.2.1",
     "axios": "^1.4.0",
     "blive-message-listener": "^0.4.6",
+    "cordova-plugin-device": "^2.1.0",
     "flv.js": "^1.6.2",
     "hls.js": "^1.4.8",
     "ionicons": "^7.0.0",
