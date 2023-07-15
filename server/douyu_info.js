@@ -22,18 +22,25 @@ async function getUserInfoDouyu(roomId) {
 
     const res = await axios({
       method: 'get',
-      url: `https://www.douyu.com/swf_api/h5room/${realId}`,
+      url: `https://www.douyu.com/betard/${realId}`,
     });
-    const data = res.data.data;
+    const data = res.data.room;
+    let status = 0;
+    if (data.show_status === 2) {
+      status === 0;
+    } else if (data.show_status === 1) {
+      status = data.videoLoop === 1 ? 2 : 1;
+    }
     const reqData = {
       face: data.owner_avatar,
       news: data.show_details,
       name: data.nickname,
-      uid: data.owner_uid,
-      room_id: data.room_id,
-      live_status: data.show_status,
+      roomId: Number(data.room_id),
+      shortId: data.vipId,
+      status,
       title: data.room_name,
-      keyframe: data.room_src,
+      keyframe: data.room_pic,
+      platform: 'douyu',
     };
     return getResponseBody(200, '请求成功！', reqData);
   } catch (err) {

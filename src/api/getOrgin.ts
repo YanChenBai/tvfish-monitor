@@ -1,7 +1,8 @@
+import { RoomListItem } from '@/types/player';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
-// axios.defaults.baseURL = 'http://localhost:9000/';
+// axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
+axios.defaults.baseURL = 'http://192.168.3.67:8200/';
 
 export async function getDouyuOrgin(
   roomId: number,
@@ -38,22 +39,10 @@ export async function getBiliOrgin(
   }
 }
 
-interface RoomInfo {
-  face: string;
-  keyframe: string;
-  live_status: number;
-  name: string;
-  news: string;
-  room_id: string;
-  short_id: string;
-  title: string;
-  uid: number;
-}
-
 export async function getRoomInfo(
   roomId: number,
   type: string,
-): Promise<RoomInfo | false> {
+): Promise<RoomListItem | false> {
   try {
     const res = await axios(`/getRoomInfo?roomId=${roomId}&type=${type}`);
     return res.data.data;

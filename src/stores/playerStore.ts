@@ -3,33 +3,12 @@ import { reactive, ref } from 'vue';
 import { getRoomInfo } from '@/api/getOrgin';
 import { message } from '@/utils/message';
 import { IMAGE_PROXY } from '@/config/proxy';
-
-export interface PlayerList {
-  [key: string]: RoomListItem | null;
-}
-interface PlayerItemConfig {
-  volume: number;
-  danmu: boolean;
-}
-export interface PlayerListConfig {
-  [key: string]: PlayerItemConfig;
-}
-
-export enum Platform {
-  Douyu = 'douyu',
-  Bili = 'bili',
-}
-export interface RoomListItem {
-  roomId: number;
-  platform: Platform;
-  name: string;
-  face: string;
-  realId: string;
-  title: string;
-  news: string;
-  keyframe: string;
-  status: number;
-}
+import {
+  RoomListItem,
+  PlayerList,
+  PlayerConfigList,
+  Platform,
+} from '@/types/player';
 
 export const usePlayerStore = defineStore(
   'player',
@@ -51,7 +30,7 @@ export const usePlayerStore = defineStore(
       g: null,
       h: null,
     });
-    const playerListConfig = reactive<PlayerListConfig>({
+    const playerListConfig = reactive<PlayerConfigList>({
       a: { volume: 0, danmu: false },
       b: { volume: 0, danmu: false },
       c: { volume: 0, danmu: false },
@@ -62,30 +41,68 @@ export const usePlayerStore = defineStore(
       h: { volume: 0, danmu: false },
     });
 
+    async function addRoom(roomId: number, type: Platform) {
+      try {
+        const res = await getRoomInfo(roomId, type);
+        if (res === false) {
+          return;
+        }
+
+        for (const item of roomList.value) {
+          if (item.platform === res.platform && res.roomId === item.roomId) {
+            await message('直播间已经添加了!');
+            return;
+          }
+        }
+
+        res.keyframe =
+          type === Platform.Bili ? IMAGE_PROXY + res.keyframe : res.keyframe;
+
+        res.face = type === Platform.Bili ? IMAGE_PROXY + res.face : res.face;
+
+        roomList.value.push({
+          roomId: res.roomId,
+          platform: res.platform,
+          name: res.name,
+          face: res.face,
+          title: res.title,
+          news: res.news,
+          keyframe: res.keyframe,
+          status: res.status,
+          shortId: res.shortId,
+        });
+
+        await message('添加成功!');
+      } catch (error) {
+        error;
+      }
+    }
+
     async function updateRoomInfo(
-      roomId: string,
+      roomId: number,
       platform: Platform,
       msg = true,
     ) {
-      const res = await getRoomInfo(Number(roomId), platform);
+      const res = await getRoomInfo(roomId, platform);
       if (res) {
         const item = roomList.value.find(
-          (item) => item.realId === res.room_id && item.platform === platform,
+          (item) => item.roomId === res.roomId && item.platform === platform,
         );
         if (item === undefined) return;
         item.name = res.name;
         item.face = IMAGE_PROXY + res.face;
-        item.realId = res.room_id;
+        item.roomId = res.roomId;
         item.title = res.title;
         item.news = res.news;
         item.keyframe = IMAGE_PROXY + res.keyframe;
-        item.status = res.live_status;
+        item.status = res.status;
         if (msg) await message('更新成功!');
       }
     }
-    async function removeRoom(roomId: string, platform: Platform) {
+
+    async function removeRoom(roomId: number, platform: Platform) {
       const findIndex = roomList.value.findIndex(
-        (item) => item.realId === roomId && item.platform === platform,
+        (item) => item.roomId === roomId && item.platform === platform,
       );
       if (findIndex !== -1) {
         roomList.value.splice(findIndex, 1);
@@ -104,6 +121,7 @@ export const usePlayerStore = defineStore(
       menuItemIsDragging,
       updateRoomInfo,
       removeRoom,
+      addRoom,
       nightOverlayOpacity,
     };
   },

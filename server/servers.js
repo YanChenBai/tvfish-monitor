@@ -19,6 +19,7 @@ router.get('/getLiveInfo', async (ctx) => {
   const type = ctx.query.type;
   const qn = ctx.query.qn ? ctx.query.qn : null;
   const line = ctx.query.line ? ctx.query.line : null;
+
   if (type === 'bili') {
     ctx.body = await getLiveInfo(roomId, qn, line);
   } else if (type === 'douyu') {
@@ -43,5 +44,5 @@ function startServers(port) {
 
   app.listen(port, () => ({}));
 }
-
+startServers(8200);
 module.exports = { startServers };

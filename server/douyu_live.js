@@ -8,7 +8,7 @@ const { getUserInfoDouyu } = require('./douyu_info.js');
 async function getRealUrl(roomId, qn = null, line = null) {
   const did = '10000000000000000000000000001501';
   const t10 = parseInt(new Date().getTime() / 1000).toString();
-  const t13 = new Date().getTime().toString();
+  const _t13 = new Date().getTime().toString();
   const cdn = 'ws-h5';
   const rate = 0;
   if (!qn) {
@@ -24,7 +24,7 @@ async function getRealUrl(roomId, qn = null, line = null) {
   :return: JSON格式
   `;
   const roomInfo = await getUserInfoDouyu(roomId);
-  const realId = roomInfo.data.room_id;
+  const realId = roomInfo.data.roomId;
 
   const res = await axios.get('https://www.douyu.com/' + realId);
   const result = res.data.match(

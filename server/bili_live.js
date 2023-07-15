@@ -61,7 +61,7 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
       qn: item.qn,
       name: item.desc,
     }));
-    const lines = codec.url_info.map((item, index) => ({
+    const lines = codec.url_info.map((_item, index) => ({
       name: `线路${index + 1}`,
       line: index,
     }));

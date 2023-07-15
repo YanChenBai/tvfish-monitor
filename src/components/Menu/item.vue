@@ -61,10 +61,11 @@
 import { IonIcon } from '@ionic/vue';
 import { moveOutline, trashOutline } from 'ionicons/icons';
 import { NEllipsis, NPopconfirm } from 'naive-ui';
-import { usePlayerStore, type RoomListItem } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/playerStore';
 import { DropType } from '@/types/drop';
 import { useDrag } from 'vue3-dnd';
 import { watch } from 'vue';
+import { RoomListItem } from '@/types/player';
 
 defineOptions({ name: 'MenuItem' });
 
@@ -75,11 +76,11 @@ const props = defineProps<{
 }>();
 
 function update() {
-  playerStore.updateRoomInfo(props.info.realId, props.info.platform);
+  playerStore.updateRoomInfo(props.info.roomId, props.info.platform);
 }
 
 function remove() {
-  playerStore.removeRoom(props.info.realId, props.info.platform);
+  playerStore.removeRoom(props.info.roomId, props.info.platform);
 }
 
 // 创建拖拽

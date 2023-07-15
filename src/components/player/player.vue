@@ -44,8 +44,8 @@ import { onClickOutside, useDebounceFn } from '@vueuse/core';
 import Control from '@/components/player/control.vue';
 import { ConfigType } from '@/hooks/player';
 import Player from '@/hooks/player';
-import { QualityType, LineType } from '@/types/player';
-import { Platform, usePlayerStore } from '@/stores/playerStore';
+import { QualityType, LineType, Platform } from '@/types/player';
+import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import DouyuDanmu from '@/utils/douyuDanmu/douyu';
 import { startListen } from 'blive-message-listener/browser';
@@ -119,7 +119,7 @@ function biliDanmu(id: number) {
   closeDanmu = close;
 }
 
-function douyuDanmu(id: string) {
+function douyuDanmu(id: number) {
   const danmu = new DouyuDanmu(id, (msg: string) =>
     danmakuRef.value?.insert(msg),
   );
@@ -136,10 +136,10 @@ function danmuStart() {
   closeDanmu();
   switch (playerList.value[props.name]?.platform) {
     case Platform.Bili:
-      biliDanmu(Number(item.realId));
+      biliDanmu(item.roomId);
       break;
     case Platform.Douyu:
-      douyuDanmu(item.realId);
+      douyuDanmu(item.roomId);
       break;
   }
 }

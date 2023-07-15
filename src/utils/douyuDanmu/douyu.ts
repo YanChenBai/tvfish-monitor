@@ -1,13 +1,13 @@
 import { codingMessage, decodeMessage } from './douyu.codec.js';
 
 const DoyuDanmu = class {
-  roomId: string;
+  roomId: number;
   ws: WebSocket | any;
   onMessage: any;
   info = null;
   timer: any;
 
-  constructor(roomId: string, onMessage: any) {
+  constructor(roomId: number, onMessage: any) {
     this.roomId = roomId;
     this.onMessage = onMessage;
   }
@@ -44,7 +44,7 @@ const DoyuDanmu = class {
     this.ws.onerror = (msg: any) => console.log(msg);
   }
 
-  encoding(roomId: string) {
+  encoding(roomId: number) {
     const loginReqStr = `type@=loginreq/roomid@=${roomId}/\0`;
     const loginReqBuffer = codingMessage(loginReqStr);
 

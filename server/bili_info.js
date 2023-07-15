@@ -4,9 +4,9 @@ const axios = require('axios');
 // 获取用户信息
 async function getUserInfo(rooomId) {
   try {
-    const res = await getRoomInfo(rooomId);
+    const roomInfo = await getRoomInfo(rooomId);
     const userData = await axios.get(
-      `https://api.live.bilibili.com/live_user/v1/Master/info?uid=${res.data.uid}`,
+      `https://api.live.bilibili.com/live_user/v1/Master/info?uid=${roomInfo.uid}`,
     );
     const data = userData.data.data;
 
@@ -15,8 +15,10 @@ async function getUserInfo(rooomId) {
         face: data.info.face,
         name: data.info.uname,
         news: data.room_news.content,
+        platform: 'bili',
       };
-      return getResponseBody(200, 'Ok.', { ...user_info, ...res.data });
+      delete roomInfo['uid'];
+      return getResponseBody(200, 'Ok.', { ...user_info, ...roomInfo });
     } else {
       return getResponseBody(500, '请求错误！');
     }
@@ -27,32 +29,29 @@ async function getUserInfo(rooomId) {
 
 // 获取房间数据
 async function getRoomInfo(roomId) {
-  try {
-    const res = await axios({
-      method: 'GET',
-      url: 'https://api.live.bilibili.com/room/v1/Room/get_info',
-      params: {
-        id: roomId,
-      },
-    });
-    const { uid, room_id, live_status, title, keyframe } = res.data.data;
-    if (res.data.code === 0) {
-      return getResponseBody(200, '请求成功！', {
-        uid,
-        room_id,
-        live_status,
-        title,
-        keyframe,
-      });
-    } else {
-      return getResponseBody(500, '请求错误！');
-    }
-  } catch (err) {
-    return getResponseBody(500, '请求错误！');
+  const res = await axios({
+    method: 'GET',
+    url: 'https://api.live.bilibili.com/room/v1/Room/get_info',
+    params: {
+      id: roomId,
+    },
+  });
+  const { room_id, live_status, title, keyframe, uid, short_id } =
+    res.data.data;
+  if (res.data.code === 0) {
+    return {
+      uid,
+      roomId: room_id,
+      shortId: short_id,
+      status: live_status,
+      title,
+      keyframe,
+    };
+  } else {
+    throw new Error('请求错误');
   }
 }
 
 module.exports = {
   getUserInfo,
-  getRoomInfo,
 };

@@ -13,7 +13,7 @@
         <div
           v-for="item in searchByName"
           class="menu-content-item"
-          :key="`${item.realId}@${item.platform}`"
+          :key="`${item.roomId}@${item.platform}`"
         >
           <MenuItem :info="item" @drag="dragItem"></MenuItem>
         </div>
@@ -115,8 +115,6 @@
 <script setup lang="ts">
 import {
   IonButtons,
-  IonSelect,
-  IonSelectOption,
   IonButton,
   IonModal,
   IonLabel,
@@ -143,15 +141,14 @@ import {
 import MenuItem from './item.vue';
 import { onClickOutside, useVModel } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
-import { usePlayerStore, Platform } from '@/stores/playerStore';
-import { getRoomInfo } from '@/api/getOrgin';
+import { usePlayerStore } from '@/stores/playerStore';
 import { Clipboard } from '@capacitor/clipboard';
 import '@/theme/hideScrollbar.css';
 import { message } from '@/utils/message';
-import { IMAGE_PROXY } from '@/config/proxy';
 import defRoomList from '@/config/roomList';
 import { isPhone } from '@/utils/isMobile';
 import { useBackButton } from '@ionic/vue';
+import { Platform } from '@/types/player';
 
 defineOptions({ name: 'MenuList' });
 
@@ -165,7 +162,10 @@ const props = withDefaults(
     show: false,
   },
 );
-const data = reactive({
+const data = reactive<{
+  roomId: number | undefined;
+  type: Platform;
+}>({
   roomId: undefined,
   type: Platform.Bili,
 });
@@ -173,7 +173,6 @@ const emit = defineEmits(['update:show']);
 const show = useVModel(props, 'show', emit);
 const menuModal = ref(),
   menuWrap = ref(),
-  selectRef = ref(),
   outModal = ref(),
   jsonData = ref(''),
   updateLoading = ref(false),
@@ -190,42 +189,8 @@ async function add() {
   const type = data.type;
   const roomId = data.roomId;
 
-  let flag = false;
-  for (const item of roomList.value) {
-    if (item.platform === type && roomId === item.roomId) {
-      console.log(item);
-
-      flag = true;
-    }
-  }
-
-  if (flag) {
-    return;
-  }
   try {
-    const res = await getRoomInfo(roomId, type);
-    if (res === false) {
-      return;
-    }
-
-    res.keyframe =
-      type === Platform.Bili ? IMAGE_PROXY + res.keyframe : res.keyframe;
-
-    res.face = type === Platform.Bili ? IMAGE_PROXY + res.face : res.face;
-
-    roomList.value.push({
-      roomId: roomId,
-      realId: res.room_id,
-      platform: type,
-      name: res.name,
-      face: res.face,
-      title: res.title,
-      news: res.news,
-      keyframe: res.keyframe,
-      status: res.live_status,
-    });
-
-    await message('添加成功!');
+    await playerStore.addRoom(roomId, type);
     sortList();
   } catch (error) {
     console.log(error);
@@ -258,7 +223,7 @@ async function updateAll() {
   for (let index = 0; index < roomList.value.length; index++) {
     try {
       await playerStore.updateRoomInfo(
-        roomList.value[index].realId,
+        roomList.value[index].roomId,
         roomList.value[index].platform,
         false,
       );
@@ -302,7 +267,7 @@ const searchByName = computed(() => {
 });
 
 onClickOutside(menuWrap, () => (show.value = false), {
-  ignore: [menuModal, menuWrap, outModal, selectRef],
+  ignore: [menuModal, menuWrap, outModal],
 });
 
 if (isPhone()) {
