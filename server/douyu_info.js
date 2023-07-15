@@ -31,7 +31,6 @@ async function getUserInfoDouyu(roomId) {
       name: data.nickname,
       uid: data.owner_uid,
       room_id: data.room_id,
-      short_id: roomId,
       live_status: data.show_status,
       title: data.room_name,
       keyframe: data.room_src,

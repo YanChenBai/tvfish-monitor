@@ -62,19 +62,14 @@
             placeholder="请输入直播间的 ID"
           ></ion-input>
         </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">房间 ID</ion-label>
-          <ion-select
-            placeholder="直播平台"
-            v-model:modelValue="data.type"
-            label=""
-          >
-            <ion-select-option value="douyu">斗鱼</ion-select-option>
-            <ion-select-option value="bili">b站</ion-select-option>
-          </ion-select>
-        </ion-item>
-
+        <ion-radio-group v-model:modelValue="data.type">
+          <ion-item>
+            <ion-radio value="bili">B站</ion-radio>
+          </ion-item>
+          <ion-item>
+            <ion-radio value="douyu">斗鱼</ion-radio>
+          </ion-item>
+        </ion-radio-group>
         <ion-button style="margin-top: 20px; width: 100%" @click="add()"
           >添加</ion-button
         >
@@ -133,6 +128,8 @@ import {
   IonItem,
   IonIcon,
   IonSpinner,
+  IonRadio,
+  IonRadioGroup,
 } from '@ionic/vue';
 
 import { computed, reactive, ref } from 'vue';
@@ -176,6 +173,7 @@ const emit = defineEmits(['update:show']);
 const show = useVModel(props, 'show', emit);
 const menuModal = ref(),
   menuWrap = ref(),
+  selectRef = ref(),
   outModal = ref(),
   jsonData = ref(''),
   updateLoading = ref(false),
@@ -304,7 +302,7 @@ const searchByName = computed(() => {
 });
 
 onClickOutside(menuWrap, () => (show.value = false), {
-  ignore: [menuModal, menuWrap, outModal],
+  ignore: [menuModal, menuWrap, outModal, selectRef],
 });
 
 if (isPhone()) {

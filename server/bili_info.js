@@ -35,13 +35,11 @@ async function getRoomInfo(roomId) {
         id: roomId,
       },
     });
-    const { uid, room_id, short_id, live_status, title, keyframe } =
-      res.data.data;
+    const { uid, room_id, live_status, title, keyframe } = res.data.data;
     if (res.data.code === 0) {
       return getResponseBody(200, '请求成功！', {
         uid,
         room_id,
-        short_id,
         live_status,
         title,
         keyframe,
