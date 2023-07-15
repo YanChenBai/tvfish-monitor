@@ -23,6 +23,7 @@ async function getUserInfo(rooomId) {
       return getResponseBody(500, '请求错误！');
     }
   } catch (e) {
+    console.log(e);
     return getResponseBody(500, '请求错误！');
   }
 }

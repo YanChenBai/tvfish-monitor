@@ -26,14 +26,15 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
 
   // 获取真实的房间ID
   const roomInfoRes = await getUserInfo(roomId);
+  console.log(roomInfoRes);
   if (roomInfoRes.code !== 200) {
-    return roomInfoRes;
+    throw new Error('请求错误!');
   }
-  if (roomInfoRes.data['live_status'] !== 1) {
+  if (roomInfoRes.data.status !== 1) {
     return getResponseBody(-5, '房间未开播', roomInfoRes.data);
   }
 
-  params['room_id'] = roomInfoRes.data['room_id'];
+  params['room_id'] = roomInfoRes.data.roomId;
 
   try {
     res = await axios({
@@ -72,8 +73,6 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
       qn: codec.current_qn,
       lines,
       line,
-      // format: format.format_name,
-      // codec: codec.codec_name,
       info: roomInfoRes.data,
     });
   } catch (e) {

@@ -1,8 +1,8 @@
 import { RoomListItem } from '@/types/player';
 import axios from 'axios';
 
-// axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
-axios.defaults.baseURL = 'http://192.168.3.67:8200/';
+axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
+// axios.defaults.baseURL = 'http://192.168.3.67:8200/';
 
 export async function getDouyuOrgin(
   roomId: number,
@@ -11,8 +11,8 @@ export async function getDouyuOrgin(
 ): Promise<any> {
   try {
     const res = await axios(
-      `/getLiveInfo?roomId=${roomId}&type=douyu&qn=${qn ? qn : ''}&line=${
-        line ? line : ''
+      `/getLiveInfo?roomId=${roomId}&type=douyu${qn ? '&qn=' + qn : ''}${
+        line ? '&line=' + line : ''
       }`,
     );
     return res.data;
@@ -24,12 +24,12 @@ export async function getDouyuOrgin(
 export async function getBiliOrgin(
   roomId: number,
   qn: number | null,
-  line: number | null,
+  line: string | null,
 ): Promise<any> {
   try {
     const res = await axios(
-      `/getLiveInfo?roomId=${roomId}&type=bili&qn=${qn ? qn : ''}&line=${
-        line ? line : ''
+      `/getLiveInfo?roomId=${roomId}&type=bili${qn ? '&qn=' + qn : ''}${
+        line ? '&line=' + line : ''
       }`,
     );
 

@@ -1,7 +1,7 @@
 <template>
   <div
     class="item-wrap"
-    :style="{ opacity: Number(info.status) === 1 ? '1' : '0.3' }"
+    :style="{ opacity: info.status === RoomStatus.LIVE ? '1' : '0.3' }"
   >
     <div class="face" @click="update">
       <img draggable="false" :src="info.face" />
@@ -44,6 +44,11 @@
       >
         {{ info.platform === 'bili' ? 'b站' : '斗鱼' }}
       </div>
+      <div class="status" :class="{ [roomStatusClass[info.status]]: true }">
+        <span v-if="info.status === RoomStatus.LIVE">上班</span>
+        <span v-else-if="info.status === RoomStatus.CLOSE">下班</span>
+        <span v-else-if="info.status === RoomStatus.REC">录像</span>
+      </div>
       <n-popconfirm @positive-click="remove">
         删除
         <template #trigger>
@@ -65,12 +70,15 @@ import { usePlayerStore } from '@/stores/playerStore';
 import { DropType } from '@/types/drop';
 import { useDrag } from 'vue3-dnd';
 import { watch } from 'vue';
-import { RoomListItem } from '@/types/player';
+import { RoomListItem, RoomStatus } from '@/types/player';
+import { impactHeavy, impactMedium } from '@/utils/impact';
+import { message } from '@/utils/message';
 
 defineOptions({ name: 'MenuItem' });
 
 const playerStore = usePlayerStore();
 const emit = defineEmits(['drag']);
+const roomStatusClass = ['close', 'live', 'rec'];
 const props = defineProps<{
   info: RoomListItem;
 }>();
@@ -99,9 +107,11 @@ const [collect, drag] = useDrag({
     };
   },
 });
-watch(collect, (val) => {
+watch(collect, async (val) => {
   playerStore.menuItemIsDragging = val.isDragging;
-  console.log(playerStore.menuItemIsDragging);
+  console.log(`${val.isDragging}`);
+
+  // if (val.isDragging) await impactHeavy();
 });
 </script>
 
@@ -167,16 +177,6 @@ watch(collect, (val) => {
   align-items: center;
   justify-content: center;
 }
-.live,
-.unlive {
-  width: 14px;
-  height: 14px;
-  position: absolute;
-  left: 2px;
-  top: 2px;
-  border-radius: 7px;
-  border: 2px solid #e6e6e6;
-}
 .live {
   background-color: #ee3a3a;
 }
@@ -218,5 +218,24 @@ watch(collect, (val) => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.status {
+  position: absolute;
+  padding: 0 4px;
+  border-radius: 4px;
+  height: 23px;
+  left: 58px;
+  top: 6px;
+}
+.status.close {
+  background-color: #f4f5f8;
+  color: #6d6c6c;
+}
+.status.live {
+  background-color: #ff4961;
+}
+.status.rec {
+  background-color: #428cff;
 }
 </style>

@@ -12,7 +12,7 @@ function executeStrJs(str, out_function = []) {
     `,
   );
   const executeModule = { exports: {} };
-  strFunction(executeModule.exports, executeModule, () => {});
+  strFunction(executeModule.exports, executeModule, () => ({}));
 
   return executeModule.exports;
 }

@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'tv.fish.monitor',
+  appId: 'com.tvfish.monitor',
   appName: 'TVFISH Monitor',
   webDir: 'dist',
   server: {

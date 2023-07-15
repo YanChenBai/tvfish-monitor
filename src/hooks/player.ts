@@ -21,7 +21,7 @@ export default class LiveDanmuPlayer {
     this.config = config;
   }
 
-  destroy: { (): void } = () => {};
+  destroy: { (): void } = () => ({});
 
   init() {
     if (this.config === null) return;
@@ -57,7 +57,16 @@ export default class LiveDanmuPlayer {
     flvPlayer.volume = this.config.volume;
     flvPlayer.play();
     this.player = flvPlayer;
-    this.destroy = () => flvPlayer.destroy();
+    this.destroy = () => {
+      try {
+        flvPlayer.pause();
+        flvPlayer.unload();
+        flvPlayer.detachMediaElement();
+        flvPlayer.destroy();
+      } catch (error) {
+        error;
+      }
+    };
   }
 
   refresh(config: Config) {

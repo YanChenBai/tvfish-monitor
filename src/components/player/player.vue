@@ -33,6 +33,7 @@
       :qualitys="qualitys"
       @qualityChange="qualityChange"
       @lineChange="lineChange"
+      :key="`player-${name}`"
     />
   </div>
 </template>
@@ -44,7 +45,7 @@ import { onClickOutside, useDebounceFn } from '@vueuse/core';
 import Control from '@/components/player/control.vue';
 import { ConfigType } from '@/hooks/player';
 import Player from '@/hooks/player';
-import { QualityType, LineType, Platform } from '@/types/player';
+import { QualityType, LineType, Platform, RoomListItem } from '@/types/player';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import DouyuDanmu from '@/utils/douyuDanmu/douyu';
@@ -55,7 +56,7 @@ defineOptions({ name: 'LiveDanmuPlayer' });
 const props = defineProps<{
   lines: LineType[];
   qualitys: QualityType[];
-  url: string;
+  url: string | null;
   type: ConfigType;
   name: string;
 }>();
@@ -95,6 +96,7 @@ function destroy() {
 }
 
 function refresh() {
+  if (props.url === null) return;
   const config = {
     url: props.url,
     type: props.type,
@@ -124,13 +126,10 @@ function douyuDanmu(id: number) {
     danmakuRef.value?.insert(msg),
   );
   danmu.connect();
-  closeDanmu = () => {
-    danmu.ws ? danmu.ws.close() : '';
-  };
+  closeDanmu = () => danmu.close();
 }
 
 function danmuStart() {
-  if (playerList.value[props.name] === null) return;
   const item = playerList.value[props.name];
   if (item === null) return;
   closeDanmu();
@@ -161,24 +160,20 @@ onMounted(() => {
   setTimeout(() => danmakuRef.value?.resize(), 0);
 });
 
-// 自动切换配置
+// 自动更新
 watch(
-  (): [string, ConfigType] => [props.url, props.type],
+  (): [string | null, RoomListItem | null] => [
+    props.url,
+    playerList.value[props.name],
+  ],
   (val) => {
-    if (val[0] !== '') {
-      refresh();
-      danmuStart();
-    }
-  },
-);
-
-// UPDATE 需要优化播放器移动后的清空逻辑 OR rewrite这个更新逻辑
-watch(
-  () => playerList.value[props.name],
-  (val) => {
-    if (val === null) {
-      player.value ? player.value.destroy() : '';
-      closeDanmu();
+    if (val[1] === null) {
+      destroy();
+    } else {
+      if (val[0] !== null) {
+        refresh();
+        danmuStart();
+      }
     }
   },
 );

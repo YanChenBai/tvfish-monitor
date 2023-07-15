@@ -2,7 +2,7 @@
   <div class="nav" v-show="navState">
     <div class="electron-drag"></div>
     <div class="btns">
-      <NightOverlay></NightOverlay>
+      <NightOverlayBtn></NightOverlayBtn>
       <Setting></Setting>
       <ion-button color="light" fill="clear" id="layoutModal" size="small">
         <ion-icon :icon="layersOutline"></ion-icon>
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import NightOverlay from './nightOverlay.vue';
+import NightOverlayBtn from './nightOverlayBtn.vue';
 import { IonButton, IonIcon } from '@ionic/vue';
 import Setting from '@/components/nav/setting.vue';
 import {

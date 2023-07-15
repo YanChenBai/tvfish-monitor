@@ -156,3 +156,10 @@ body {
 
   --ion-card-background: #1e1e1e; */
 }
+
+ion-toast {
+  --background: #363636;
+  --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
+  --color: #d2d1d8;
+  text-align: center;
+}

@@ -4,7 +4,7 @@ export interface QualityType {
 }
 export interface LineType {
   name: string;
-  line: string | number;
+  line: string;
 }
 
 export enum Platform {

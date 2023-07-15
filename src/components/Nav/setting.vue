@@ -44,8 +44,7 @@ import { storeToRefs } from 'pinia';
 
 defineOptions({ name: 'NavSetting' });
 const { nightOverlayOpacity } = storeToRefs(usePlayerStore());
-const settingModal = ref(),
-  opacity = ref(80);
+const settingModal = ref();
 function cancel() {
   settingModal.value.$el.dismiss(null, 'cancel');
 }

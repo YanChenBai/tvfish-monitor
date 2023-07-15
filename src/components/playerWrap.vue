@@ -11,6 +11,7 @@
       @lineChange="lineChange"
       @updateLiveOrgin="updateLiveOrgin"
       ref="player"
+      :key="`playerWrap-${name}`"
     />
   </div>
 </template>
@@ -20,9 +21,8 @@ import LiveDanmuPlayer from '@/components/player/player.vue';
 import { ConfigType } from '@/hooks/player';
 import { useDrag, useDrop } from 'vue3-dnd';
 import { DropType } from '@/types/drop';
-import { RoomListItem, usePlayerStore } from '@/stores/playerStore';
-import { QualityType, LineType } from '@/types/player';
-import { Platform } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/playerStore';
+import { QualityType, LineType, RoomListItem, Platform } from '@/types/player';
 import { computed, onMounted, ref, watch } from 'vue';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
@@ -40,12 +40,12 @@ const getPlayerParams = computed<RoomListItem>(() => {
 });
 const title = ref(getPlayerParams.value ? getPlayerParams.value.title : ''),
   player = ref<InstanceType<typeof LiveDanmuPlayer>>(),
-  url = ref(''),
+  url = ref<string | null>(''),
   type = ref(ConfigType.Flv),
   qualitys = ref<QualityType[]>([]),
   lines = ref<LineType[]>([]),
   quality = ref<number | null>(null),
-  line = ref<string | null | number>(null);
+  line = ref<string | null>(null);
 
 // 创建拖拽
 const [, drag] = useDrag({
@@ -78,8 +78,6 @@ const [, drop] = useDrop({
 });
 
 const qualityChange = (item: QualityType) => {
-  console.log(item.qn);
-
   quality.value = item.qn;
 };
 const lineChange = (item: LineType) => (line.value = item.line);
@@ -91,10 +89,10 @@ async function getOrgin(roomId: number, type: Platform) {
   let res;
   switch (type) {
     case Platform.Douyu:
-      res = await getDouyuOrgin(roomId, quality.value, line.value as string);
+      res = await getDouyuOrgin(roomId, quality.value, line.value);
       break;
     case Platform.Bili:
-      res = await getBiliOrgin(roomId, quality.value, line.value as number);
+      res = await getBiliOrgin(roomId, quality.value, line.value);
       break;
   }
   return res;
@@ -110,7 +108,7 @@ async function update() {
 
     if (res.code === -5) {
       title.value = res.data.title;
-      url.value = '';
+      url.value = null;
       player.value?.destroy();
     } else {
       title.value = res.data.info.title;
@@ -139,4 +137,4 @@ watch(
 );
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped></style>

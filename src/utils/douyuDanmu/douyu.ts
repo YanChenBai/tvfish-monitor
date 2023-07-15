@@ -18,8 +18,6 @@ const DoyuDanmu = class {
     );
     this.ws = new WebSocket('wss://danmuproxy.douyu.com:8506/');
     this.ws.onopen = () => {
-      console.log(this.ws);
-      console.log('连接成功！');
       this.ws.send(loginReqBuffer);
       setTimeout(() => {
         this.ws.send(joinGroupBuffer);
@@ -34,14 +32,17 @@ const DoyuDanmu = class {
       decodeMessage(data.data, this.onMessage);
     };
 
-    this.ws.onclose = (msg: any) => {
-      if (this.timer != null) {
-        clearInterval(this.timer);
-        this.timer = null;
-      }
-      console.log(msg);
-    };
-    this.ws.onerror = (msg: any) => console.log(msg);
+    this.ws.onclose = () => this.close();
+    this.ws.onerror = () => ({});
+    return {};
+  }
+
+  close() {
+    if (this.ws) this.ws.close();
+    if (this.timer != null) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
   }
 
   encoding(roomId: number) {

@@ -16,7 +16,7 @@ import { moonOutline } from 'ionicons/icons';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
-defineOptions({ name: 'nightOverlay' });
+defineOptions({ name: 'nightOverlayBtn' });
 const { showNightOverlay, navState } = storeToRefs(usePlayerStore());
 
 // 打开遮罩时关闭导航
@@ -25,4 +25,4 @@ watch(showNightOverlay, (val: boolean) => {
 });
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped></style>
