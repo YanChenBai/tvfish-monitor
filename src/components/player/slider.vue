@@ -1,5 +1,5 @@
 <template>
-  <PlayerPopover width="50px">
+  <PlayerPopover width="100px">
     <template #target>
       <slot name="target"></slot>
     </template>
@@ -18,20 +18,25 @@
 <script setup lang="ts">
 import VueSlider from 'vue-slider-component';
 import PlayerPopover from './popover.vue';
-import { useVModel } from '@vueuse/core';
+import { usePlayerStore } from '@/stores/playerStore';
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
 
 defineOptions({ name: 'PlayerSlider' });
 
-const props = withDefaults(
-  defineProps<{
-    volume: number;
-  }>(),
-  { volume: 0 },
-);
-const emit = defineEmits(['update:volume', 'change']);
-const volume = useVModel(props, 'volume', emit);
+const { playerListConfig } = storeToRefs(usePlayerStore());
+const props = defineProps<{
+  playerName: string;
+}>();
+const emit = defineEmits(['change']);
 
-const change = (val: number) => emit('change', val);
+const volume = ref(playerListConfig.value[props.playerName].volume * 100);
+
+const change = (val: number) => {
+  volume.value = val * 100;
+  playerListConfig.value[props.playerName].volume = val;
+  emit('change', val);
+};
 </script>
 
 <style scoped>

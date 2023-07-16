@@ -109,8 +109,6 @@ const [collect, drag] = useDrag({
 });
 watch(collect, async (val) => {
   playerStore.menuItemIsDragging = val.isDragging;
-  console.log(`${val.isDragging}`);
-
   // if (val.isDragging) await impactHeavy();
 });
 </script>

@@ -30,8 +30,13 @@ export interface RoomListItem {
   shortId: number;
 }
 
+export interface PlayerItem {
+  roomId: number;
+  platform: Platform;
+}
+
 export interface PlayerList {
-  [key: string]: RoomListItem | null;
+  [key: string]: PlayerItem | null;
 }
 
 interface PlayerConfigItem {
