@@ -7,6 +7,7 @@
       :name="name"
       :lines="lines"
       :qualitys="qualitys"
+      :status="status"
       @qualityChange="qualityChange"
       @lineChange="lineChange"
       @updateLiveOrgin="updateLiveOrgin"
@@ -22,7 +23,13 @@ import { ConfigType } from '@/hooks/player';
 import { useDrag, useDrop } from 'vue3-dnd';
 import { DropType } from '@/types/drop';
 import { usePlayerStore } from '@/stores/playerStore';
-import { QualityType, LineType, RoomListItem, Platform } from '@/types/player';
+import {
+  QualityType,
+  LineType,
+  RoomListItem,
+  Platform,
+  RoomStatus,
+} from '@/types/player';
 import { computed, onMounted, ref, watch } from 'vue';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
@@ -38,14 +45,17 @@ const props = defineProps<{
 const getPlayerParams = computed<RoomListItem>(() => {
   return (playerList.value as any)[props.name];
 });
-const title = ref(getPlayerParams.value ? getPlayerParams.value.title : ''),
+const title = computed(() =>
+    getPlayerParams.value ? getPlayerParams.value.title : '',
+  ),
   player = ref<InstanceType<typeof LiveDanmuPlayer>>(),
-  url = ref<string | null>(''),
+  url = ref<string>(''),
   type = ref(ConfigType.Flv),
   qualitys = ref<QualityType[]>([]),
   lines = ref<LineType[]>([]),
   quality = ref<number | null>(null),
-  line = ref<string | null>(null);
+  line = ref<string | null>(null),
+  status = ref<RoomStatus>(RoomStatus.CLOSE);
 
 // 创建拖拽
 const [, drag] = useDrag({
@@ -107,11 +117,12 @@ async function update() {
     );
 
     if (res.code === -5) {
-      title.value = res.data.title;
-      url.value = null;
-      player.value?.destroy();
+      playerList.value[props.name]!.title = res.data.title;
+      playerList.value[props.name]!.status = res.data.status;
+      url.value = '';
     } else {
-      title.value = res.data.info.title;
+      playerList.value[props.name]!.title = res.data.info.title;
+      playerList.value[props.name]!.status = res.data.info.status;
       url.value = res.data.url;
       type.value =
         getPlayerParams.value.platform === Platform.Bili

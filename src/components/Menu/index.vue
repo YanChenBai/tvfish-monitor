@@ -256,7 +256,7 @@ function goTop() {
 }
 
 async function inputDefData() {
-  roomList.value = defRoomList;
+  roomList.value = defRoomList as any;
   await message('添加完成!');
 }
 

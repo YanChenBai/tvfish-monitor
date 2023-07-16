@@ -84,14 +84,12 @@ let closeDanmu = (): any => ({});
 // 打开控制栏
 const openControl = () =>
   controlRef.value ? controlRef.value.openControl() : '';
-function destroy() {
+function destroy(clear = true) {
   if (player.value) {
     player.value.destroy();
     danmakuRef.value?.stop();
     closeDanmu();
-    playerList.value[props.name] = null;
-  } else {
-    playerList.value[props.name] = null;
+    if (clear) playerList.value[props.name] = null;
   }
 }
 
@@ -170,9 +168,11 @@ watch(
     if (val[1] === null) {
       destroy();
     } else {
-      if (val[0] !== null) {
+      if (val[0] !== '') {
         refresh();
         danmuStart();
+      } else {
+        destroy(false);
       }
     }
   },

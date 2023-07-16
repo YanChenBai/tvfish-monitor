@@ -1,0 +1,10 @@
+.status.close {
+  background-color: #f4f5f8;
+  color: #6d6c6c;
+}
+.status.live {
+  background-color: #ff4961;
+}
+.status.rec {
+  background-color: #428cff;
+}

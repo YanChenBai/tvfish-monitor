@@ -3,7 +3,9 @@
     <div v-show="show" class="control-wrap" @mouseleave="closeControl()">
       <div class="control-wrap-top" ref="topRef">
         <div class="title">
-          <div class="name">{{ name }}</div>
+          <div class="name status" :class="{ [roomStatusClass[status]]: true }">
+            {{ name }}
+          </div>
           <n-ellipsis style="max-width: 200px">
             {{ title }}
           </n-ellipsis>
@@ -108,6 +110,7 @@ const emit = defineEmits([
   'close', // 关闭控制栏
   'volumeChange',
 ]);
+const roomStatusClass = ['close', 'live', 'rec', 'def'];
 const show = useVModel(props, 'show', emit);
 const topRef = ref<HTMLElement>(),
   bottomRef = ref<HTMLElement>(),
@@ -116,7 +119,13 @@ const topRef = ref<HTMLElement>(),
 const title = computed(() =>
   playerList.value[props.name] ? playerList.value[props.name]?.title : '',
 );
-
+const status = computed(() => {
+  if (playerList.value[props.name] !== null) {
+    return playerList.value[props.name]!.status;
+  } else {
+    return 3;
+  }
+});
 const danmu = computed(() => playerListConfig.value[props.name].danmu);
 
 function openControl() {
@@ -240,5 +249,15 @@ defineExpose({
 .control-enter-from,
 .control-leave-to {
   opacity: 0;
+}
+.status.close {
+  background-color: #f4f5f8;
+  color: #6d6c6c;
+}
+.status.live {
+  background-color: #ff4961;
+}
+.status.rec {
+  background-color: #428cff;
 }
 </style>
