@@ -87,7 +87,7 @@ import { QualityType, LineType, RoomStatus } from '@/types/player';
 
 defineOptions({ name: 'PlayerControl' });
 
-const { playerListConfig } = storeToRefs(usePlayerStore());
+const { playerListConfig, navState } = storeToRefs(usePlayerStore());
 const props = defineProps<{
   playerName: string;
   title: string;
@@ -113,7 +113,10 @@ const topRef = ref<HTMLElement>(),
 
 const qualityChange = (item: QualityType) => emit('qualityChange', item);
 const lineChange = (item: LineType) => emit('lineChange', item);
-const openControl = () => (show.value = true);
+const openControl = () => {
+  show.value = true;
+  navState.value = true;
+};
 const closeControl = () => (show.value = false);
 const destroy = () => emit('destroy');
 const refresh = () => emit('refresh');

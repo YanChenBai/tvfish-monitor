@@ -2,8 +2,11 @@ import { StatusBar } from '@capacitor/status-bar';
 
 export async function hideBar() {
   try {
-    await StatusBar.hide();
-    StatusBar.setOverlaysWebView({ overlay: true });
+    const info = await StatusBar.getInfo();
+    if (info.visible) {
+      await StatusBar.hide();
+      StatusBar.setOverlaysWebView({ overlay: true });
+    }
   } catch (error) {
     error;
   }

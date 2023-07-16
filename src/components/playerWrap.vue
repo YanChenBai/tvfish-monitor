@@ -6,6 +6,7 @@
       :qualitys="qualitys"
       @qualityChange="qualityChange"
       @lineChange="lineChange"
+      @refresh="update"
       ref="playerRef"
       :key="`playerWrap-${playerName}`"
     />
@@ -22,6 +23,7 @@ import { QualityType, LineType, RoomListItem, Platform } from '@/types/player';
 import { computed, onMounted, ref, watch } from 'vue';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
+import { IMAGE_PROXY } from '@/config/proxy';
 
 defineOptions({ name: 'playerWrap' });
 
@@ -96,24 +98,43 @@ async function getOrgin(roomId: number, type: Platform) {
   return res;
 }
 
+function updateRoomInfo(info: RoomListItem) {
+  const findIndex = roomList.value.findIndex(
+    (item) => info.roomId === item.roomId && info.platform === item.platform,
+  );
+  if (findIndex !== -1) {
+    if (info.platform === Platform.Bili) {
+      info.face = IMAGE_PROXY + info.face;
+      info.keyframe = IMAGE_PROXY + info.keyframe;
+    }
+    roomList.value[findIndex] = info;
+  }
+}
+
 // 更新数据
 async function update() {
   if (player.value !== null) {
     const res: any = await getOrgin(player.value.roomId, player.value.platform);
-    if (res.code === -5) {
-      url.value = null;
-    } else {
-      qualitys.value = res.data.quality;
-      lines.value = res.data.lines;
-      const type =
-        player.value.platform === Platform.Bili
-          ? ConfigType.Hls
-          : ConfigType.Flv;
-      playerRef.value!.refreshPlayer(
-        res.data.url,
-        playerListConfig.value[props.playerName].volume / 100,
-        type,
-      );
+    try {
+      if (res.code === -5) {
+        url.value = null;
+        updateRoomInfo(res.data);
+      } else {
+        qualitys.value = res.data.quality;
+        lines.value = res.data.lines;
+        const type =
+          player.value.platform === Platform.Bili
+            ? ConfigType.Hls
+            : ConfigType.Flv;
+        updateRoomInfo(res.data.info);
+        playerRef.value!.refreshPlayer(
+          res.data.url,
+          playerListConfig.value[props.playerName].volume / 100,
+          type,
+        );
+      }
+    } catch (error) {
+      error;
     }
   }
 }

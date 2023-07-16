@@ -194,6 +194,6 @@ defineExpose({
 }
 .status-text span {
   border-radius: 4px;
-  opacity: 0.5;
+  opacity: 0;
 }
 </style>
