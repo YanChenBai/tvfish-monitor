@@ -39,6 +39,7 @@ const DoyuDanmu = class {
 
   close() {
     if (this.ws) this.ws.close();
+    this.ws = null;
     if (this.timer != null) {
       clearInterval(this.timer);
       this.timer = null;

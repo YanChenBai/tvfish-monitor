@@ -40,10 +40,10 @@ import isMobile, { isPhone } from '@/utils/isMobile';
 import { NConfigProvider, darkTheme } from 'naive-ui';
 import { autoHideBar } from '@/utils/barStatus';
 
-autoHideBar();
-if (isPhone()) {
-  autoHideBar();
-}
+// autoHideBar();
+// if (isPhone()) {
+//   autoHideBar();
+// }
 </script>
 
 <style scoped></style>

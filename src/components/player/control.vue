@@ -4,7 +4,7 @@
       <div class="control-wrap-top" ref="topRef">
         <div class="title">
           <div class="name status" :class="{ [roomStatusClass[status]]: true }">
-            {{ name }}
+            {{ playerName }}
           </div>
           <n-ellipsis style="max-width: 200px">
             {{ title }}
@@ -26,11 +26,11 @@
             <ion-icon :icon="refreshIcon"></ion-icon>
           </ion-button>
 
-          <PlayerSlider v-model:volume="volume" @change="volumeChange">
+          <PlayerSlider :player-name="playerName" @change="volumeChange">
             <template #target>
               <ion-button color="light" fill="clear" size="small">
                 <ion-icon :icon="volumeHigh"></ion-icon>
-                <div class="volume">{{ volume }}</div>
+                <div class="volume">{{ playerConfig.volume }}</div>
               </ion-button>
             </template>
           </PlayerSlider>
@@ -41,7 +41,7 @@
             fill="clear"
             size="small"
             @click="danmuSwitch()"
-            >弹幕 {{ danmu ? '关' : '开' }}</ion-button
+            >弹幕 {{ playerConfig.danmu ? '关' : '开' }}</ion-button
           >
           <PopoverSelect :list="qualitys" @change="qualityChange">
             <template #target>
@@ -82,93 +82,52 @@ import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
 import { refresh as refreshIcon, volumeHigh, close } from 'ionicons/icons';
-import { useVModel, watchOnce } from '@vueuse/core';
 import { Ref, computed, ref } from 'vue';
-import VueDanmuKu from 'vue3-danmaku';
-import { QualityType, LineType } from '@/types/player';
+import { QualityType, LineType, RoomStatus } from '@/types/player';
 
 defineOptions({ name: 'PlayerControl' });
 
-const { playerListConfig, navState, playerList } = storeToRefs(
-  usePlayerStore(),
-);
+const { playerListConfig } = storeToRefs(usePlayerStore());
 const props = defineProps<{
-  show: boolean; // 控制栏显示状态
-  name: string;
-  danmakuRef: InstanceType<typeof VueDanmuKu> | undefined;
+  playerName: string;
+  title: string;
+  status: RoomStatus;
   lines: LineType[];
   qualitys: QualityType[];
 }>();
 const emit = defineEmits([
-  'update:show',
   'destroy', // 销毁
   'refresh', // 刷新
-  'danmuSwitch', // 弹幕开关
   'qualityChange', // 清晰切换
   'lineChange', // 线路切换
   'open', // 打开控制栏
   'close', // 关闭控制栏
   'volumeChange',
 ]);
+
 const roomStatusClass = ['close', 'live', 'rec', 'def'];
-const show = useVModel(props, 'show', emit);
+const playerConfig = computed(() => playerListConfig.value[props.playerName]);
+const show = ref(false);
 const topRef = ref<HTMLElement>(),
-  bottomRef = ref<HTMLElement>(),
-  volume = ref(playerListConfig.value[props.name].volume * 100);
+  bottomRef = ref<HTMLElement>();
 
-const title = computed(() =>
-  playerList.value[props.name] ? playerList.value[props.name]?.title : '',
-);
-const status = computed(() => {
-  if (playerList.value[props.name] !== null) {
-    return playerList.value[props.name]!.status;
-  } else {
-    return 3;
-  }
-});
-const danmu = computed(() => playerListConfig.value[props.name].danmu);
-
-function openControl() {
-  show.value = true;
-  navState.value = true;
-  emit('open');
-}
-
-function closeControl() {
-  show.value = false;
-  emit('close');
-}
-
-const danmuSwitch = () => {
-  const tmp = !playerListConfig.value[props.name].danmu;
-  playerListConfig.value[props.name].danmu = tmp;
-  // tmp ? props.danmakuRef?.show() : props.danmakuRef?.hide();
-  tmp ? props.danmakuRef?.play() : props.danmakuRef?.stop();
-  emit('danmuSwitch', tmp);
-};
-
-const destroy = () => {
-  emit('destroy');
-};
+const qualityChange = (item: QualityType) => emit('qualityChange', item);
+const lineChange = (item: LineType) => emit('lineChange', item);
+const openControl = () => (show.value = true);
+const closeControl = () => (show.value = false);
+const destroy = () => emit('destroy');
 const refresh = () => emit('refresh');
 
+const danmuSwitch = () =>
+  (playerListConfig.value[props.playerName].danmu = !playerConfig.value.danmu);
+
 // 监听声音变化
-function volumeChange(val: number) {
-  emit('volumeChange', val / 100);
-}
+const volumeChange = (val: number) => emit('volumeChange', val);
 
 // 获取关闭控制栏时点击需要排除的地方
 function getIgnore(): Ref<HTMLElement | undefined>[] {
   return [topRef, bottomRef];
 }
-
-const qualityChange = (item: QualityType) => emit('qualityChange', item);
-const lineChange = (item: LineType) => emit('lineChange', item);
-
-watchOnce(
-  () => props.danmakuRef,
-  () => danmuSwitch(),
-);
 
 // 暴露函数
 defineExpose({

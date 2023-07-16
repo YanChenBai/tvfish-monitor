@@ -18,12 +18,7 @@
       :key="'player' + key"
       :style="{ 'grid-area': getPlayerCode(key) }"
     >
-      <PlayerWrap
-        :title="``"
-        :type="type"
-        :url="url"
-        :name="getPlayerCode(key)"
-      />
+      <PlayerWrap :type="type" :url="url" :playerName="getPlayerCode(key)" />
     </div>
   </div>
 </template>
