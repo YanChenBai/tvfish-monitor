@@ -7,7 +7,7 @@
           color="primary"
           placeholder="搜索主播"
           :clear-input="true"
-          v-model:modelValue="searchKeyWorld"
+          v-model:modelValue="keyWorldDebounced"
         ></ion-input>
       </div>
       <div class="menu-content hide-scrollbar" ref="menuContentRef">
@@ -198,7 +198,7 @@ import defRoomList from '@/config/roomList';
 import { isPhone } from '@/utils/isMobile';
 import { useBackButton } from '@ionic/vue';
 import { Platform, PlayerItem, RoomListItem } from '@/types/player';
-import { onClickOutside } from '@vueuse/core';
+import { onClickOutside, watchDebounced } from '@vueuse/core';
 import { vibrate } from '@/utils/impact';
 
 defineOptions({ name: 'MenuList' });
@@ -221,7 +221,8 @@ const menuModal = ref(),
   jsonData = ref(''),
   updateLoading = ref(false),
   updateIndex = ref(0),
-  searchKeyWorld = ref(''),
+  keyWorldDebounced = ref(''),
+  keyWorld = ref(''),
   menuContentRef = ref(),
   isOpen = ref(false),
   isOpenAlert = ref(false),
@@ -346,7 +347,7 @@ async function inputDefData() {
 
 const searchByName = computed(() => {
   return roomList.value.filter(
-    (item) => item.name.search(searchKeyWorld.value) !== -1,
+    (item) => item.name.search(keyWorld.value) !== -1,
   );
 });
 
@@ -357,6 +358,7 @@ const setOpen = (item: RoomListItem | null = null) => {
   currentSelectRoom.value = item;
 };
 
+// 按钮回调
 const actionSheetButtons = computed(() => {
   const defBtns: ActionSheetButton[] = [
     {
@@ -374,6 +376,7 @@ const actionSheetButtons = computed(() => {
       handler: () => vibrate(5),
     },
   ];
+
   const room = currentSelectRoom.value;
   if (room !== null) {
     const isTop = topRoomList.value.find(
@@ -414,6 +417,8 @@ const actionSheetButtons = computed(() => {
     return defBtns;
   }
 });
+
+// 按钮回调
 const alertButtons = [
   {
     text: '取消',
@@ -432,6 +437,13 @@ const alertButtons = [
   },
 ];
 
+// 搜索节流
+watchDebounced(keyWorldDebounced, (val) => (keyWorld.value = val), {
+  debounce: 100,
+  maxWait: 1000,
+});
+
+// 关闭Menu
 onClickOutside(menuWrap, () => (menuState.value = false), {
   ignore: [menuModal, menuWrap, outModal, actionSheet, alertRef],
 });
