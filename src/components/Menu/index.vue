@@ -201,11 +201,13 @@ function dragItem() {
   show.value = false;
 }
 
-function inputData() {
+async function inputData() {
   try {
     const tmp = JSON.parse(jsonData.value);
     roomList.value = tmp;
+    await message('更新成功!');
   } catch (error) {
+    await message('更新失败!');
     console.log(error);
   }
 }

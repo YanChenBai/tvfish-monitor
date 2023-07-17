@@ -136,6 +136,8 @@ async function update() {
     } catch (error) {
       error;
     }
+  } else {
+    playerRef.value!.destroy();
   }
 }
 

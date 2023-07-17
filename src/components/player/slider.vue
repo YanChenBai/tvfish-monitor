@@ -30,7 +30,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits(['change']);
 
-const volume = ref(playerListConfig.value[props.playerName].volume * 100);
+const volume = ref(playerListConfig.value[props.playerName].volume);
 
 const change = (val: number) => {
   volume.value = val * 100;
