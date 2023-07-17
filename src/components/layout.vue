@@ -48,6 +48,5 @@ const { layoutIndex, navState } = storeToRefs(usePlayerStore());
   background: #111111;
   box-sizing: border-box;
   border: 1px solid #262626;
-  overflow: hidden;
 }
 </style>

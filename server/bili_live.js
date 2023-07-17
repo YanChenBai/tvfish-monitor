@@ -26,7 +26,7 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
 
   // 获取真实的房间ID
   const roomInfoRes = await getUserInfo(roomId);
-  console.log(roomInfoRes);
+  // console.log(roomInfoRes);
   if (roomInfoRes.code !== 200) {
     throw new Error('请求错误!');
   }

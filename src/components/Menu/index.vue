@@ -13,7 +13,7 @@
       <div class="menu-content hide-scrollbar" ref="menuContentRef">
         <div v-for="item in searchByName" class="menu-content-item">
           <MenuItem
-          :key="`${item.platform}@${item.roomId}`"
+            :key="`${item.platform}@${item.roomId}`"
             :disabled="updateLoading"
             :info="item"
             @drag="dragItem"
@@ -22,6 +22,9 @@
         </div>
       </div>
       <div class="add">
+        <ion-button v-vibration="5">
+          {{ searchByName.length }}
+        </ion-button>
         <ion-button id="menuModal" :disabled="updateLoading" v-vibration="5">
           <ion-icon :icon="personAddOutline"></ion-icon>
         </ion-button>
@@ -89,7 +92,7 @@
           @click="add()"
           v-vibration="5"
         >
-        <ion-spinner v-if="addloading" name="bubbles"></ion-spinner>
+          <ion-spinner v-if="addloading" name="bubbles"></ion-spinner>
           添加
         </ion-button>
       </div>
@@ -145,6 +148,16 @@
     :buttons="actionSheetButtons"
     @didDismiss="setResult($event)"
   ></ion-action-sheet>
+
+  <ion-alert
+    ref="alertRef"
+    :is-open="isOpenAlert"
+    header="确认"
+    sub-header="确认删除"
+    :message="currentSelectRoom === null ? '' : `${currentSelectRoom.name}`"
+    :buttons="['取消', { text: '确定', role: 'confirm' }]"
+    @didDismiss="closeOlose($event)"
+  ></ion-alert>
 </template>
 
 <script setup lang="ts">
@@ -164,6 +177,7 @@ import {
   IonRadio,
   IonRadioGroup,
   IonActionSheet,
+  IonAlert,
 } from '@ionic/vue';
 
 import { computed, reactive, ref } from 'vue';
@@ -209,6 +223,8 @@ const menuModal = ref(),
   searchKeyWorld = ref(''),
   menuContentRef = ref(),
   isOpen = ref(false),
+  isOpenAlert = ref(false),
+  alertRef = ref(),
   currentSelectRoom = ref<RoomListItem | null>(null),
   inputLoading = ref(false),
   inputMsg = ref(''),
@@ -217,6 +233,16 @@ const menuModal = ref(),
 function cancel(vn: any) {
   vibrate(5);
   vn.$el.dismiss(null, 'cancel');
+}
+
+async function closeOlose(ev: CustomEvent) {
+  if (ev.detail.role === 'confirm') {
+    const item = currentSelectRoom.value;
+    if (item !== null) {
+      await playerStore.removeRoom(item.roomId, item.platform);
+    }
+  }
+  isOpenAlert.value = false;
 }
 
 async function add() {
@@ -230,7 +256,7 @@ async function add() {
     await playerStore.addRoom(roomId, type);
     sortList();
   } catch (error) {
-    console.log(error);
+    // console.log(error);
   }
   addloading.value = false;
 }
@@ -253,7 +279,7 @@ async function inputData() {
     await message('更新成功!');
   } catch (error) {
     await message('更新失败!');
-    console.log(error);
+    // console.log(error);
   }
   inputMsg.value = '';
   inputLoading.value = false;
@@ -305,6 +331,7 @@ function sortList() {
         topRoomList.value[index].platform === item.platform &&
         topRoomList.value[index].roomId === item.roomId,
     );
+    // 如果在置顶列表里移到第一位
     if (findIndex !== -1) {
       tmpList.unshift(tmpList.splice(findIndex, 1)[0]);
     }
@@ -341,9 +368,10 @@ const setOpen = (item: RoomListItem | null = null) => {
 const setResult = async (ev: CustomEvent) => {
   const item = currentSelectRoom.value;
   if (item !== null) {
+    vibrate(15);
     switch (ev.detail.role) {
       case 'delete':
-        await playerStore.removeRoom(item.roomId, item.platform);
+        isOpenAlert.value = true;
         break;
       case 'top':
         playerStore.addTop(item.roomId, item.platform);
@@ -356,7 +384,6 @@ const setResult = async (ev: CustomEvent) => {
     }
   }
   isOpen.value = false;
-  currentSelectRoom.value = null;
 };
 
 const actionSheetButtons = computed(() => {
@@ -364,6 +391,7 @@ const actionSheetButtons = computed(() => {
     {
       text: '删除',
       role: 'delete',
+      cssClass: 'del',
     },
     {
       text: '取消',
@@ -394,7 +422,7 @@ const actionSheetButtons = computed(() => {
 });
 
 onClickOutside(menuWrap, () => (menuState.value = false), {
-  ignore: [menuModal, menuWrap, outModal, actionSheet],
+  ignore: [menuModal, menuWrap, outModal, actionSheet, alertRef],
 });
 
 if (isPhone()) {

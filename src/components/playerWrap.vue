@@ -69,7 +69,7 @@ const [, drop] = useDrop({
   accept: [DropType.MenuItem, DropType.PlayerDrap],
   drop: (item: { type: DropType; info: RoomListItem; name: string }) => {
     if (item.type === DropType.MenuItem) {
-      console.log(item.info);
+      // console.log(item.info);
 
       playerList.value[props.playerName] = {
         platform: item.info.platform,
@@ -91,7 +91,7 @@ const [, drop] = useDrop({
   },
   collect(monitor) {
     if (monitor.isOver()) {
-      console.log(monitor.isOver());
+      // console.log(monitor.isOver());
     }
   },
 });
