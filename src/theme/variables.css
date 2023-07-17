@@ -167,6 +167,19 @@ ion-toast {
 ion-action-sheet.my-custom-class {
   --color: #fff;
 }
+
+ion-action-sheet .action-sheet-delete {
+  --button-color: #ff4961;
+  --button-color-hover: #ff5b71;
+  --button-color-activated: #e04055;
+  --button-color-focused: #e04055;
+}
+ion-action-sheet .action-sheet-group-cancel {
+  --button-color: #428cff;
+  --button-color-hover: #5598ff;
+  --button-color-activated: #3a7be0;
+  --button-color-focused: #3a7be0;
+}
 ion-button.min-btn {
   width: 36px;
   height: 23px;
@@ -175,4 +188,11 @@ ion-button.min-btn {
   --padding-top: 0px;
   --padding-bottom: 0px;
   --box-shadow: unset;
+}
+
+ion-popover {
+  --width: 300px;
+}
+ion-range {
+  --knob-size: 26px;
 }

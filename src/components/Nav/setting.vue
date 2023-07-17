@@ -9,17 +9,17 @@
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <div style="padding: 20px 20px; box-sizing: border-box">
+      <div style="padding: 20px 40px; box-sizing: border-box">
         <div style="width: 100%; box-sizing: border-box">
           <div style="display: flex; align-items: center">
             黑暗遮罩透明度 {{ nightOverlayOpacity }}
           </div>
           <div>
-            <vue-slider
+            <ion-range
               :min="40"
-              v-model="nightOverlayOpacity"
-              tooltip="none"
-            ></vue-slider>
+              @ionChange="onIonChange"
+              :value="nightOverlayOpacity"
+            ></ion-range>
           </div>
         </div>
       </div>
@@ -28,7 +28,6 @@
 </template>
 
 <script setup lang="ts">
-import VueSlider from 'vue-slider-component';
 import { ref } from 'vue';
 import { usePlayerStore } from '@/stores/playerStore';
 import {
@@ -39,6 +38,7 @@ import {
   IonToolbar,
   IonContent,
   IonTitle,
+  IonRange,
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
 
@@ -47,6 +47,10 @@ const { nightOverlayOpacity } = storeToRefs(usePlayerStore());
 const settingModal = ref();
 function cancel() {
   settingModal.value.$el.dismiss(null, 'cancel');
+}
+
+function onIonChange({ detail }: CustomEvent) {
+  nightOverlayOpacity.value = detail.value;
 }
 </script>
 

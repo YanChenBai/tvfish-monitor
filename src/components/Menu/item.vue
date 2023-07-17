@@ -1,36 +1,48 @@
 <template>
   <div class="item-wrap" :class="{ ['is-top']: isTop }">
-    <div
-      class="item-box"
-      :style="{ opacity: info.status === RoomStatus.LIVE ? '1' : '0.3' }"
-    >
+    <!-- :style="{ opacity: info.status === RoomStatus.LIVE ? '1' : '0.3' }" -->
+    <div class="item-box">
       <div class="face" @click="update">
         <img draggable="false" :src="info.face" />
       </div>
       <div class="info">
         <div class="name">
-          <n-ellipsis class="ellipsis-width">
+          <div
+            class="ellipsis-width"
+            @click="openPopover('name')"
+            ref="nameRef"
+          >
             {{ info.name }}
-            <template #tooltip>
-              <div class="ellipsis-width">{{ info.name }}</div>
-            </template>
-          </n-ellipsis>
+          </div>
+          <Transition name="popover">
+            <div class="popover" v-show="popovers.name">{{ info.name }}</div>
+          </Transition>
         </div>
         <div class="title">
-          <n-ellipsis class="ellipsis-width">
+          <div
+            class="ellipsis-width"
+            @click="openPopover('title')"
+            ref="titleRef"
+          >
             {{ info.title }}
-            <template #tooltip>
-              <div class="ellipsis-width">{{ info.title }}</div>
-            </template>
-          </n-ellipsis>
+          </div>
+          <Transition name="popover">
+            <div class="popover" v-show="popovers.title">{{ info.title }}</div>
+          </Transition>
         </div>
         <div class="news">
-          <n-ellipsis class="ellipsis-width">
+          <div
+            class="ellipsis-width"
+            @click="openPopover('news')"
+            ref="newsRef"
+          >
             公告：{{ info.news }}
-            <template #tooltip>
-              <div class="ellipsis-width">{{ info.news }}</div>
-            </template>
-          </n-ellipsis>
+          </div>
+          <Transition name="popover">
+            <div class="popover" v-show="popovers.news">
+              公告：{{ info.news }}
+            </div>
+          </Transition>
         </div>
       </div>
       <div class="drag" :ref="drag">
@@ -74,13 +86,13 @@
 <script setup lang="ts">
 import { IonIcon } from '@ionic/vue';
 import { moveOutline, settingsOutline } from 'ionicons/icons';
-import { NEllipsis } from 'naive-ui';
 import { usePlayerStore } from '@/stores/playerStore';
 import { DropType } from '@/types/drop';
 import { useDrag } from 'vue3-dnd';
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { RoomListItem, RoomStatus } from '@/types/player';
 import { impactHeavy, vibrate } from '@/utils/impact';
+import { onClickOutside } from '@vueuse/core';
 
 defineOptions({ name: 'MenuItem' });
 
@@ -92,7 +104,15 @@ const props = defineProps<{
   info: RoomListItem;
   disabled: boolean;
 }>();
-const keyframeState = ref(true);
+const popovers = reactive({
+  name: false,
+  title: false,
+  news: false,
+});
+const keyframeState = ref(true),
+  nameRef = ref(),
+  titleRef = ref(),
+  newsRef = ref();
 function update() {
   vibrate(15);
   playerStore.updateRoomInfo(props.info.roomId, props.info.platform);
@@ -105,6 +125,14 @@ const isTop = computed(() => {
 });
 const setting = () => emit('setting');
 let dragLock = true;
+
+function openPopover(type: 'name' | 'title' | 'news') {
+  popovers[type] = true;
+}
+
+onClickOutside(nameRef, () => (popovers.name = false));
+onClickOutside(titleRef, () => (popovers.title = false));
+onClickOutside(newsRef, () => (popovers.news = false));
 
 // 创建拖拽
 const [, drag] = useDrag({
@@ -179,15 +207,20 @@ const [, drag] = useDrag({
   padding: 0px 10px;
 }
 .ellipsis-width {
-  max-width: 156px;
+  width: 136px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .title,
 .news {
   color: #bbb9b9;
   font-size: 12px;
+  position: relative;
 }
 .name {
   width: calc(100%);
+  position: relative;
 }
 .drag {
   width: 58px;
@@ -262,5 +295,30 @@ const [, drag] = useDrag({
 }
 .status.rec {
   background-color: #428cff;
+}
+
+.popover {
+  position: absolute;
+  background: rgb(85, 85, 85);
+  color: #fff;
+  font-size: 14px;
+  top: 100%;
+  z-index: 9;
+  padding: 6px 10px;
+  width: 200px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: 4px 3px 10px rgba(46, 46, 46, 0.7);
+  border: 2px solid #4e4e4e;
+}
+
+.popover-enter-active,
+.popover-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.popover-enter-from,
+.popover-leave-to {
+  opacity: 0;
 }
 </style>

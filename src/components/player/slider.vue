@@ -1,23 +1,26 @@
 <template>
-  <PlayerPopover width="100px">
-    <template #target>
-      <slot name="target"></slot>
-    </template>
-    <div class="wrap">
-      <vue-slider
-        @change="change"
-        v-model="volume"
-        direction="btt"
-        :height="200"
-        tooltip="none"
-      ></vue-slider>
-    </div>
-  </PlayerPopover>
+  <div @click="popoverOpen = true" class="target">
+    <slot name="target"></slot>
+  </div>
+
+  <ion-popover
+    :is-open="popoverOpen"
+    trigger="click-trigger"
+    trigger-action="click"
+    @didDismiss="popoverOpen = false"
+  >
+    <ion-content class="ion-padding">
+      {{ `音量控制   ${playerListConfig[playerName].volume}` }}
+      <ion-range
+        @ionChange="onIonChange"
+        :value="playerListConfig[playerName].volume"
+      ></ion-range>
+    </ion-content>
+  </ion-popover>
 </template>
 
 <script setup lang="ts">
-import VueSlider from 'vue-slider-component';
-import PlayerPopover from './popover.vue';
+import { IonPopover, IonContent, IonRange } from '@ionic/vue';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
@@ -30,24 +33,16 @@ const props = defineProps<{
 }>();
 const emit = defineEmits(['change']);
 
-const volume = ref(playerListConfig.value[props.playerName].volume);
+const popoverOpen = ref(false);
 
-const change = async (val: number) => {
-  volume.value = val * 100;
-  playerListConfig.value[props.playerName].volume = val;
-  emit('change', val);
-};
+function onIonChange({ detail }: CustomEvent) {
+  playerListConfig.value[props.playerName].volume = detail.value;
+  emit('change', detail.value);
+}
 </script>
 
 <style scoped>
 .target {
-  display: inline-flex;
-  align-items: center;
-}
-.wrap {
-  padding: 16px 0;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+  display: inline;
 }
 </style>

@@ -146,7 +146,7 @@
     :is-open="isOpen"
     header="设置"
     :buttons="actionSheetButtons"
-    @didDismiss="setResult($event)"
+    @didDismiss="isOpen = false"
   ></ion-action-sheet>
 
   <ion-alert
@@ -155,8 +155,8 @@
     header="确认"
     sub-header="确认删除"
     :message="currentSelectRoom === null ? '' : `${currentSelectRoom.name}`"
-    :buttons="['取消', { text: '确定', role: 'confirm' }]"
-    @didDismiss="closeOlose($event)"
+    :buttons="alertButtons"
+    @didDismiss="() => (isOpenAlert = false)"
   ></ion-alert>
 </template>
 
@@ -178,6 +178,7 @@ import {
   IonRadioGroup,
   IonActionSheet,
   IonAlert,
+  ActionSheetButton,
 } from '@ionic/vue';
 
 import { computed, reactive, ref } from 'vue';
@@ -235,16 +236,6 @@ function cancel(vn: any) {
   vn.$el.dismiss(null, 'cancel');
 }
 
-async function closeOlose(ev: CustomEvent) {
-  if (ev.detail.role === 'confirm') {
-    const item = currentSelectRoom.value;
-    if (item !== null) {
-      await playerStore.removeRoom(item.roomId, item.platform);
-    }
-  }
-  isOpenAlert.value = false;
-}
-
 async function add() {
   vibrate(5);
   addloading.value = true;
@@ -296,6 +287,7 @@ async function outData() {
   await message('复制成功!');
 }
 
+// 更新全部
 async function updateAll() {
   updateLoading.value = true;
   updateIndex.value = 0;
@@ -321,6 +313,7 @@ function checkStatus(status: number) {
   else return 0;
 }
 
+// 排序
 function sortList() {
   const tmpList = roomList.value.sort((a, b) => {
     return checkStatus(b.status) - checkStatus(a.status);
@@ -364,38 +357,21 @@ const setOpen = (item: RoomListItem | null = null) => {
   currentSelectRoom.value = item;
 };
 
-// 设置回调
-const setResult = async (ev: CustomEvent) => {
-  const item = currentSelectRoom.value;
-  if (item !== null) {
-    vibrate(15);
-    switch (ev.detail.role) {
-      case 'delete':
-        isOpenAlert.value = true;
-        break;
-      case 'top':
-        playerStore.addTop(item.roomId, item.platform);
-        sortList();
-        break;
-      case 'cancelTop':
-        playerStore.removeTop(item.roomId, item.platform);
-        sortList();
-        break;
-    }
-  }
-  isOpen.value = false;
-};
-
 const actionSheetButtons = computed(() => {
-  const defBtns = [
+  const defBtns: ActionSheetButton[] = [
     {
       text: '删除',
       role: 'delete',
       cssClass: 'del',
+      handler: () => {
+        vibrate(5);
+        isOpenAlert.value = true;
+      },
     },
     {
       text: '取消',
       role: 'cancel',
+      handler: () => vibrate(5),
     },
   ];
   const room = currentSelectRoom.value;
@@ -404,15 +380,33 @@ const actionSheetButtons = computed(() => {
       (item) => item.platform === room.platform && item.roomId === room.roomId,
     );
     if (isTop === undefined) {
-      defBtns.splice(1, 0, {
+      defBtns.unshift({
         text: '置顶',
         role: 'top',
+        handler() {
+          vibrate(5);
+          if (currentSelectRoom.value === null) return;
+          playerStore.addTop(
+            currentSelectRoom.value.roomId,
+            currentSelectRoom.value.platform,
+          );
+          sortList();
+        },
       });
       return defBtns;
     } else {
-      defBtns.splice(1, 0, {
+      defBtns.unshift({
         text: '取消置顶',
         role: 'cancelTop',
+        handler: () => {
+          vibrate(5);
+          if (currentSelectRoom.value === null) return;
+          playerStore.removeTop(
+            currentSelectRoom.value.roomId,
+            currentSelectRoom.value.platform,
+          );
+          sortList();
+        },
       });
       return defBtns;
     }
@@ -420,6 +414,23 @@ const actionSheetButtons = computed(() => {
     return defBtns;
   }
 });
+const alertButtons = [
+  {
+    text: '取消',
+    handler: () => vibrate(5),
+  },
+  {
+    text: '确定',
+    role: 'confirm',
+    handler() {
+      vibrate(5);
+      const item = currentSelectRoom.value;
+      if (item !== null) {
+        playerStore.removeRoom(item.roomId, item.platform);
+      }
+    },
+  },
+];
 
 onClickOutside(menuWrap, () => (menuState.value = false), {
   ignore: [menuModal, menuWrap, outModal, actionSheet, alertRef],
@@ -476,24 +487,5 @@ if (isPhone()) {
 .menu-enter-from,
 .menu-leave-to {
   transform: translateX(100%);
-}
-
-.remove {
-  position: absolute;
-  background-color: #ff4961;
-  box-sizing: border-box;
-  border-radius: 30px;
-  border: 2px solid #fca5b0;
-  width: 60px;
-  height: 60px;
-  z-index: 99999;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 26px;
-  color: #fff;
 }
 </style>
