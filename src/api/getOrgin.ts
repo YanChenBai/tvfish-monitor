@@ -1,10 +1,10 @@
 import { RoomListItem } from '@/types/player';
-import { isPhone } from '@/utils/isMobile';
+// import { isPhone } from '@/utils/isMobile';
 import axios from 'axios';
 import { getLiveInfoAndroid, getRoomInfoAndroid } from '../../server-android';
-
-// axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
-axios.defaults.baseURL = 'http://localhost:9000/';
+const isPhone = () => false;
+axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
+// axios.defaults.baseURL = 'http://localhost:9000/';
 // axios.defaults.baseURL = 'http://192.168.3.67:8200/';
 
 export async function getDouyuOrgin(
@@ -31,7 +31,10 @@ export async function getBiliOrgin(
   line: string | null,
 ): Promise<any> {
   try {
-    if (isPhone()) return await getLiveInfoAndroid(roomId, 'bili', qn, line);
+    if (isPhone()) {
+      const res: any = await getLiveInfoAndroid(roomId, 'bili', qn, line);
+      return res.data;
+    }
     const res = await axios(
       `/getLiveInfo?roomId=${roomId}&type=bili${qn ? '&qn=' + qn : ''}${
         line ? '&line=' + line : ''
