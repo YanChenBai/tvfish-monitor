@@ -1,10 +1,10 @@
 .status.close {
-  background-color: #f4f5f8;
+  background-color: #f4f5f8c9;
   color: #6d6c6c;
 }
 .status.live {
-  background-color: #ff4961;
+  background-color: #ff4961b9;
 }
 .status.rec {
-  background-color: #428cff;
+  background-color: #428affb9;
 }

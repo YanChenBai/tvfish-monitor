@@ -1,9 +1,8 @@
 <template>
   <div class="item-wrap" :class="{ ['is-top']: isTop }">
-    <!-- :style="{ opacity: info.status === RoomStatus.LIVE ? '1' : '0.3' }" -->
     <div class="item-box">
       <div class="face" @click="update">
-        <img draggable="false" :src="info.face" />
+        <img draggable="false" :src="info.face" :style="getStyle" />
       </div>
       <div class="info">
         <div class="name">
@@ -52,11 +51,12 @@
         <div
           class="platform"
           :style="{
-            background: info.platform === 'bili' ? '#fb7299' : '#ff5d23',
+            background: info.platform === 'bili' ? '#fb7299c0' : '#ff5e23c2',
           }"
         >
           {{ info.platform === 'bili' ? 'b站' : '斗鱼' }}
         </div>
+
         <div class="status" :class="{ [roomStatusClass[info.status]]: true }">
           <span v-if="info.status === RoomStatus.LIVE">上班</span>
           <span v-else-if="info.status === RoomStatus.CLOSE">下班</span>
@@ -74,6 +74,7 @@
 
         <img
           v-if="keyframeState"
+          :style="getStyle"
           draggable="false"
           :src="info.keyframe"
           @error="() => (keyframeState = false)"
@@ -125,7 +126,10 @@ const isTop = computed(() => {
 });
 const setting = () => emit('setting');
 let dragLock = true;
-
+const getStyle = computed(() => ({
+  filter:
+    props.info.status === RoomStatus.LIVE ? 'brightness(1)' : 'brightness(0.4)',
+}));
 function openPopover(type: 'name' | 'title' | 'news') {
   popovers[type] = true;
 }
@@ -262,6 +266,7 @@ const [, drag] = useDrag({
   text-align: center;
   background: #2080f0;
   border-radius: 4px;
+  z-index: 9;
 }
 .setting {
   width: 30px;
@@ -271,11 +276,12 @@ const [, drag] = useDrag({
   right: 4px;
   top: 6px;
   text-align: center;
-  background: #2080f0;
+  background: #2081f0c0;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 9;
 }
 
 .status {
@@ -285,16 +291,17 @@ const [, drag] = useDrag({
   height: 23px;
   left: 58px;
   top: 6px;
+  z-index: 9;
 }
 .status.close {
-  background-color: #f4f5f8;
-  color: #6d6c6c;
+  background-color: #f4f5f8a2;
+  color: #444444;
 }
 .status.live {
-  background-color: #ff4961;
+  background-color: #ff4961c2;
 }
 .status.rec {
-  background-color: #428cff;
+  background-color: #428affb6;
 }
 
 .popover {
@@ -320,5 +327,7 @@ const [, drag] = useDrag({
 .popover-enter-from,
 .popover-leave-to {
   opacity: 0;
+  background-color: #fb7299c0;
+  background-color: #ff5e23c2;
 }
 </style>
