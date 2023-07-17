@@ -1,13 +1,19 @@
+import md5 from 'js-md5';
 import getResponseBody from './response';
 import { CapacitorHttp } from '@capacitor/core';
 import { executeStrJs } from './tools';
-import md5 from 'js-md5';
 import { getUserInfoDouyu } from './douyu.info';
 
 // 获取真实url
-async function getRealUrl(roomId: any, qn: any = null, line: any = null) {
+export async function getLiveInfoDouyu(
+  roomId: number,
+  qn: any = null,
+  line: any = null,
+) {
   const did = '10000000000000000000000000001501';
-  const t10 = (new Date().getTime() / 1000).toFixed(0).toString();
+  const t10 = (new Date().getTime() / 1000).toFixed(0);
+  console.log(t10);
+  
   const cdn = 'ws-h5';
   const rate = 0;
   if (!qn) {
@@ -23,7 +29,7 @@ async function getRealUrl(roomId: any, qn: any = null, line: any = null) {
   :return: JSON格式
   `;
   const roomInfo = await getUserInfoDouyu(roomId);
-  const realId = roomInfo.data.room_id;
+  const realId = roomInfo.data.roomId;
 
   const res = await CapacitorHttp.get({
     url: 'https://www.douyu.com/' + realId,
@@ -31,7 +37,7 @@ async function getRealUrl(roomId: any, qn: any = null, line: any = null) {
   const result = res.data.match(
     /(vdwdae325w_64we[\s\S]*function ub98484234[\s\S]*?)function/,
   );
-  const func_ub9: any = result[1].replace(/eval.*?;}/g, 'strc;}');
+  const func_ub9 = result[1].replace(/eval.*?;}/g, 'strc;}');
 
   let fun: any = executeStrJs(func_ub9, ['ub98484234']);
   const js_res = fun.ub98484234();
@@ -53,7 +59,7 @@ async function getRealUrl(roomId: any, qn: any = null, line: any = null) {
   if (resInfo.data.error === 0) {
     const data = resInfo.data.data;
     const liveUrl = `${data['rtmp_url']}/${data['rtmp_live']}`;
-    const quality: any[] = [];
+    const quality = [];
     for (const item of data['multirates']) {
       quality.push({
         name: item.name,
@@ -79,5 +85,3 @@ async function getRealUrl(roomId: any, qn: any = null, line: any = null) {
     return getResponseBody(500, '请求错误！', res);
   }
 }
-
-export { getRealUrl };

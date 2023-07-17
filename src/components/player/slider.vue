@@ -32,7 +32,7 @@ const emit = defineEmits(['change']);
 
 const volume = ref(playerListConfig.value[props.playerName].volume);
 
-const change = (val: number) => {
+const change = async (val: number) => {
   volume.value = val * 100;
   playerListConfig.value[props.playerName].volume = val;
   emit('change', val);

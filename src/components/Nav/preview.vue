@@ -4,7 +4,7 @@
       <ion-toolbar>
         <ion-title class="modal-title"> 布局 </ion-title>
         <ion-buttons slot="end" class="modal-close">
-          <ion-button @click="cancel()">关闭</ion-button>
+          <ion-button @click="cancel()" v-vibration="5">关闭</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -28,6 +28,7 @@
                     class="preview-item"
                     :style="{ 'grid-template-areas': item.area }"
                     @click="updateLayout(index)"
+                    v-vibration="5"
                   >
                     <div
                       v-for="key in item.num"

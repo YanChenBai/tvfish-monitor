@@ -25,6 +25,7 @@ import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 
+
 defineOptions({ name: 'PlayerDanmu' });
 
 const { playerList, playerListConfig, layoutIndex } = storeToRefs(
@@ -34,7 +35,6 @@ const props = defineProps<{
   playerName: string;
 }>();
 const player = computed(() => playerList.value[props.playerName]);
-console.log(player.value);
 
 const playerConfig = computed(() => playerListConfig.value[props.playerName]);
 const danmus: any = [],

@@ -5,6 +5,7 @@
     id="nightOverlay"
     size="small"
     @click="showNightOverlay = true"
+    v-vibration="5"
   >
     <ion-icon :icon="moonOutline"></ion-icon>
   </ion-button>

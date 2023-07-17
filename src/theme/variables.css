@@ -163,3 +163,16 @@ ion-toast {
   --color: #d2d1d8;
   text-align: center;
 }
+
+ion-action-sheet.my-custom-class {
+  --color: #fff;
+}
+ion-button.min-btn {
+  width: 36px;
+  height: 23px;
+  margin: 0;
+  --padding-right: 0px;
+  --padding-top: 0px;
+  --padding-bottom: 0px;
+  --box-shadow: unset;
+}

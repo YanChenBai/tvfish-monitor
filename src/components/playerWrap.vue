@@ -24,6 +24,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
 import { IMAGE_PROXY } from '@/config/proxy';
+import { impactHeavy, vibrate } from '@/utils/impact';
 
 defineOptions({ name: 'playerWrap' });
 
@@ -45,11 +46,21 @@ const playerRef = ref<InstanceType<typeof LiveDanmuPlayer>>(),
 const player = computed(() => playerList.value[props.playerName]);
 
 // 创建拖拽
+let dragLock = true;
 const [, drag] = useDrag({
   type: DropType.PlayerDrap,
   item: {
     type: DropType.PlayerDrap,
     name: props.playerName,
+  },
+  collect(monitor) {
+    if (dragLock && monitor.isDragging()) {
+      dragLock = false;
+      impactHeavy();
+    }
+  },
+  end: () => {
+    dragLock = true;
   },
 });
 
@@ -58,9 +69,16 @@ const [, drop] = useDrop({
   accept: [DropType.MenuItem, DropType.PlayerDrap],
   drop: (item: { type: DropType; info: RoomListItem; name: string }) => {
     if (item.type === DropType.MenuItem) {
-      playerList.value[props.playerName] = item.info;
+      console.log(item.info);
+
+      playerList.value[props.playerName] = {
+        platform: item.info.platform,
+        roomId: item.info.roomId,
+      };
+      vibrate(15);
     } else if (item.type === DropType.PlayerDrap) {
       if (item.name === props.playerName) return;
+      vibrate(15);
       const tmp = playerList.value[props.playerName];
       if (tmp === null) {
         playerList.value[props.playerName] = playerList.value[item.name];
@@ -70,7 +88,11 @@ const [, drop] = useDrop({
         playerList.value[item.name] = tmp;
       }
     }
-    // getOrgin(item.info.roomId, item.info.platform);
+  },
+  collect(monitor) {
+    if (monitor.isOver()) {
+      console.log(monitor.isOver());
+    }
   },
 });
 
@@ -119,6 +141,7 @@ async function update() {
       if (res.code === -5) {
         url.value = null;
         updateRoomInfo(res.data);
+        playerRef.value!.destroy(false);
       } else {
         qualitys.value = res.data.quality;
         lines.value = res.data.lines;
@@ -144,9 +167,7 @@ async function update() {
 onMounted(() => update());
 watch(
   () => playerList.value[props.playerName],
-  () => {
-    update();
-  },
+  () => update(),
 );
 </script>
 

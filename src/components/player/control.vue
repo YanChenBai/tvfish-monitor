@@ -10,7 +10,13 @@
             {{ title }}
           </n-ellipsis>
         </div>
-        <ion-button color="danger" fill="clear" size="small" @click="destroy()">
+        <ion-button
+          color="danger"
+          fill="clear"
+          size="small"
+          @click="destroy()"
+          v-vibration="10"
+        >
           <ion-icon :icon="close"></ion-icon>
         </ion-button>
       </div>
@@ -22,13 +28,19 @@
             fill="clear"
             size="small"
             @click="refresh()"
+            v-vibration="5"
           >
             <ion-icon :icon="refreshIcon"></ion-icon>
           </ion-button>
 
           <PlayerSlider :player-name="playerName" @change="volumeChange">
             <template #target>
-              <ion-button color="light" fill="clear" size="small">
+              <ion-button
+                color="light"
+                fill="clear"
+                size="small"
+                v-vibration="5"
+              >
                 <ion-icon :icon="volumeHigh"></ion-icon>
                 <div class="volume">{{ playerConfig.volume }}</div>
               </ion-button>
@@ -41,11 +53,17 @@
             fill="clear"
             size="small"
             @click="danmuSwitch()"
+            v-vibration="5"
             >弹幕 {{ playerConfig.danmu ? '关' : '开' }}</ion-button
           >
           <PopoverSelect :list="qualitys" @change="qualityChange">
             <template #target>
-              <ion-button color="light" fill="clear" size="small">
+              <ion-button
+                color="light"
+                fill="clear"
+                size="small"
+                v-vibration="5"
+              >
                 清晰度
               </ion-button>
             </template>
@@ -53,7 +71,12 @@
           </PopoverSelect>
           <PopoverSelect :list="lines" @change="lineChange">
             <template #target>
-              <ion-button color="light" fill="clear" size="small">
+              <ion-button
+                color="light"
+                fill="clear"
+                size="small"
+                v-vibration="5"
+              >
                 线路
               </ion-button>
             </template>
@@ -61,6 +84,7 @@
           </PopoverSelect>
 
           <ion-button
+            v-vibration="5"
             color="light"
             fill="clear"
             size="small"

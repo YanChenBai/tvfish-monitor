@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-
+import vibrate from './utils/vibrationDirective';
 import { IonicVue } from '@ionic/vue';
 
 /* Core CSS required for Ionic components to work properly */
@@ -25,7 +25,7 @@ import './theme/variables.css';
 import '@/theme/title.center.css';
 import pinia from '@/stores';
 
-const app = createApp(App).use(IonicVue).use(pinia).use(router);
+const app = createApp(App).use(IonicVue).use(pinia).use(router).use(vibrate);
 
 console.warn = () => ({});
 router.isReady().then(() => {

@@ -1,6 +1,6 @@
 import getResponseBody from './response';
 import { CapacitorHttp } from '@capacitor/core';
-import { getUserInfo } from './bili.info';
+import { getUserInfoBili } from './bili.info';
 
 const defParams = {
   protocol: '0,1',
@@ -12,9 +12,9 @@ const defParams = {
 };
 
 // 获取直播源
-async function getLiveInfo(roomId: any, qn = 10000, line = 0) {
+export async function getLiveInfoBili(roomId, qn = 10000, line = 0) {
   let res;
-  const params: any = { ...defParams };
+  const params = { ...defParams };
   if (line === null) {
     line = 0;
   }
@@ -25,20 +25,21 @@ async function getLiveInfo(roomId: any, qn = 10000, line = 0) {
   }
 
   // 获取真实的房间ID
-  const roomInfoRes = await getUserInfo(roomId);
+  const roomInfoRes = await getUserInfoBili(roomId);
+
   if (roomInfoRes.code !== 200) {
-    return roomInfoRes;
+    throw new Error('请求错误!');
   }
-  if (roomInfoRes.data['live_status'] !== 1) {
+  if (roomInfoRes.data.status !== 1) {
     return getResponseBody(-5, '房间未开播', roomInfoRes.data);
   }
 
-  params['room_id'] = roomInfoRes.data['room_id'];
+  params['room_id'] = roomInfoRes.data.roomId;
 
   try {
     res = await CapacitorHttp.get({
       url: 'https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo',
-      params: params,
+      params: params as any,
     });
 
     const codecIndex = 0;
@@ -46,21 +47,21 @@ async function getLiveInfo(roomId: any, qn = 10000, line = 0) {
 
     // http_hls, http_stream
     const stream = playurl_info.playurl.stream.find(
-      (item: any) => item.protocol_name === 'http_hls',
+      (item) => item.protocol_name === 'http_hls',
     );
-    const format = stream.format.find((item: any) => item.format_name == 'ts');
+    const format = stream.format.find((item) => item.format_name == 'ts');
     const codec = format.codec[codecIndex];
     const baseUrl = codec.base_url;
     const host = codec.url_info[line].host;
     const extra = codec.url_info[line].extra;
     const findQuality = playurl_info.playurl.g_qn_desc.filter(
-      (item: any) => codec.accept_qn.indexOf(item.qn) !== -1,
+      (item) => codec.accept_qn.indexOf(item.qn) !== -1,
     );
-    const quality = findQuality.map((item: any) => ({
+    const quality = findQuality.map((item) => ({
       qn: item.qn,
       name: item.desc,
     }));
-    const lines = codec.url_info.map((item: any, index: any) => ({
+    const lines = codec.url_info.map((_item, index) => ({
       name: `线路${index + 1}`,
       line: index,
     }));
@@ -71,13 +72,9 @@ async function getLiveInfo(roomId: any, qn = 10000, line = 0) {
       qn: codec.current_qn,
       lines,
       line,
-      // format: format.format_name,
-      // codec: codec.codec_name,
       info: roomInfoRes.data,
     });
   } catch (e) {
     return getResponseBody(500, '请求错误！');
   }
 }
-
-export { getLiveInfo };

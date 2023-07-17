@@ -7,10 +7,6 @@
     />
     <div class="video-wrap">
       <video ref="videoRef" autoplay v-show="showPlayer"></video>
-      <div class="status-text" v-show="!showPlayer">
-        <span v-if="roomInfo.status === RoomStatus.CLOSE">未开播</span>
-        <span v-else-if="roomInfo.status === RoomStatus.REC">轮播中</span>
-      </div>
     </div>
     <Control
       @refresh="refresh"
@@ -90,10 +86,10 @@ const openControl = () =>
   controlRef.value ? controlRef.value.openControl() : '';
 
 // 销毁播放器
-function destroy() {
+function destroy(clear = true) {
   if (player.value) {
     player.value.destroy();
-    playerList.value[props.playerName] = null;
+    if (clear) playerList.value[props.playerName] = null;
   }
 }
 
@@ -123,13 +119,13 @@ const qualityChange = (item: QualityType) => emit('qualityChange', item);
 const lineChange = (item: LineType) => emit('lineChange', item);
 
 const showPlayer = computed(() => {
-  if (player.value !== null) return true;
+  if (player.value === null) return false;
   if (
-    roomInfo.value.status !== RoomStatus.CLOSE &&
-    roomInfo.value.status !== RoomStatus.REC
+    roomInfo.value.status === RoomStatus.CLOSE ||
+    roomInfo.value.status === RoomStatus.REC
   )
-    return true;
-  return false;
+    return false;
+  return true;
 });
 
 onMounted(() => {

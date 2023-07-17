@@ -4,13 +4,14 @@
     <div class="btns">
       <NightOverlayBtn></NightOverlayBtn>
       <Setting></Setting>
-      <ion-button color="light" fill="clear" id="layoutModal" size="small">
+      <ion-button color="light" fill="clear" id="layoutModal" size="small" v-vibration="5">
         <ion-icon :icon="layersOutline"></ion-icon>
       </ion-button>
       <ion-button
         color="light"
         fill="clear"
-        @click="showMenu = true"
+        @click="menuState = true"
+        v-vibration="5"
         size="small"
       >
         <ion-icon :icon="peopleOutline"></ion-icon>
@@ -19,18 +20,20 @@
         size="small"
         color="light"
         fill="clear"
+        v-vibration="5"
         @click="hideBar()"
         v-if="isPhone()"
       >
         <ion-icon :icon="eyeOffOutline"></ion-icon>
       </ion-button>
-      <ion-button size="small" color="light" fill="clear" id="settingModal">
+      <ion-button size="small" color="light" fill="clear" id="settingModal" v-vibration="5">
         <ion-icon :icon="settingsOutline"></ion-icon>
       </ion-button>
       <ion-button
         size="small"
         color="light"
         fill="clear"
+        v-vibration="5"
         @click="navState = false"
       >
         <ion-icon :icon="close"></ion-icon>
@@ -39,7 +42,7 @@
   </div>
 
   <LayoutModal />
-  <MenuPlayer v-model:show="showMenu" />
+  <MenuPlayer />
 </template>
 
 <script setup lang="ts">
@@ -63,8 +66,7 @@ import { isPhone } from '@/utils/isMobile';
 
 defineOptions({ name: 'PlayerIndex' });
 const playerStore = usePlayerStore();
-const { navState } = storeToRefs(playerStore);
-const showMenu = ref(false);
+const { navState, menuState } = storeToRefs(playerStore);
 </script>
 
 <style scoped>

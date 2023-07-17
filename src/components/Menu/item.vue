@@ -1,135 +1,161 @@
 <template>
-  <div
-    class="item-wrap"
-    :style="{ opacity: info.status === RoomStatus.LIVE ? '1' : '0.3' }"
-  >
-    <div class="face" @click="update">
-      <img draggable="false" :src="info.face" />
-    </div>
-    <div class="info">
-      <div class="name">
-        <n-ellipsis class="ellipsis-width">
-          {{ info.name }}
-          <template #tooltip>
-            <div class="ellipsis-width">{{ info.name }}</div>
-          </template>
-        </n-ellipsis>
+  <div class="item-wrap" :class="{ ['is-top']: isTop }">
+    <div
+      class="item-box"
+      :style="{ opacity: info.status === RoomStatus.LIVE ? '1' : '0.3' }"
+    >
+      <div class="face" @click="update">
+        <img draggable="false" :src="info.face" />
       </div>
-      <div class="title">
-        <n-ellipsis class="ellipsis-width">
-          {{ info.title }}
-          <template #tooltip>
-            <div class="ellipsis-width">{{ info.title }}</div>
-          </template>
-        </n-ellipsis>
+      <div class="info">
+        <div class="name">
+          <n-ellipsis class="ellipsis-width">
+            {{ info.name }}
+            <template #tooltip>
+              <div class="ellipsis-width">{{ info.name }}</div>
+            </template>
+          </n-ellipsis>
+        </div>
+        <div class="title">
+          <n-ellipsis class="ellipsis-width">
+            {{ info.title }}
+            <template #tooltip>
+              <div class="ellipsis-width">{{ info.title }}</div>
+            </template>
+          </n-ellipsis>
+        </div>
+        <div class="news">
+          <n-ellipsis class="ellipsis-width">
+            公告：{{ info.news }}
+            <template #tooltip>
+              <div class="ellipsis-width">{{ info.news }}</div>
+            </template>
+          </n-ellipsis>
+        </div>
       </div>
-      <div class="news">
-        <n-ellipsis class="ellipsis-width">
-          公告：{{ info.news }}
-          <template #tooltip>
-            <div class="ellipsis-width">{{ info.news }}</div>
-          </template>
-        </n-ellipsis>
+      <div class="drag" :ref="drag">
+        <ion-icon :icon="moveOutline"></ion-icon>
       </div>
-    </div>
-    <div class="drag" :ref="drag">
-      <ion-icon :icon="moveOutline"></ion-icon>
-    </div>
-    <div class="keyframe">
-      <div
-        class="platform"
-        :style="{
-          background: info.platform === 'bili' ? '#fb7299' : '#ff5d23',
-        }"
-      >
-        {{ info.platform === 'bili' ? 'b站' : '斗鱼' }}
+      <div class="keyframe">
+        <div
+          class="platform"
+          :style="{
+            background: info.platform === 'bili' ? '#fb7299' : '#ff5d23',
+          }"
+        >
+          {{ info.platform === 'bili' ? 'b站' : '斗鱼' }}
+        </div>
+        <div class="status" :class="{ [roomStatusClass[info.status]]: true }">
+          <span v-if="info.status === RoomStatus.LIVE">上班</span>
+          <span v-else-if="info.status === RoomStatus.CLOSE">下班</span>
+          <span v-else-if="info.status === RoomStatus.REC">录像</span>
+        </div>
+
+        <div
+          class="setting"
+          @click.prevent="() => (disabled ? '' : setting())"
+          :style="{ filter: disabled ? 'brightness(0.8)' : 'brightness(1)' }"
+          v-vibration="5"
+        >
+          <ion-icon :icon="settingsOutline"></ion-icon>
+        </div>
+
+        <img
+          v-if="keyframeState"
+          draggable="false"
+          :src="info.keyframe"
+          @error="() => (keyframeState = false)"
+        />
       </div>
-      <div class="status" :class="{ [roomStatusClass[info.status]]: true }">
-        <span v-if="info.status === RoomStatus.LIVE">上班</span>
-        <span v-else-if="info.status === RoomStatus.CLOSE">下班</span>
-        <span v-else-if="info.status === RoomStatus.REC">录像</span>
-      </div>
-      <n-popconfirm @positive-click="remove">
-        删除
-        <template #trigger>
-          <div class="remove" @click.prevent="() => {}">
-            <ion-icon :icon="trashOutline"></ion-icon>
-          </div>
-        </template>
-      </n-popconfirm>
-      <img draggable="false" :src="info.keyframe" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { IonIcon } from '@ionic/vue';
-import { moveOutline, trashOutline } from 'ionicons/icons';
-import { NEllipsis, NPopconfirm } from 'naive-ui';
+import { moveOutline, settingsOutline } from 'ionicons/icons';
+import { NEllipsis } from 'naive-ui';
 import { usePlayerStore } from '@/stores/playerStore';
 import { DropType } from '@/types/drop';
 import { useDrag } from 'vue3-dnd';
-import { watch } from 'vue';
+import { computed, ref } from 'vue';
 import { RoomListItem, RoomStatus } from '@/types/player';
-import { impactHeavy, impactMedium } from '@/utils/impact';
-import { message } from '@/utils/message';
+import { impactHeavy, vibrate } from '@/utils/impact';
 
 defineOptions({ name: 'MenuItem' });
 
 const playerStore = usePlayerStore();
-const emit = defineEmits(['drag']);
+const emit = defineEmits(['drag', 'setting']);
 const roomStatusClass = ['close', 'live', 'rec'];
+
 const props = defineProps<{
   info: RoomListItem;
+  disabled: boolean;
 }>();
-
+const keyframeState = ref(true);
 function update() {
+  vibrate(15);
   playerStore.updateRoomInfo(props.info.roomId, props.info.platform);
 }
 
-function remove() {
-  playerStore.removeRoom(props.info.roomId, props.info.platform);
-}
+const isTop = computed(() => {
+  return playerStore.queryTop(props.info.roomId, props.info.platform) === -1
+    ? false
+    : true;
+});
+const setting = () => emit('setting');
+let dragLock = true;
 
 // 创建拖拽
-const [collect, drag] = useDrag({
+const [, drag] = useDrag({
   type: DropType.MenuItem,
   item: {
     type: DropType.MenuItem,
     info: props.info,
   },
   collect: (monitor) => {
+    playerStore.menuItemIsDragging = monitor.isDragging();
     if (monitor.isDragging()) {
       emit('drag', props.info);
+      if (dragLock) {
+        dragLock = false;
+        impactHeavy();
+      }
     }
     return {
       isDragging: monitor.isDragging(),
     };
   },
-});
-watch(collect, async (val) => {
-  playerStore.menuItemIsDragging = val.isDragging;
-  // if (val.isDragging) await impactHeavy();
+  end: () => {
+    dragLock = true;
+  },
 });
 </script>
 
 <style scoped>
 .item-wrap {
-  display: flex;
-  /* height: 64px; */
   width: 280px;
   background: rgb(56, 56, 56);
   border-radius: 5px;
   color: #fff;
   border: 2px solid rgba(255, 255, 255, 0.089);
   box-sizing: border-box;
+}
+.item-box {
+  display: flex;
   flex-wrap: wrap;
+  /* height: 64px; */
+}
+.is-top {
+  border: 2px solid #cf1e36b7;
 }
 .face {
   width: 60px;
   height: 60px;
   border-radius: 4px;
   position: relative;
+  padding: 2px 0 0 2px;
+  box-sizing: border-box;
 }
 .tag {
   position: absolute;
@@ -141,8 +167,8 @@ watch(collect, async (val) => {
   top: 2px;
 }
 .face img {
-  width: 60px;
-  height: 60px;
+  width: 100%;
+  height: 100%;
   border-radius: 4px;
   user-select: none;
   width: 100%;
@@ -183,13 +209,14 @@ watch(collect, async (val) => {
 }
 .keyframe {
   width: 100%;
+  height: 155px;
   display: flex;
   padding-top: 2px;
   position: relative;
 }
 .keyframe img {
   width: 100%;
-  height: 155px;
+
   border-radius: 4px;
   user-select: none;
 }
@@ -203,7 +230,7 @@ watch(collect, async (val) => {
   background: #2080f0;
   border-radius: 4px;
 }
-.remove {
+.setting {
   width: 30px;
   height: 23px;
   position: absolute;
@@ -211,7 +238,7 @@ watch(collect, async (val) => {
   right: 4px;
   top: 6px;
   text-align: center;
-  background: #ee3a3a;
+  background: #2080f0;
   border-radius: 4px;
   display: flex;
   align-items: center;

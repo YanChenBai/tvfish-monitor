@@ -4,7 +4,7 @@
       <ion-toolbar>
         <ion-title class="modal-title"> 设置 </ion-title>
         <ion-buttons slot="end" class="modal-close">
-          <ion-button @click="cancel()">关闭</ion-button>
+          <ion-button @click="cancel()" v-vibration="5">关闭</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>

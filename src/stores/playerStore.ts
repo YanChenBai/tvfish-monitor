@@ -8,16 +8,19 @@ import {
   PlayerList,
   PlayerConfigList,
   Platform,
+  PlayerItem,
 } from '@/types/player';
+import { isPhone } from '@/utils/isMobile';
 
 export const usePlayerStore = defineStore(
   'player',
   () => {
-    const layoutIndex = ref<number>(3);
+    const layoutIndex = ref<number>(isPhone() ? 13 : 15);
     const navState = ref(true);
     const showNightOverlay = ref(false);
     const roomList = ref<RoomListItem[]>([]);
     const menuState = ref(false);
+    const topRoomList = ref<PlayerItem[]>([]);
     const nightOverlayOpacity = ref(80);
     const menuItemIsDragging = ref(false);
     const playerList = reactive<PlayerList>({
@@ -41,7 +44,7 @@ export const usePlayerStore = defineStore(
       h: { volume: 0, danmu: false },
     });
 
-    async function addRoom(roomId: number, type: Platform) {
+    async function addRoom(roomId: number, type: Platform, msg = true) {
       try {
         const res = await getRoomInfo(roomId, type);
         if (res === false) {
@@ -50,7 +53,9 @@ export const usePlayerStore = defineStore(
 
         for (const item of roomList.value) {
           if (item.platform === res.platform && res.roomId === item.roomId) {
-            await message('直播间已经添加了!');
+            if (msg) {
+              await message('直播间已经添加了!');
+            }
             return;
           }
         }
@@ -71,8 +76,9 @@ export const usePlayerStore = defineStore(
           status: res.status,
           shortId: res.shortId,
         });
-
-        await message('添加成功!');
+        if (msg) {
+          await message('添加成功!');
+        }
       } catch (error) {
         error;
       }
@@ -110,6 +116,26 @@ export const usePlayerStore = defineStore(
       }
     }
 
+    const queryTop = (roomId: number, platform: Platform) =>
+      topRoomList.value.findIndex(
+        (item) => item.platform === platform && item.roomId === roomId,
+      );
+
+    function addTop(roomId: number, platform: Platform) {
+      if (queryTop(roomId, platform) === -1) {
+        topRoomList.value.push({
+          roomId,
+          platform,
+        });
+      }
+    }
+    function removeTop(roomId: number, platform: Platform) {
+      const index = queryTop(roomId, platform);
+      if (index !== -1) {
+        topRoomList.value.splice(index, 1);
+      }
+    }
+
     return {
       layoutIndex,
       roomList,
@@ -119,10 +145,14 @@ export const usePlayerStore = defineStore(
       playerListConfig,
       showNightOverlay,
       menuItemIsDragging,
+      nightOverlayOpacity,
+      topRoomList,
       updateRoomInfo,
       removeRoom,
       addRoom,
-      nightOverlayOpacity,
+      queryTop,
+      addTop,
+      removeTop,
     };
   },
   {
@@ -133,6 +163,7 @@ export const usePlayerStore = defineStore(
         'playerList',
         'playerListConfig',
         'nightOverlayOpacity',
+        'topRoomList',
       ],
     },
   },

@@ -2,10 +2,8 @@ import getResponseBody from './response';
 import { CapacitorHttp } from '@capacitor/core';
 
 // 获取真实id
-async function getRealId(roomId: any) {
-  let res = await CapacitorHttp.get({
-    url: 'https://m.douyu.com/' + roomId,
-  });
+export async function getRealIdDouyu(roomId: number) {
+  let res = await CapacitorHttp.get({ url: 'https://m.douyu.com/' + roomId });
   res = res.data;
   const tmp_str = res.toString().match(/"rid":(\d{1,8}),"vipId"/g);
   if (tmp_str) {
@@ -17,30 +15,34 @@ async function getRealId(roomId: any) {
 }
 
 // 获取主播信息
-async function getUserInfoDouyu(roomId: any) {
+export async function getUserInfoDouyu(roomId: number) {
   try {
-    const realId = await getRealId(roomId);
+    const realId = await getRealIdDouyu(roomId);
     if (realId === null) return getResponseBody(404, '没找到对应主播！');
 
     const res = await CapacitorHttp.get({
-      url: `https://www.douyu.com/swf_api/h5room/${realId}`,
+      url: `https://www.douyu.com/betard/${realId}`,
     });
-    const data = res.data.data;
+    const data = res.data.room;
+    let status = 0;
+    if (data.show_status === 2) {
+      status === 0;
+    } else if (data.show_status === 1) {
+      status = data.videoLoop === 1 ? 2 : 1;
+    }
     const reqData = {
       face: data.owner_avatar,
       news: data.show_details,
       name: data.nickname,
-      uid: data.owner_uid,
-      room_id: data.room_id,
-      short_id: roomId,
-      live_status: data.show_status,
+      roomId: Number(data.room_id),
+      shortId: data.vipId,
+      status,
       title: data.room_name,
-      keyframe: data.room_src,
+      keyframe: data.room_pic,
+      platform: 'douyu',
     };
     return getResponseBody(200, '请求成功！', reqData);
   } catch (err) {
     return getResponseBody(500, '请求错误！', err);
   }
 }
-
-export { getRealId, getUserInfoDouyu };

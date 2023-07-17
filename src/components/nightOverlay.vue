@@ -20,6 +20,8 @@ import { storeToRefs } from 'pinia';
 import { onLongPress } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { message } from '@/utils/message';
+import { vibrate } from '@/utils/impact';
+
 
 defineOptions({ name: 'nightOverlay' });
 
@@ -34,12 +36,15 @@ onLongPress(nightOverlayRef, closeNightOverlay, {
 
 function closeNightOverlay() {
   showNightOverlay.value = false;
+  vibrate(20)
   message('已关闭!');
 }
 
+let lock: number | null = null;
 function showTips() {
+  if (lock !== null) clearTimeout(lock);
   tipsState.value = true;
-  setTimeout(() => {
+  lock = setTimeout(() => {
     tipsState.value = false;
   }, 5000);
 }
