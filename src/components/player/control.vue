@@ -6,9 +6,9 @@
           <div class="name status" :class="{ [roomStatusClass[status]]: true }">
             {{ playerName }}
           </div>
-          <n-ellipsis style="max-width: 200px">
+          <div class="content">
             {{ title }}
-          </n-ellipsis>
+          </div>
         </div>
         <ion-button
           color="danger"
@@ -101,7 +101,6 @@
 <script setup lang="ts">
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
-import { NEllipsis } from 'naive-ui';
 import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
@@ -217,6 +216,14 @@ defineExpose({
   align-items: center;
   line-height: 18px;
   padding-left: 6px;
+  width: calc(100% - 60px);
+}
+
+.title .content {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .name {

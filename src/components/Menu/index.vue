@@ -1,6 +1,7 @@
 <template>
   <Transition name="menu">
     <div class="menu-wrap" ref="menuWrap" v-show="menuState">
+      <!-- 搜索直播间 -->
       <div>
         <ion-input
           style="min-height: 26px; margin-bottom: 10px; color: #ffff"
@@ -10,6 +11,8 @@
           v-model:modelValue="keyWorldDebounced"
         ></ion-input>
       </div>
+
+      <!-- 直播间列表 -->
       <div class="menu-content hide-scrollbar" ref="menuContentRef">
         <div v-for="item in searchByName" class="menu-content-item">
           <MenuItem
@@ -17,17 +20,24 @@
             :disabled="updateLoading"
             :info="item"
             @drag="dragItem"
-            @setting="setOpen(item)"
+            @setting="openSet(item)"
+            @tips="openTips(item)"
           ></MenuItem>
         </div>
       </div>
+
+      <!-- 操作的按钮 -->
       <div class="add">
         <ion-button v-vibration="5">
           {{ searchByName.length }}
         </ion-button>
+
+        <!-- 添加/导入/导出按钮 -->
         <ion-button id="menuModal" :disabled="updateLoading" v-vibration="5">
           <ion-icon :icon="personAddOutline"></ion-icon>
         </ion-button>
+
+        <!-- 更新全部 -->
         <ion-button
           id="updateAll"
           @click="updateAll"
@@ -40,20 +50,21 @@
             {{ updateIndex + 1 }} / {{ roomList.length }}
           </div>
         </ion-button>
-        <ion-button
-          id="updateAll"
-          :disabled="updateLoading"
-          @click="sortList"
-          v-vibration="5"
-        >
+
+        <!-- 整理顺序 -->
+        <ion-button :disabled="updateLoading" @click="sortList" v-vibration="5">
           <ion-icon :icon="swapVerticalOutline"></ion-icon>
         </ion-button>
-        <ion-button id="updateAll" @click="goTop" v-vibration="5">
+
+        <!-- 直播间列表返回顶部 -->
+        <ion-button @click="goTop" v-vibration="5">
           <ion-icon :icon="arrowUpOutline"></ion-icon>
         </ion-button>
       </div>
     </div>
   </Transition>
+
+  <!-- 添加直播间 / 导入 / 导出 的模态框 -->
   <ion-modal ref="menuModal" trigger="menuModal">
     <ion-header>
       <ion-toolbar>
@@ -140,6 +151,7 @@
     </ion-content>
   </ion-modal>
 
+  <!-- 设置的弹窗 -->
   <ion-action-sheet
     ref="actionSheet"
     class="my-custom-class"
@@ -149,15 +161,44 @@
     @didDismiss="isOpen = false"
   ></ion-action-sheet>
 
+  <!-- 确认删除弹窗 -->
   <ion-alert
-    ref="alertRef"
-    :is-open="isOpenAlert"
+    ref="removeAlertRef"
+    :is-open="removeIsopen"
     header="确认"
     sub-header="确认删除"
     :message="currentSelectRoom === null ? '' : `${currentSelectRoom.name}`"
     :buttons="alertButtons"
-    @didDismiss="() => (isOpenAlert = false)"
+    @didDismiss="() => (removeIsopen = false)"
   ></ion-alert>
+
+  <ion-popover
+    ref="tipsPopoverRef"
+    :is-open="tipsPopover.isOpen"
+    trigger="click-trigger"
+    trigger-action="click"
+    @didDismiss="tipsPopover.isOpen = false"
+  >
+    <ion-content class="ion-padding">
+      <template v-if="tipsPopover.content">
+        <p class="room-name">{{ tipsPopover.content.name }}</p>
+        <p>
+          直播间ID:
+          <span class="tips-item">{{ tipsPopover.content.roomId }}</span>
+        </p>
+        <p>
+          平台: <span class="tips-item">{{ tipsPopover.content.roomId }}</span>
+        </p>
+        <p>
+          标题: <span class="tips-item">{{ tipsPopover.content.title }}</span>
+        </p>
+        <p>
+          公告: <span class="tips-item">{{ tipsPopover.content.news }}</span>
+        </p>
+        <ion-button @click="copyRoomAddress" v-vibration="5">复制直播间地址</ion-button>
+      </template>
+    </ion-content>
+  </ion-popover>
 </template>
 
 <script setup lang="ts">
@@ -178,6 +219,7 @@ import {
   IonRadioGroup,
   IonActionSheet,
   IonAlert,
+  IonPopover,
   ActionSheetButton,
 } from '@ionic/vue';
 
@@ -225,18 +267,28 @@ const menuModal = ref(),
   keyWorld = ref(''),
   menuContentRef = ref(),
   isOpen = ref(false),
-  isOpenAlert = ref(false),
-  alertRef = ref(),
+  removeIsopen = ref(false),
+  removeAlertRef = ref(),
   currentSelectRoom = ref<RoomListItem | null>(null),
   inputLoading = ref(false),
   inputMsg = ref(''),
-  addloading = ref(false);
+  addloading = ref(false),
+  tipsPopoverRef = ref(),
+  tipsPopover = reactive<{
+    isOpen: boolean;
+    content: RoomListItem | null;
+  }>({
+    isOpen: false,
+    content: null,
+  });
 
+// 关闭模态框
 function cancel(vn: any) {
   vibrate(5);
   vn.$el.dismiss(null, 'cancel');
 }
 
+// 添加数据
 async function add() {
   vibrate(5);
   addloading.value = true;
@@ -257,6 +309,7 @@ function dragItem() {
   menuState.value = false;
 }
 
+// 导入数据
 async function inputData() {
   inputLoading.value = true;
   try {
@@ -277,6 +330,7 @@ async function inputData() {
   inputLoading.value = false;
 }
 
+// 导出
 async function outData() {
   const list = roomList.value.map((item) => ({
     roomId: item.roomId,
@@ -286,6 +340,20 @@ async function outData() {
     string: JSON.stringify(list),
   });
   await message('复制成功!');
+}
+
+// 复制直播间地址
+async function copyRoomAddress() {
+  if (tipsPopover.content !== null) {
+    const address =
+      (tipsPopover.content.platform === Platform.Bili
+        ? 'https://live.bilibili.com/'
+        : 'https://www.douyu.com/') + tipsPopover.content.roomId;
+    await Clipboard.write({
+      string: address,
+    });
+    await message('复制成功!');
+  }
 }
 
 // 更新全部
@@ -309,12 +377,8 @@ async function updateAll() {
   updateLoading.value = false;
 }
 
-function checkStatus(status: number) {
-  if (status === 1) return 1;
-  else return 0;
-}
-
 // 排序
+const checkStatus = (status: number) => (status === 1 ? 1 : 0);
 function sortList() {
   const tmpList = roomList.value.sort((a, b) => {
     return checkStatus(b.status) - checkStatus(a.status);
@@ -333,6 +397,7 @@ function sortList() {
   roomList.value = tmpList;
 }
 
+// 返回顶部
 function goTop() {
   menuContentRef.value.scrollTo({
     top: 0,
@@ -340,11 +405,13 @@ function goTop() {
   });
 }
 
+// 导入默认数据
 async function inputDefData() {
   jsonData.value = defRoomList;
   await inputData();
 }
 
+// 名字搜索
 const searchByName = computed(() => {
   return roomList.value.filter(
     (item) => item.name.search(keyWorld.value) !== -1,
@@ -352,10 +419,16 @@ const searchByName = computed(() => {
 });
 
 // 打开设置
-const setOpen = (item: RoomListItem | null = null) => {
+const openSet = (item: RoomListItem | null = null) => {
   vibrate(15);
   isOpen.value = true;
   currentSelectRoom.value = item;
+};
+
+// 打开提示
+const openTips = (item: RoomListItem | null = null) => {
+  tipsPopover.isOpen = true;
+  tipsPopover.content = item;
 };
 
 // 按钮回调
@@ -367,7 +440,7 @@ const actionSheetButtons = computed(() => {
       cssClass: 'del',
       handler: () => {
         vibrate(5);
-        isOpenAlert.value = true;
+        removeIsopen.value = true;
       },
     },
     {
@@ -445,7 +518,14 @@ watchDebounced(keyWorldDebounced, (val) => (keyWorld.value = val), {
 
 // 关闭Menu
 onClickOutside(menuWrap, () => (menuState.value = false), {
-  ignore: [menuModal, menuWrap, outModal, actionSheet, alertRef],
+  ignore: [
+    menuModal,
+    menuWrap,
+    outModal,
+    actionSheet,
+    removeAlertRef,
+    tipsPopoverRef,
+  ],
 });
 
 if (isPhone()) {
@@ -489,6 +569,14 @@ if (isPhone()) {
   width: 100%;
   padding: 10px;
   box-sizing: border-box;
+}
+
+.room-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+.tips-item {
+  opacity: 0.8;
 }
 
 .menu-enter-active,

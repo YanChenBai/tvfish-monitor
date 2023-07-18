@@ -4,44 +4,15 @@
       <div class="face" @click="update">
         <img draggable="false" :src="info.face" :style="getStyle" />
       </div>
-      <div class="info">
+      <div class="info" @click="tips">
         <div class="name">
-          <div
-            class="ellipsis-width"
-            @click="openPopover('name')"
-            ref="nameRef"
-          >
-            {{ info.name }}
-          </div>
-          <Transition name="popover">
-            <div class="popover" v-show="popovers.name">{{ info.name }}</div>
-          </Transition>
+          <div class="ellipsis-width">{{ info.name }}</div>
         </div>
         <div class="title">
-          <div
-            class="ellipsis-width"
-            @click="openPopover('title')"
-            ref="titleRef"
-          >
-            {{ info.title }}
-          </div>
-          <Transition name="popover">
-            <div class="popover" v-show="popovers.title">{{ info.title }}</div>
-          </Transition>
+          <div class="ellipsis-width">{{ info.title }}</div>
         </div>
         <div class="news">
-          <div
-            class="ellipsis-width"
-            @click="openPopover('news')"
-            ref="newsRef"
-          >
-            公告：{{ info.news }}
-          </div>
-          <Transition name="popover">
-            <div class="popover" v-show="popovers.news">
-              公告：{{ info.news }}
-            </div>
-          </Transition>
+          <div class="ellipsis-width">公告：{{ info.news }}</div>
         </div>
       </div>
       <div class="drag" :ref="drag">
@@ -90,54 +61,42 @@ import { moveOutline, settingsOutline } from 'ionicons/icons';
 import { usePlayerStore } from '@/stores/playerStore';
 import { DropType } from '@/types/drop';
 import { useDrag } from 'vue3-dnd';
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { RoomListItem, RoomStatus } from '@/types/player';
 import { impactHeavy, vibrate } from '@/utils/impact';
-import { onClickOutside } from '@vueuse/core';
+import { roomStatusClass } from '@/config/status';
 
 defineOptions({ name: 'MenuItem' });
 
 const playerStore = usePlayerStore();
-const emit = defineEmits(['drag', 'setting']);
-const roomStatusClass = ['close', 'live', 'rec'];
+const emit = defineEmits(['drag', 'setting', 'tips']);
 
 const props = defineProps<{
   info: RoomListItem;
   disabled: boolean;
 }>();
-const popovers = reactive({
-  name: false,
-  title: false,
-  news: false,
-});
-const keyframeState = ref(true),
-  nameRef = ref(),
-  titleRef = ref(),
-  newsRef = ref();
+
+const keyframeState = ref(true);
+
+const setting = () => emit('setting');
+const tips = () => emit('tips', props.info);
+
+const isTop = computed(
+  () => playerStore.queryTop(props.info.roomId, props.info.platform) !== -1,
+);
+
+const getStyle = computed(() => ({
+  filter:
+    props.info.status === RoomStatus.LIVE ? 'brightness(1)' : 'brightness(0.4)',
+}));
+
 function update() {
   vibrate(15);
   playerStore.updateRoomInfo(props.info.roomId, props.info.platform);
 }
 
-const isTop = computed(() => {
-  return playerStore.queryTop(props.info.roomId, props.info.platform) === -1
-    ? false
-    : true;
-});
-const setting = () => emit('setting');
+// 用于防止拖拽多次触发
 let dragLock = true;
-const getStyle = computed(() => ({
-  filter:
-    props.info.status === RoomStatus.LIVE ? 'brightness(1)' : 'brightness(0.4)',
-}));
-function openPopover(type: 'name' | 'title' | 'news') {
-  popovers[type] = true;
-}
-
-onClickOutside(nameRef, () => (popovers.name = false));
-onClickOutside(titleRef, () => (popovers.title = false));
-onClickOutside(newsRef, () => (popovers.news = false));
-
 // 创建拖拽
 const [, drag] = useDrag({
   type: DropType.MenuItem,
@@ -188,6 +147,7 @@ const [, drag] = useDrag({
   position: relative;
   padding: 2px 0 0 2px;
   box-sizing: border-box;
+  cursor: pointer;
 }
 .tag {
   position: absolute;
@@ -207,6 +167,7 @@ const [, drag] = useDrag({
 }
 
 .info {
+  cursor: pointer;
   width: 156px;
   padding: 0px 10px;
 }
