@@ -195,7 +195,9 @@
         <p>
           公告: <span class="tips-item">{{ tipsPopover.content.news }}</span>
         </p>
-        <ion-button @click="copyRoomAddress" v-vibration="5">复制直播间地址</ion-button>
+        <ion-button @click="copyRoomAddress" v-vibration="5"
+          >复制直播间地址</ion-button
+        >
       </template>
     </ion-content>
   </ion-popover>
@@ -223,7 +225,7 @@ import {
   ActionSheetButton,
 } from '@ionic/vue';
 
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import {
   personAddOutline,
   swapVerticalOutline,
@@ -242,6 +244,7 @@ import { useBackButton } from '@ionic/vue';
 import { Platform, PlayerItem, RoomListItem } from '@/types/player';
 import { onClickOutside, watchDebounced } from '@vueuse/core';
 import { vibrate } from '@/utils/impact';
+import { useScroll } from '@vueuse/core';
 
 defineOptions({ name: 'MenuList' });
 
@@ -409,6 +412,7 @@ function goTop() {
 async function inputDefData() {
   jsonData.value = defRoomList;
   await inputData();
+  sortList();
 }
 
 // 名字搜索
@@ -509,6 +513,12 @@ const alertButtons = [
     },
   },
 ];
+
+// 监听滚动条到底部或者顶部
+const { arrivedState } = useScroll(menuContentRef);
+watch(arrivedState, (val) => {
+  if (val.top || val.bottom) vibrate(10);
+});
 
 // 搜索节流
 watchDebounced(keyWorldDebounced, (val) => (keyWorld.value = val), {
