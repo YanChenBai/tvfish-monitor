@@ -7,10 +7,64 @@ export default [
 
   `'a b c d'`,
 
+  `'a b c d e'`,
+  `'a b c d e f'`,
+  `'a b c d e f g'`,
+  `'a b c d e f g h'`,
+
+  `'a'
+ 'b'`,
+
+  `'a'
+ 'b'
+ 'c'`,
+
   `'a'
  'b'
  'c'
  'd'`,
+
+  `'a'
+ 'b'
+ 'c'
+ 'd'
+ 'e'`,
+
+  `'a'
+ 'b'
+ 'c'
+ 'd'
+ 'e'
+ 'f'`,
+
+  `'a'
+ 'b'
+ 'c'
+ 'd'
+ 'e'
+ 'f'
+ 'g'`,
+
+  `'a'
+ 'b'
+ 'c'
+ 'd'
+ 'e'
+ 'f'
+ 'g'
+ 'h'`,
+
+  `'a b'
+ 'c d'`,
+
+  `'a b'
+ 'c d'
+ 'e f'`,
+
+  `'a b'
+ 'c d'
+ 'e f'
+ 'g h'`,
 
   `'a a'
  'b c'
@@ -42,16 +96,6 @@ export default [
  'a c d f'
  'a e e f'`,
 
-  `'a'
- 'b'
- 'c'`,
-
-  `'a'
- 'b'`,
-
-  `'a b'
- 'c d'`,
-
   `'a a a'
  'b c d'`,
 
@@ -67,6 +111,10 @@ export default [
   `'a a a a b b'
  'a a a a c c'
  'a a a a d d'`,
+
+  `'a a a a b b'
+ 'a a a a c c'
+ 'd d e e f f'`,
 
   `'a a b b c c d d'
  'a a b b c c d d'
