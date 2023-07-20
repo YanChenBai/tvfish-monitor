@@ -18,7 +18,7 @@
     "build:android:": "ionic capacitor build android"
   },
   "dependencies": {
-    "@anuradev/capacitor-background-mode": "file:plugins/capacitor-background-mode",
+    "@anuradev/capacitor-background-mode": "file:capacitor-plugins/capacitor-background-mode",
     "@capacitor/android": "5.1.1",
     "@capacitor/app": "5.0.5",
     "@capacitor/clipboard": "^5.0.5",
