@@ -19,7 +19,7 @@ export default class LiveDanmuPlayer {
   // 解码帧
   lastDecodedFrame = 0;
   // 跳帧间隔
-  autoSkipFrameInterval = 0.5;
+  autoSkipFrameInterval = 6;
 
   // 重连刷新限制
   ReconnectionLimit = 10;
@@ -61,7 +61,10 @@ export default class LiveDanmuPlayer {
     this.el!.volume = this.config.volume;
     // hlsPlayer
     this.player = hlsPlayer;
-    this.destroy = () => hlsPlayer.destroy();
+    this.destroy = () => {
+      if (this.flvSyncTimer) clearInterval(this.flvSyncTimer);
+      hlsPlayer.destroy();
+    };
   }
 
   initFlv() {
@@ -120,6 +123,7 @@ export default class LiveDanmuPlayer {
 
     // 断流重连
     player.on(FlvJs.Events.ERROR, () => {
+      console.log('断流重连');
       if (this.player) this.reconnectionRefresh(config);
     });
 
@@ -141,15 +145,19 @@ export default class LiveDanmuPlayer {
       },
     );
 
+    // FIX 会让画面开始
     // Flv自动跳帧
-    setInterval(() => {
-      if (player.buffered.length) {
-        const end = player.buffered.end(0); // 最新的buff数据
-        const diff = end - player.currentTime;
-        if (diff >= this.autoSkipFrameInterval) {
-          player.currentTime = player.buffered.end(0);
-        }
-      }
-    });
+    // this.flvSyncTimer = setInterval(() => {
+    //   if (player.buffered.length) {
+    //     const end = player.buffered.end(0); // 最新的buff数据
+    //     const diff = end - player.currentTime;
+    //     console.log(diff);
+
+    //     if (diff > this.autoSkipFrameInterval) {
+    //       // console.log(diff);
+    //       (this.player as FlvJs.Player).currentTime = player.buffered.end(0);
+    //     }
+    //   }
+    // });
   }
 }
