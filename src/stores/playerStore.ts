@@ -11,6 +11,7 @@ import {
   PlayerItem,
 } from '@/types/player';
 import { isPhone } from '@/utils/isMobile';
+import { BackgroundMode } from '@anuradev/capacitor-background-mode';
 
 export const usePlayerStore = defineStore(
   'player',
@@ -23,6 +24,7 @@ export const usePlayerStore = defineStore(
     const topRoomList = ref<PlayerItem[]>([]);
     const nightOverlayOpacity = ref(80);
     const menuItemIsDragging = ref(false);
+    const backgroundModeState = ref(false);
     const playerList = reactive<PlayerList>({
       a: null,
       b: null,
@@ -129,12 +131,25 @@ export const usePlayerStore = defineStore(
         });
       }
     }
+
     function removeTop(roomId: number, platform: Platform) {
       const index = queryTop(roomId, platform);
       if (index !== -1) {
         topRoomList.value.splice(index, 1);
       }
     }
+
+    // 暂时不开放
+    // function switchBackgroundMode(state: boolean) {
+    //   backgroundModeState.value = state;
+    //   if (isPhone()) {
+    //     BackgroundMode.enable();
+    //     BackgroundMode.disableWebViewOptimizations();
+    //   } else {
+    //     BackgroundMode.disable();
+    //     BackgroundMode.enableWebViewOptimizations();
+    //   }
+    // }
 
     return {
       layoutIndex,

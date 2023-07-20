@@ -32,6 +32,8 @@ console.warn = () => ({});
 router.isReady().then(() => {
   app.mount('#app');
 });
+
+// 启动后台模式
 if (isPhone()) {
   BackgroundMode.enable();
   BackgroundMode.disableWebViewOptimizations();

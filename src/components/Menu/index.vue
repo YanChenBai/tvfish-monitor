@@ -17,7 +17,7 @@
         <div v-for="item in searchByName" class="menu-content-item">
           <MenuItem
             :key="`${item.platform}@${item.roomId}`"
-            :disabled="updateLoading"
+            :disabled="updateLoading || addloading"
             :info="item"
             @drag="dragItem"
             @setting="openSet(item)"
@@ -41,7 +41,7 @@
         <ion-button
           id="updateAll"
           @click="updateAll"
-          :disabled="updateLoading || inputLoading"
+          :disabled="updateLoading || inputLoading || addloading"
           v-vibration="5"
         >
           <ion-icon :icon="refresh" v-if="!updateLoading"></ion-icon>
@@ -53,7 +53,7 @@
 
         <!-- 整理顺序 -->
         <ion-button
-          :disabled="updateLoading || inputLoading"
+          :disabled="updateLoading || inputLoading || addloading"
           @click="sortList"
           v-vibration="5"
         >
@@ -128,7 +128,7 @@
         <ion-button
           style="margin-top: 10px; width: 100%"
           @click="inputData"
-          :disabled="inputLoading"
+          :disabled="inputLoading || addloading"
           v-vibration="5"
         >
           <span v-if="!inputLoading">导入</span>
@@ -137,19 +137,21 @@
             {{ inputMsg }}
           </div>
         </ion-button>
+
+        <ion-button
+          style="margin-top: 10px; width: 100%"
+          @click="inputDefData"
+          v-vibration="5"
+          :disabled="inputLoading || addloading"
+          >导入默认数据</ion-button
+        >
+
         <ion-button
           style="margin-top: 10px; width: 100%"
           @click="outData"
           v-vibration="5"
           :disabled="inputLoading"
           >导出</ion-button
-        >
-        <ion-button
-          style="margin-top: 10px; width: 100%"
-          @click="inputDefData"
-          v-vibration="5"
-          :disabled="inputLoading"
-          >导入默认数据</ion-button
         >
       </div>
     </ion-content>
@@ -302,22 +304,21 @@ function cancel(vn: any) {
 async function add() {
   vibrate(5);
   addloading.value = true;
-  if (data.roomId === undefined) return;
-  const type = data.type;
-  const roomId = data.roomId;
-
   try {
+    if (data.roomId === undefined) throw new Error('roomId为空');
+    const type = data.type;
+    const roomId = data.roomId;
+
     await playerStore.addRoom(roomId, type);
     sortList();
   } catch (error) {
     // console.log(error);
+    // await message('更新失败!');
   }
-  addloading.value = false;
+  setTimeout(() => (addloading.value = false), 2000);
 }
 
-function dragItem() {
-  menuState.value = false;
-}
+const dragItem = () => (menuState.value = false);
 
 // 导入数据
 async function inputData() {

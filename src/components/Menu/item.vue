@@ -37,7 +37,7 @@
         <div
           class="setting"
           @click.prevent="() => (disabled ? '' : setting())"
-          :style="{ filter: disabled ? 'brightness(0.3)' : 'brightness(1)' }"
+          v-show="!disabled"
           v-vibration="5"
         >
           <ion-icon :icon="settingsOutline"></ion-icon>
@@ -239,7 +239,7 @@ const [, drag] = useDrag({
   right: 6px;
   top: 6px;
   text-align: center;
-  background: #4746464b;
+  background: #47464669;
   border-radius: 4px;
   display: flex;
   align-items: center;
