@@ -9,20 +9,34 @@
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <div style="padding: 20px 40px; box-sizing: border-box">
-        <div style="width: 100%; box-sizing: border-box">
-          <div style="display: flex; align-items: center">
-            黑暗遮罩透明度 {{ nightOverlayOpacity }}
-          </div>
-          <div>
-            <ion-range
-              :min="40"
-              @ionChange="onIonChange"
-              :value="nightOverlayOpacity"
-            ></ion-range>
-          </div>
-        </div>
-      </div>
+      <ion-list>
+        <ion-item>
+          <ion-label>
+            黑暗增强
+            <div>{{ nightOverlayOpacity }}</div>
+          </ion-label>
+          <ion-range
+            :min="40"
+            @ionChange="onIonChange"
+            :value="nightOverlayOpacity"
+          ></ion-range>
+        </ion-item>
+        <ion-item>
+          <ion-toggle v-model:modelValue="config.backgroundMode"
+            >后台模式{{ config.backgroundMode }}</ion-toggle
+          >
+        </ion-item>
+        <ion-item>
+          <ion-toggle v-model:modelValue="config.leaveWinCloseNav"
+            >窗口失去焦点关闭导航</ion-toggle
+          >
+        </ion-item>
+        <ion-item>
+          <ion-toggle v-model:modelValue="config.autoCloseNav"
+            >自动关闭导航</ion-toggle
+          >
+        </ion-item>
+      </ion-list>
     </ion-content>
   </ion-modal>
 </template>
@@ -39,11 +53,15 @@ import {
   IonContent,
   IonTitle,
   IonRange,
+  IonItem,
+  IonList,
+  IonToggle,
+  IonLabel,
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
 
 defineOptions({ name: 'NavSetting' });
-const { nightOverlayOpacity } = storeToRefs(usePlayerStore());
+const { nightOverlayOpacity, config } = storeToRefs(usePlayerStore());
 const settingModal = ref();
 function cancel() {
   settingModal.value.$el.dismiss(null, 'cancel');
@@ -54,9 +72,4 @@ function onIonChange({ detail }: CustomEvent) {
 }
 </script>
 
-<style scoped>
-.wrap {
-  padding: 40px;
-  box-sizing: border-box;
-}
-</style>
+<style scoped></style>

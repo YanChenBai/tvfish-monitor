@@ -78,7 +78,7 @@
   "build": {
     "productName": "tvfish_monitor",
     "directories": {
-      "output": "electron-dist"
+      "output": "dist-electron"
     },
     "nsis": {
       "oneClick": false,

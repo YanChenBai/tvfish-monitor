@@ -24,7 +24,6 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 import '@/theme/title.center.css';
 import pinia from '@/stores';
-import { isPhone } from './utils/isMobile';
 
 const app = createApp(App).use(IonicVue).use(pinia).use(router).use(vibrate);
 
@@ -32,9 +31,3 @@ console.warn = () => ({});
 router.isReady().then(() => {
   app.mount('#app');
 });
-
-// 启动后台模式
-if (isPhone()) {
-  BackgroundMode.enable();
-  BackgroundMode.disableWebViewOptimizations();
-}

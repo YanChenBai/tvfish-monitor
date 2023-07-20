@@ -74,10 +74,38 @@ import { hideBar } from '@/utils/barStatus';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { isPhone } from '@/utils/isMobile';
+import { watch } from 'vue';
+import { useEventListener } from '@vueuse/core';
 
 defineOptions({ name: 'PlayerIndex' });
 const playerStore = usePlayerStore();
-const { navState, menuState } = storeToRefs(playerStore);
+const { navState, menuState, config } = storeToRefs(playerStore);
+
+// 自动关闭导航
+let timer: number | null = null;
+watch(
+  navState,
+  (val) => {
+    if (!config.value.autoCloseNav) return;
+    if (val === true) {
+      if (timer !== null) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer !== null ? clearTimeout(timer) : '';
+        navState.value = false;
+      }, 10000);
+    } else {
+      timer !== null ? clearTimeout(timer) : '';
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 失去焦点关闭
+useEventListener(window, 'blur', () => {
+  if (config.value.leaveWinCloseNav) navState.value = false;
+});
 </script>
 
 <style scoped>

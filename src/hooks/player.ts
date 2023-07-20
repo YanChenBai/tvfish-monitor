@@ -49,12 +49,12 @@ export default class LiveDanmuPlayer {
     if (this.config === null) return;
     const hlsPlayer = new Hls({
       debug: false,
-      manifestLoadingMaxRetry: 1,
+      manifestLoadingMaxRetry: 10,
+      levelLoadingMaxRetry: 10,
+      fragLoadingMaxRetry: 10,
       manifestLoadingMaxRetryTimeout: 6000,
-      levelLoadingMaxRetry: 4,
       levelLoadingMaxRetryTimeout: 4000,
-      nudgeMaxRetry: 0,
-      fragLoadingMaxRetry: 2,
+      nudgeMaxRetry: 5,
     });
     hlsPlayer.attachMedia(this.el!);
     hlsPlayer.loadSource(this.config.url);
@@ -110,12 +110,12 @@ export default class LiveDanmuPlayer {
     }
   }
 
-  reconnectionRefresh(config: Config) {
-    if (this.nowReNum < this.ReconnectionLimit) {
-      this.refresh(config);
-      this.nowReNum++;
-    }
-  }
+  // reconnectionRefresh(config: Config) {
+  //   if (this.nowReNum < this.ReconnectionLimit) {
+  //     this.refresh(config);
+  //     this.nowReNum++;
+  //   }
+  // }
 
   autoReconnection(config: Config) {
     if (this.player === null) return;
@@ -124,7 +124,7 @@ export default class LiveDanmuPlayer {
     // 断流重连
     player.on(FlvJs.Events.ERROR, () => {
       console.log('断流重连');
-      if (this.player) this.reconnectionRefresh(config);
+      this.refresh(config);
     });
 
     // 画面卡死重连
@@ -140,7 +140,7 @@ export default class LiveDanmuPlayer {
             this.lastDecodedFrame = res.decodedFrames;
         } else {
           this.lastDecodedFrame = 0;
-          if (this.player) this.reconnectionRefresh(config);
+          this.refresh(config);
         }
       },
     );

@@ -24,7 +24,13 @@ export const usePlayerStore = defineStore(
     const topRoomList = ref<PlayerItem[]>([]);
     const nightOverlayOpacity = ref(80);
     const menuItemIsDragging = ref(false);
-    const backgroundModeState = ref(false);
+
+    const config = reactive({
+      autoCloseNav: true,
+      leaveWinCloseNav: true,
+      backgroundMode: true,
+    });
+
     const playerList = reactive<PlayerList>({
       a: null,
       b: null,
@@ -139,17 +145,17 @@ export const usePlayerStore = defineStore(
       }
     }
 
-    // 暂时不开放
-    // function switchBackgroundMode(state: boolean) {
-    //   backgroundModeState.value = state;
-    //   if (isPhone()) {
-    //     BackgroundMode.enable();
-    //     BackgroundMode.disableWebViewOptimizations();
-    //   } else {
-    //     BackgroundMode.disable();
-    //     BackgroundMode.enableWebViewOptimizations();
-    //   }
-    // }
+    function switchBackgroundMode(state: boolean) {
+      config.backgroundMode = state;
+      if (!isPhone()) return;
+      if (state) {
+        BackgroundMode.enable();
+        BackgroundMode.disableWebViewOptimizations();
+      } else {
+        BackgroundMode.disable();
+        BackgroundMode.enableWebViewOptimizations();
+      }
+    }
 
     return {
       layoutIndex,
@@ -162,6 +168,8 @@ export const usePlayerStore = defineStore(
       menuItemIsDragging,
       nightOverlayOpacity,
       topRoomList,
+      config,
+      switchBackgroundMode,
       updateRoomInfo,
       removeRoom,
       addRoom,
