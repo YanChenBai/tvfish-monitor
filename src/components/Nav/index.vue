@@ -4,7 +4,13 @@
     <div class="btns">
       <NightOverlayBtn></NightOverlayBtn>
       <Setting></Setting>
-      <ion-button color="light" fill="clear" id="layoutModal" size="small" v-vibration="5">
+      <ion-button
+        color="light"
+        fill="clear"
+        id="layoutModal"
+        size="small"
+        v-vibration="5"
+      >
         <ion-icon :icon="layersOutline"></ion-icon>
       </ion-button>
       <ion-button
@@ -26,7 +32,13 @@
       >
         <ion-icon :icon="eyeOffOutline"></ion-icon>
       </ion-button>
-      <ion-button size="small" color="light" fill="clear" id="settingModal" v-vibration="5">
+      <ion-button
+        size="small"
+        color="light"
+        fill="clear"
+        id="settingModal"
+        v-vibration="5"
+      >
         <ion-icon :icon="settingsOutline"></ion-icon>
       </ion-button>
       <ion-button
@@ -48,7 +60,7 @@
 <script setup lang="ts">
 import NightOverlayBtn from './nightOverlayBtn.vue';
 import { IonButton, IonIcon } from '@ionic/vue';
-import Setting from '@/components/nav/setting.vue';
+import Setting from '@/components/Nav/setting.vue';
 import {
   eyeOffOutline,
   peopleOutline,
@@ -57,8 +69,7 @@ import {
   settingsOutline,
 } from 'ionicons/icons';
 import LayoutModal from './preview.vue';
-import MenuPlayer from '@/components/menu/index.vue';
-import { ref } from 'vue';
+import MenuPlayer from '@/components/Menu/index.vue';
 import { hideBar } from '@/utils/barStatus';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';

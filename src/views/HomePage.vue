@@ -13,7 +13,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import { DndProvider } from 'vue3-dnd';
 import NightOverlay from '@/components/nightOverlay.vue';
-import NavPlayer from '@/components/nav/index.vue';
+import NavPlayer from '@/components/Nav/index.vue';
 import Layout from '@/components/layout.vue';
 import { IonPage } from '@ionic/vue';
 import isMobile, { isPhone } from '@/utils/isMobile';

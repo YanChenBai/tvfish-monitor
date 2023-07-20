@@ -11,5 +11,6 @@ import { IonApp, IonRouterOutlet } from '@ionic/vue';
 body {
   overflow: hidden;
   border-radius: 2px;
+  background-color: #121212;
 }
 </style>

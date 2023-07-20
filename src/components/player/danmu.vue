@@ -25,7 +25,6 @@ import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 
-
 defineOptions({ name: 'PlayerDanmu' });
 
 const { playerList, playerListConfig, layoutIndex } = storeToRefs(
@@ -82,6 +81,7 @@ function danmuStart() {
 
 function switchDanmu() {
   if (danmakuRef.value === undefined) return;
+  danmakuRef.value.resize();
   if (playerConfig.value.danmu) {
     danmuStart();
     danmakuRef.value.play();
@@ -96,12 +96,14 @@ function switchDanmu() {
 /** 弹幕容器宽度重新计算 */
 // 1. 布局切换
 watch(layoutIndex, () => {
-  danmakuRef.value?.resize();
+  if (danmakuRef.value === undefined) return;
+  danmakuRef.value.resize();
 });
 
 // 2. 窗口大小切换
 const debouncedFn = useDebounceFn(() => {
-  danmakuRef.value?.resize();
+  if (danmakuRef.value === undefined) return;
+  danmakuRef.value.resize();
 }, 1000);
 
 window.addEventListener('resize', debouncedFn);

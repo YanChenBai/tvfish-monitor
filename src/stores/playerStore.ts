@@ -15,7 +15,7 @@ import { isPhone } from '@/utils/isMobile';
 export const usePlayerStore = defineStore(
   'player',
   () => {
-    const layoutIndex = ref<number>(isPhone() ? 13 : 15);
+    const layoutIndex = ref<number>(isPhone() ? 9 : 15);
     const navState = ref(true);
     const showNightOverlay = ref(false);
     const roomList = ref<RoomListItem[]>([]);

@@ -41,7 +41,7 @@
         <ion-button
           id="updateAll"
           @click="updateAll"
-          :disabled="updateLoading"
+          :disabled="updateLoading || inputLoading"
           v-vibration="5"
         >
           <ion-icon :icon="refresh" v-if="!updateLoading"></ion-icon>
@@ -52,7 +52,11 @@
         </ion-button>
 
         <!-- 整理顺序 -->
-        <ion-button :disabled="updateLoading" @click="sortList" v-vibration="5">
+        <ion-button
+          :disabled="updateLoading || inputLoading"
+          @click="sortList"
+          v-vibration="5"
+        >
           <ion-icon :icon="swapVerticalOutline"></ion-icon>
         </ion-button>
 
@@ -187,7 +191,10 @@
           <span class="tips-item">{{ tipsPopover.content.roomId }}</span>
         </p>
         <p>
-          平台: <span class="tips-item">{{ tipsPopover.content.roomId }}</span>
+          平台:
+          <span class="tips-item">{{
+            tipsPopover.content.platform === Platform.Bili ? 'B站' : '斗鱼'
+          }}</span>
         </p>
         <p>
           标题: <span class="tips-item">{{ tipsPopover.content.title }}</span>
@@ -316,7 +323,9 @@ function dragItem() {
 async function inputData() {
   inputLoading.value = true;
   try {
-    if (jsonData.value.length === 0) return;
+    if (jsonData.value.length === 0) {
+      throw new Error('json数据为空');
+    }
     const list: PlayerItem[] = JSON.parse(jsonData.value);
     inputMsg.value = `0 / ${list.length}`;
     for (const key in list) {

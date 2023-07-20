@@ -1,8 +1,8 @@
 <template>
   <div class="item-wrap" :class="{ ['is-top']: isTop }">
-    <div class="item-box">
+    <div class="item-box" :style="getStyle">
       <div class="face" @click="update">
-        <img draggable="false" :src="info.face" :style="getStyle" />
+        <img draggable="false" :src="info.face" />
       </div>
       <div class="info" @click="tips">
         <div class="name">
@@ -37,7 +37,7 @@
         <div
           class="setting"
           @click.prevent="() => (disabled ? '' : setting())"
-          :style="{ filter: disabled ? 'brightness(0.8)' : 'brightness(1)' }"
+          :style="{ filter: disabled ? 'brightness(0.3)' : 'brightness(1)' }"
           v-vibration="5"
         >
           <ion-icon :icon="settingsOutline"></ion-icon>
@@ -45,7 +45,6 @@
 
         <img
           v-if="keyframeState"
-          :style="getStyle"
           draggable="false"
           :src="info.keyframe"
           @error="() => (keyframeState = false)"
@@ -138,7 +137,7 @@ const [, drag] = useDrag({
   /* height: 64px; */
 }
 .is-top {
-  border: 2px solid #cf1e36b7;
+  border: 2px solid #496ba1b4;
 }
 .face {
   width: 60px;
@@ -181,10 +180,12 @@ const [, drag] = useDrag({
 .news {
   color: #bbb9b9;
   font-size: 12px;
+  line-height: 18px;
   position: relative;
 }
 .name {
   width: calc(100%);
+  line-height: 24px;
   position: relative;
 }
 .drag {
@@ -209,7 +210,7 @@ const [, drag] = useDrag({
   width: 100%;
   height: 155px;
   display: flex;
-  padding-top: 2px;
+  padding: 2px;
   position: relative;
 }
 .keyframe img {
@@ -222,7 +223,7 @@ const [, drag] = useDrag({
   width: 50px;
   height: 23px;
   position: absolute;
-  left: 4px;
+  left: 6px;
   top: 6px;
   text-align: center;
   background: #2080f0;
@@ -232,12 +233,13 @@ const [, drag] = useDrag({
 .setting {
   width: 30px;
   height: 23px;
+  line-height: 23px;
   position: absolute;
   font-size: 16px;
-  right: 4px;
+  right: 6px;
   top: 6px;
   text-align: center;
-  background: #2081f0c0;
+  background: #4746464b;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -250,6 +252,7 @@ const [, drag] = useDrag({
   padding: 0 4px;
   border-radius: 4px;
   height: 23px;
+  line-height: 23px;
   left: 58px;
   top: 6px;
   z-index: 9;

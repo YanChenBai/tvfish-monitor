@@ -3,7 +3,7 @@ include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
 
 include ':anuradev-capacitor-background-mode'
-project(':anuradev-capacitor-background-mode').projectDir = new File('../plugins/capacitor-background-mode/android')
+project(':anuradev-capacitor-background-mode').projectDir = new File('../capacitor-plugins/capacitor-background-mode/android')
 
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')
