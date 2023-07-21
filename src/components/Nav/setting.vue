@@ -19,21 +19,31 @@
             :min="40"
             @ionChange="onIonChange"
             :value="nightOverlayOpacity"
+            v-vibration="5"
           ></ion-range>
         </ion-item>
-        <ion-item>
+        <!-- <ion-item>
           <ion-toggle v-model:modelValue="config.backgroundMode"
-            >后台模式{{ config.backgroundMode }}</ion-toggle
+            >后台模式</ion-toggle
           >
-        </ion-item>
+        </ion-item> -->
         <ion-item>
-          <ion-toggle v-model:modelValue="config.leaveWinCloseNav"
+          <ion-toggle
+            v-model:modelValue="config.leaveWinCloseNav"
+            v-vibration="5"
             >窗口失去焦点关闭导航</ion-toggle
           >
         </ion-item>
         <ion-item>
-          <ion-toggle v-model:modelValue="config.autoCloseNav"
+          <ion-toggle v-model:modelValue="config.autoCloseNav" v-vibration="5"
             >自动关闭导航</ion-toggle
+          >
+        </ion-item>
+
+        <ion-item>
+          <ion-label>检查通知权限</ion-label>
+          <ion-button @click="requestPermissions" v-vibration="5"
+            >检查</ion-button
           >
         </ion-item>
       </ion-list>
@@ -59,16 +69,45 @@ import {
   IonLabel,
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { PermissionState } from '@capacitor/core';
+import { message } from '@/utils/message';
 
 defineOptions({ name: 'NavSetting' });
 const { nightOverlayOpacity, config } = storeToRefs(usePlayerStore());
 const settingModal = ref();
+
 function cancel() {
   settingModal.value.$el.dismiss(null, 'cancel');
 }
 
 function onIonChange({ detail }: CustomEvent) {
   nightOverlayOpacity.value = detail.value;
+}
+
+function getTips(status: PermissionState | null) {
+  switch (status) {
+    case 'prompt':
+      return '获取授权';
+    case 'prompt-with-rationale':
+      return '再次申请';
+    case 'granted':
+      return '已授权';
+    case 'denied':
+      return '已拒绝';
+    default:
+      return '';
+  }
+}
+
+async function requestPermissions() {
+  const res = await LocalNotifications.checkPermissions();
+  if (res.display === 'prompt' || res.display === 'prompt-with-rationale') {
+    const res = await LocalNotifications.requestPermissions();
+    await message(getTips(res.display));
+    return;
+  }
+  await message(getTips(res.display));
 }
 </script>
 

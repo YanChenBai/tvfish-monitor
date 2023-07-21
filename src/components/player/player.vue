@@ -4,6 +4,8 @@
       :playerName="playerName"
       ref="danmakuRef"
       @click="openControl()"
+      @live-end="refresh(true)"
+      @live-start="refresh(true)"
     />
     <div class="video-wrap">
       <video ref="videoRef" autoplay v-show="showPlayer"></video>
@@ -80,7 +82,8 @@ const player = ref<Player | null>(null),
   controlRef = ref<InstanceType<typeof Control>>(),
   videoRef = ref<HTMLMediaElement>();
 
-const refresh = () => emit('refresh');
+// sysMessage 开播了是否发送系统通知
+const refresh = (sysMessage = false) => emit('refresh', sysMessage);
 // 打开控制栏
 const openControl = () =>
   controlRef.value ? controlRef.value.openControl() : '';

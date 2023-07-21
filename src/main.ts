@@ -4,6 +4,7 @@ import App from './App.vue';
 import router from './router';
 import vibrate from './utils/vibrationDirective';
 import { IonicVue } from '@ionic/vue';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -24,6 +25,7 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 import '@/theme/title.center.css';
 import pinia from '@/stores';
+import { isPhone } from './utils/isMobile';
 
 const app = createApp(App).use(IonicVue).use(pinia).use(router).use(vibrate);
 
@@ -31,3 +33,8 @@ console.warn = () => ({});
 router.isReady().then(() => {
   app.mount('#app');
 });
+
+if (isPhone()) {
+  BackgroundMode.enable();
+  BackgroundMode.disableWebViewOptimizations();
+}

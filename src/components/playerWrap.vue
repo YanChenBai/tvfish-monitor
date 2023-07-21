@@ -25,6 +25,7 @@ import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
 import { IMAGE_PROXY } from '@/config/proxy';
 import { impactHeavy, vibrate } from '@/utils/impact';
+import { notification } from '@/hooks/notification';
 
 defineOptions({ name: 'playerWrap' });
 
@@ -134,7 +135,7 @@ function updateRoomInfo(info: RoomListItem) {
 }
 
 // 更新数据
-async function update() {
+async function update(sysMessage = false) {
   if (player.value !== null) {
     const res: any = await getOrgin(player.value.roomId, player.value.platform);
     try {
@@ -150,6 +151,10 @@ async function update() {
             ? ConfigType.Hls
             : ConfigType.Flv;
         updateRoomInfo(res.data.info);
+        const info: RoomListItem = res.data.info;
+        if (sysMessage) {
+          await notification(`${info.name} - 开播啦!`, info.title);
+        }
         playerRef.value!.refreshPlayer(
           res.data.url,
           playerListConfig.value[props.playerName].volume / 100,

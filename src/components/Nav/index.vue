@@ -83,22 +83,32 @@ const { navState, menuState, config } = storeToRefs(playerStore);
 
 // 自动关闭导航
 let timer: number | null = null;
-watch(
-  navState,
-  (val) => {
-    if (!config.value.autoCloseNav) return;
-    if (val === true) {
-      if (timer !== null) clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer !== null ? clearTimeout(timer) : '';
-        navState.value = false;
-      }, 10000);
-    } else {
+function autoCloseNav() {
+  if (!config.value.autoCloseNav) return;
+  if (navState.value === true) {
+    if (timer !== null) clearTimeout(timer);
+    timer = setTimeout(() => {
       timer !== null ? clearTimeout(timer) : '';
+      navState.value = false;
+    }, 10000);
+  } else {
+    timer !== null ? clearTimeout(timer) : '';
+  }
+}
+
+watch(navState, () => (config.value.autoCloseNav ? autoCloseNav() : ''), {
+  immediate: true,
+});
+
+// 监听是否开启，开启执行自动关闭
+watch(
+  () => config.value.autoCloseNav,
+  (val) => {
+    if (val === false) {
+      timer !== null ? clearTimeout(timer) : '';
+    } else {
+      autoCloseNav();
     }
-  },
-  {
-    immediate: true,
   },
 );
 

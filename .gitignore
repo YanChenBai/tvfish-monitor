@@ -26,7 +26,6 @@ npm-debug.log*
 !/.vscode/extensions.json
 /coverage
 /dist
-/electron-dist
 /dist-electron
 /node_modules
 /platforms

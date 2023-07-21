@@ -30,6 +30,7 @@ defineOptions({ name: 'PlayerDanmu' });
 const { playerList, playerListConfig, layoutIndex } = storeToRefs(
   usePlayerStore(),
 );
+const emit = defineEmits(['liveStart', 'liveEnd']);
 const props = defineProps<{
   playerName: string;
 }>();
@@ -51,6 +52,10 @@ function addDnamu(msg: string) {
 function biliDanmu(id: number) {
   const { close } = startListen(id, {
     onIncomeDanmu: (msg: any) => addDnamu(msg.body.content),
+    onLiveStart: () => {
+      emit('liveStart');
+    },
+    onLiveEnd: () => emit('liveEnd'),
   });
   connectClose = close;
 }

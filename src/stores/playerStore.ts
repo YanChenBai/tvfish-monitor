@@ -187,6 +187,7 @@ export const usePlayerStore = defineStore(
         'playerListConfig',
         'nightOverlayOpacity',
         'topRoomList',
+        'config',
       ],
     },
   },
