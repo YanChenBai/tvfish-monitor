@@ -9,9 +9,24 @@
       :speeds="60"
       :fontSize="22"
       :debounce="200"
+      useSlot
       :isSuspend="true"
       extraStyle="color: rgb(63, 149, 224);text-shadow: 1px 1px 1px #000;"
-    ></VueDanmuKu>
+    >
+      <template v-slot:dm="{ danmu }">
+        <div
+          v-if="danmu.sc"
+          class="sc"
+          :style="{background:(danmu.content as SuperChatMsg).content_color}"
+        >
+          <div class="price">{{ (danmu.content as SuperChatMsg).price }}</div>
+          <div class="content">
+            {{ (danmu.content as SuperChatMsg).content }}
+          </div>
+        </div>
+        <div v-else>{{ danmu.content }}</div>
+      </template>
+    </VueDanmuKu>
   </div>
 </template>
 
@@ -24,6 +39,7 @@ import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
+import { Message, SuperChatMsg } from 'blive-message-listener';
 
 defineOptions({ name: 'PlayerDanmu' });
 
@@ -43,7 +59,7 @@ const danmus: any = [],
 // 关闭弹幕
 let connectClose = (): any => ({});
 
-function addDnamu(msg: string) {
+function addDnamu(msg: { content: string | SuperChatMsg | any; sc: boolean }) {
   if (danmakuRef.value === undefined) return;
   danmakuRef.value.insert(msg);
 }
@@ -51,18 +67,32 @@ function addDnamu(msg: string) {
 // 启动b站弹幕
 function biliDanmu(id: number) {
   const { close } = startListen(id, {
-    onIncomeDanmu: (msg: any) => addDnamu(msg.body.content),
+    onIncomeDanmu: (msg: any) =>
+      addDnamu({
+        content: msg.body.content,
+        sc: false,
+      }),
     onLiveStart: () => {
       emit('liveStart');
     },
     onLiveEnd: () => emit('liveEnd'),
+    onIncomeSuperChat: (msg: Message<SuperChatMsg>) =>
+      addDnamu({
+        content: msg.body,
+        sc: true,
+      }),
   });
   connectClose = close;
 }
 
 // 启动斗鱼弹幕
 function douyuDanmu(id: number) {
-  const danmu = new DouyuDanmu(id, (msg: string) => addDnamu(msg));
+  const danmu = new DouyuDanmu(id, (msg: string) =>
+    addDnamu({
+      content: msg,
+      sc: false,
+    }),
+  );
   danmu.connect();
   connectClose = () => danmu.close();
 }
@@ -135,4 +165,18 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.sc {
+  display: flex;
+  padding: 4px;
+  border-radius: 4px;
+}
+.price {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+.content {
+  color: #f5f5f5;
+}
+</style>
