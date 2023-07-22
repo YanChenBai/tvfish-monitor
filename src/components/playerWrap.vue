@@ -7,6 +7,7 @@
       @qualityChange="qualityChange"
       @lineChange="lineChange"
       @refresh="update"
+      @titleChange="titleChange"
       ref="playerRef"
       :key="`playerWrap-${playerName}`"
     />
@@ -29,9 +30,8 @@ import { notification } from '@/hooks/notification';
 
 defineOptions({ name: 'playerWrap' });
 
-const { playerList, playerListConfig, roomList } = storeToRefs(
-  usePlayerStore(),
-);
+const playerStore = usePlayerStore();
+const { playerList, playerListConfig, roomList } = storeToRefs(playerStore);
 
 const props = defineProps<{
   playerName: string;
@@ -121,16 +121,28 @@ async function getOrgin(roomId: number, type: Platform) {
   return res;
 }
 
-function updateRoomInfo(info: RoomListItem) {
-  const findIndex = roomList.value.findIndex(
-    (item) => info.roomId === item.roomId && info.platform === item.platform,
+const fundRoomIndex = (roomId: number, platform: Platform) =>
+  roomList.value.findIndex(
+    (item) => roomId === item.roomId && platform === item.platform,
   );
+
+function titleChange(title: string) {
+  if (player.value) {
+    const findIndex = fundRoomIndex(player.value.roomId, player.value.platform);
+    roomList.value[findIndex].title = title;
+  }
+}
+
+function updateRoomInfo(info: RoomListItem) {
+  const findIndex = fundRoomIndex(info.roomId, info.platform);
   if (findIndex !== -1) {
     if (info.platform === Platform.Bili) {
       info.face = IMAGE_PROXY + info.face;
       info.keyframe = IMAGE_PROXY + info.keyframe;
     }
+    const tmp = { ...roomList.value[findIndex] };
     roomList.value[findIndex] = info;
+    return tmp;
   }
 }
 
@@ -150,16 +162,19 @@ async function update(sysMessage = false) {
           player.value.platform === Platform.Bili
             ? ConfigType.Hls
             : ConfigType.Flv;
-        updateRoomInfo(res.data.info);
         const info: RoomListItem = res.data.info;
-        if (sysMessage) {
-          await notification(`${info.name} - 开播啦!`, info.title);
-        }
+        const oldData = updateRoomInfo(info);
         playerRef.value!.refreshPlayer(
           res.data.url,
           playerListConfig.value[props.playerName].volume / 100,
           type,
         );
+        if (sysMessage) {
+          // 避免重复开播提醒
+          if (oldData !== undefined && oldData.status !== info.status) {
+            await notification(`${info.name} - 开播啦!`, info.title);
+          }
+        }
       }
     } catch (error) {
       error;

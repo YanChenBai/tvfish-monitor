@@ -6,6 +6,7 @@
       @click="openControl()"
       @live-end="refresh(true)"
       @live-start="refresh(true)"
+      @titleChange="titleChange"
     />
     <div class="video-wrap">
       <video ref="videoRef" autoplay v-show="showPlayer"></video>
@@ -50,6 +51,7 @@ const emit = defineEmits([
   'qualityChange', // 清晰切换
   'lineChange', // 线路切换
   'refresh', // 刷新
+  'titleChange', // 标题刷新
 ]);
 const defConfig = {
   type: ConfigType.Flv,
@@ -87,7 +89,8 @@ const refresh = (sysMessage = false) => emit('refresh', sysMessage);
 // 打开控制栏
 const openControl = () =>
   controlRef.value ? controlRef.value.openControl() : '';
-
+// 刷新标题
+const titleChange = (title: string) => emit('titleChange', title);
 // 销毁播放器
 function destroy(clear = true) {
   if (player.value) {

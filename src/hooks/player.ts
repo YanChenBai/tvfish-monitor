@@ -128,22 +128,22 @@ export default class LiveDanmuPlayer {
     });
 
     // 画面卡死重连
-    player.on(
-      FlvJs.Events.STATISTICS_INFO,
-      (res: FlvJs.FlvPlayerStatisticsInfo) => {
-        if (this.lastDecodedFrame === 0) {
-          if (res.decodedFrames !== undefined)
-            this.lastDecodedFrame = res.decodedFrames;
-          return;
-        } else if (this.lastDecodedFrame != res.decodedFrames) {
-          if (res.decodedFrames !== undefined)
-            this.lastDecodedFrame = res.decodedFrames;
-        } else {
-          this.lastDecodedFrame = 0;
-          this.refresh(config);
-        }
-      },
-    );
+    // player.on(
+    //   FlvJs.Events.STATISTICS_INFO,
+    //   (res: FlvJs.FlvPlayerStatisticsInfo) => {
+    //     if (this.lastDecodedFrame === 0) {
+    //       if (res.decodedFrames !== undefined)
+    //         this.lastDecodedFrame = res.decodedFrames;
+    //       return;
+    //     } else if (this.lastDecodedFrame != res.decodedFrames) {
+    //       if (res.decodedFrames !== undefined)
+    //         this.lastDecodedFrame = res.decodedFrames;
+    //     } else {
+    //       this.lastDecodedFrame = 0;
+    //       this.refresh(config);
+    //     }
+    //   },
+    // );
 
     // FIX 会让画面开始
     // Flv自动跳帧

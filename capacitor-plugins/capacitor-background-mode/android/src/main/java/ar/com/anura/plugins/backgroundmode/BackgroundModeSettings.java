@@ -2,8 +2,8 @@ package ar.com.anura.plugins.backgroundmode;
 
 public class BackgroundModeSettings {
 
-    private String title = "App is on background mode";
-    private String text = "App will start faster";
+    private String title = "TVFISH Monitor 后台模式";
+    private String text = "点击进入";
     private String subText = "";
     private boolean bigText = false;
     private boolean resume = true;
@@ -11,8 +11,8 @@ public class BackgroundModeSettings {
     private boolean hidden = true;
     private String color = "157f1f";
     private String icon = "icon";
-    private String channelName = "anuradev-capacitor-background-mode";
-    private String channelDescription = "Anuradev Capacitor background mode notification";
+    private String channelName = "后台模式";
+    private String channelDescription = "TVFISH Monitor 进入后台模式通知";
     private boolean allowClose = false;
     private String closeIcon = "close-icon";
     private String closeTitle = "Close";

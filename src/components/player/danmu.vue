@@ -6,16 +6,15 @@
       ref="danmakuRef"
       :danmus="danmus"
       :channels="3"
-      :speeds="60"
+      :speeds="50"
       :fontSize="22"
       :debounce="200"
       useSlot
       :isSuspend="true"
-      extraStyle="color: rgb(63, 149, 224);text-shadow: 1px 1px 1px #000;"
     >
       <template v-slot:dm="{ danmu }">
         <div
-          v-if="danmu.sc"
+          v-if="danmu.type === DnamuType.SC"
           class="sc"
           :style="{background:(danmu.content as SuperChatMsg).content_color}"
         >
@@ -24,7 +23,26 @@
             {{ (danmu.content as SuperChatMsg).content }}
           </div>
         </div>
-        <div v-else>{{ danmu.content }}</div>
+        <div v-else-if="danmu.type === DnamuType.DEF" class="dnamu-def">
+          {{ danmu.content }}
+        </div>
+        <div v-else-if="danmu.type === DnamuType.EMO" class="dnamu-def">
+          <img
+            :src="IMAGE_PROXY + danmu.content.emoticon.url"
+            style="max-height: 40px"
+            :style="{
+              height: `${danmu.content.emoticon?.height}px`,
+            }"
+          />
+        </div>
+        <div
+          v-else-if="danmu.type === DnamuType.EMO_IN_MSG"
+          class="dnamu-def"
+          v-html="danmu.content"
+        ></div>
+        <div v-else class="dnamu-def">
+          {{ danmu.content }}
+        </div>
       </template>
     </VueDanmuKu>
   </div>
@@ -39,14 +57,22 @@ import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
-import { Message, SuperChatMsg } from 'blive-message-listener';
+import { DanmuMsg, Message, SuperChatMsg } from 'blive-message-listener';
+import { IMAGE_PROXY } from '@/config/proxy';
 
 defineOptions({ name: 'PlayerDanmu' });
+
+enum DnamuType {
+  DEF = 0,
+  SC = 1,
+  EMO = 2,
+  EMO_IN_MSG = 3,
+}
 
 const { playerList, playerListConfig, layoutIndex } = storeToRefs(
   usePlayerStore(),
 );
-const emit = defineEmits(['liveStart', 'liveEnd']);
+const emit = defineEmits(['liveStart', 'liveEnd', 'titleChange']);
 const props = defineProps<{
   playerName: string;
 }>();
@@ -59,7 +85,10 @@ const danmus: any = [],
 // 关闭弹幕
 let connectClose = (): any => ({});
 
-function addDnamu(msg: { content: string | SuperChatMsg | any; sc: boolean }) {
+function addDnamu(msg: {
+  content: string | SuperChatMsg | any;
+  type: DnamuType;
+}) {
   if (danmakuRef.value === undefined) return;
   danmakuRef.value.insert(msg);
 }
@@ -67,11 +96,34 @@ function addDnamu(msg: { content: string | SuperChatMsg | any; sc: boolean }) {
 // 启动b站弹幕
 function biliDanmu(id: number) {
   const { close } = startListen(id, {
-    onIncomeDanmu: (msg: any) =>
-      addDnamu({
-        content: msg.body.content,
-        sc: false,
-      }),
+    onIncomeDanmu: (msg: Message<DanmuMsg>) => {
+      if (msg.body.emoticon !== undefined) {
+        addDnamu({
+          content: msg.body,
+          type: DnamuType.EMO,
+        });
+      } else if (msg.body.in_message_emoticon !== undefined) {
+        for (const key in msg.body.in_message_emoticon) {
+          const item = msg.body.in_message_emoticon[key];
+          msg.body.content = msg.body.content.replaceAll(
+            key,
+            `<img src='${
+              IMAGE_PROXY + item.url
+            }' style='max-height: 40px;height: ${item.height}px' />`,
+          );
+        }
+
+        addDnamu({
+          content: msg.body.content,
+          type: DnamuType.EMO_IN_MSG,
+        });
+      } else {
+        addDnamu({
+          content: msg.body.content,
+          type: DnamuType.DEF,
+        });
+      }
+    },
     onLiveStart: () => {
       emit('liveStart');
     },
@@ -79,8 +131,9 @@ function biliDanmu(id: number) {
     onIncomeSuperChat: (msg: Message<SuperChatMsg>) =>
       addDnamu({
         content: msg.body,
-        sc: true,
+        type: DnamuType.SC,
       }),
+    onRoomInfoChange: (msg) => emit('titleChange', msg.body.title),
   });
   connectClose = close;
 }
@@ -90,7 +143,7 @@ function douyuDanmu(id: number) {
   const danmu = new DouyuDanmu(id, (msg: string) =>
     addDnamu({
       content: msg,
-      sc: false,
+      type: DnamuType.DEF,
     }),
   );
   danmu.connect();
@@ -178,5 +231,10 @@ onMounted(() => {
 }
 .content {
   color: #f5f5f5;
+}
+.dnamu-def {
+  color: rgb(63, 149, 224);
+  text-shadow: 1px 1px 1px #000;
+  font-size: 20px;
 }
 </style>
