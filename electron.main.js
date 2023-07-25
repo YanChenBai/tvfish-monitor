@@ -8,15 +8,15 @@ app.disableHardwareAcceleration();
 // 打包后最好添加 --disable-gpu 做为启动参数
 function createWindow() {
   win = new BrowserWindow({
-    // frame: false,
-    // transparent: true,
-    // webPreferences: {},
+    frame: false,
+    transparent: true,
+    webPreferences: {},
   });
 
   // 关闭菜单栏
-  // Menu.setApplicationMenu(null);
-  // win.loadFile(path.resolve(__dirname, './dist/index.html'));
-  win.loadURL('http://localhost:8100');
+  Menu.setApplicationMenu(null);
+  win.loadFile(path.resolve(__dirname, './dist/index.html'));
+  // win.loadURL('http://localhost:8100');
 }
 
 // 确保窗口被关闭

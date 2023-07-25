@@ -15,6 +15,7 @@
           <div class="ellipsis-width">公告：{{ info.news }}</div>
         </div>
       </div>
+      <DragPreviewImage :connect="(preview as any)" :src="info.face" />
       <div class="drag" :ref="drag">
         <ion-icon :icon="moveOutline"></ion-icon>
       </div>
@@ -59,7 +60,12 @@ import { IonIcon } from '@ionic/vue';
 import { moveOutline, settingsOutline } from 'ionicons/icons';
 import { usePlayerStore } from '@/stores/playerStore';
 import { DropType } from '@/types/drop';
-import { useDrag } from 'vue3-dnd';
+import {
+  useDrag,
+  DragPreviewImage,
+  DragPreviewOptions,
+  ConnectDragPreview,
+} from 'vue3-dnd';
 import { computed, ref } from 'vue';
 import { RoomListItem, RoomStatus } from '@/types/player';
 import { impactHeavy, vibrate } from '@/utils/impact';
@@ -97,7 +103,7 @@ function update() {
 // 用于防止拖拽多次触发
 let dragLock = true;
 // 创建拖拽
-const [, drag] = useDrag({
+const [, drag, preview] = useDrag({
   type: DropType.MenuItem,
   item: {
     type: DropType.MenuItem,
