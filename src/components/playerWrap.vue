@@ -8,6 +8,7 @@
       @lineChange="lineChange"
       @refresh="update"
       @titleChange="titleChange"
+      @anomaly="anomaly"
       ref="playerRef"
       :key="`playerWrap-${playerName}`"
     />
@@ -147,7 +148,7 @@ function updateRoomInfo(info: RoomListItem) {
 }
 
 // 更新数据
-async function update(sysMessage = false) {
+async function update(sysMessage = false): Promise<RoomListItem | false> {
   if (player.value !== null) {
     const res: any = await getOrgin(player.value.roomId, player.value.platform);
     try {
@@ -155,6 +156,7 @@ async function update(sysMessage = false) {
         url.value = null;
         updateRoomInfo(res.data);
         playerRef.value!.destroy(false);
+        return res.data;
       } else {
         qualitys.value = res.data.quality;
         lines.value = res.data.lines;
@@ -175,13 +177,19 @@ async function update(sysMessage = false) {
             await notification(`${info.name} - 开播啦!`, info.title);
           }
         }
+        return info;
       }
     } catch (error) {
-      error;
+      return false;
     }
   } else {
     playerRef.value!.destroy();
+    return false;
   }
+}
+
+async function anomaly() {
+  update();
 }
 
 onMounted(() => update());

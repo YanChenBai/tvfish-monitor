@@ -6,9 +6,7 @@
           <div class="name status" :class="{ [roomStatusClass[status]]: true }">
             {{ playerName }}
           </div>
-          <div class="content">
-            {{ title }}
-          </div>
+          <div class="content">{{ name }} | {{ title }}</div>
         </div>
         <ion-button
           color="danger"
@@ -114,6 +112,7 @@ const { playerListConfig, navState } = storeToRefs(usePlayerStore());
 const props = defineProps<{
   playerName: string;
   title: string;
+  name: string;
   status: RoomStatus;
   lines: LineType[];
   qualitys: QualityType[];

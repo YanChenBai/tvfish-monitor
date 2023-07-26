@@ -1,5 +1,20 @@
 <template>
   <div class="live-danmu-player">
+    <div
+      style="
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        z-index: 999;
+        color: #fff;
+        background-color: #000000c7;
+        border-radius: 6px;
+        padding: 0 10px;
+      "
+    >
+      <p>CurrentTime: {{ (updateLastTime / 1000).toFixed(3) }}</p>
+      <p>状态:{{ updateStatus }}</p>
+    </div>
     <VueDanmuKu
       :playerName="playerName"
       ref="danmakuRef"
@@ -22,6 +37,7 @@
       :playerName="playerName"
       :status="roomInfo.status"
       :title="roomInfo.title"
+      :name="roomInfo.name"
       :lines="lines"
       :qualitys="qualitys"
     />
@@ -52,10 +68,12 @@ const emit = defineEmits([
   'lineChange', // 线路切换
   'refresh', // 刷新
   'titleChange', // 标题刷新
+  'anomaly', // 异常
 ]);
 const defConfig = {
   type: ConfigType.Flv,
   title: '',
+  name: '',
   status: RoomStatus.CLOSE,
 };
 const { playerList, roomList } = storeToRefs(usePlayerStore());
@@ -138,6 +156,23 @@ onMounted(() => {
   // 关闭控制栏
   onClickOutside(danmakuRef, () => controlRef.value!.closeControl(), {
     ignore: [...controlRef.value!.getIgnore()],
+  });
+});
+
+const updateLastTime = ref(0),
+  updateStatus = ref(false);
+let updateTimer: number | null = null;
+onMounted(() => {
+  // 检测播放状态
+  videoRef.value!.addEventListener('timeupdate', (ev) => {
+    if (roomInfo.value.status !== RoomStatus.LIVE) return;
+    updateTimer ? clearTimeout(updateTimer) : '';
+    updateStatus.value = false;
+    updateLastTime.value = ev.timeStamp;
+    updateTimer = setTimeout(() => {
+      updateStatus.value = true;
+      emit('anomaly');
+    }, 2000);
   });
 });
 

@@ -50,8 +50,8 @@
 
 <script setup lang="ts">
 import { Platform } from '@/types/player';
-import DouyuDanmu from '@/utils/douyuDanmu/douyu';
 import { startListen } from 'blive-message-listener/browser';
+import { useDouyuDanmu } from '@/hooks/useDouyuDanmu';
 import VueDanmuKu from 'vue3-danmaku';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
@@ -140,14 +140,15 @@ function biliDanmu(id: number) {
 
 // 启动斗鱼弹幕
 function douyuDanmu(id: number) {
-  const danmu = new DouyuDanmu(id, (msg: string) =>
-    addDnamu({
-      content: msg,
-      type: DnamuType.DEF,
-    }),
-  );
-  danmu.connect();
-  connectClose = () => danmu.close();
+  const { close } = useDouyuDanmu(id, {
+    onIncomeDanmu: (msg) => {
+      addDnamu({
+        content: msg.txt,
+        type: DnamuType.DEF,
+      });
+    },
+  });
+  connectClose = () => close();
 }
 
 // 启动弹幕
@@ -234,7 +235,9 @@ onMounted(() => {
 }
 .dnamu-def {
   color: rgb(63, 149, 224);
-  text-shadow: 1px 1px 1px #000;
-  font-size: 20px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px #000;
+  font-size: 24px;
+  -webkit-text-stroke: 1px #00000088;
 }
 </style>
