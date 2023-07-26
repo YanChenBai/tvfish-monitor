@@ -103,7 +103,7 @@ import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
 import { refresh as refreshIcon, volumeHigh, close } from 'ionicons/icons';
-import { Ref, computed, ref } from 'vue';
+import { Ref, computed, ref, watch } from 'vue';
 import { QualityType, LineType, RoomStatus } from '@/types/player';
 
 defineOptions({ name: 'PlayerControl' });
@@ -153,6 +153,14 @@ const volumeChange = (val: number) => emit('volumeChange', val);
 function getIgnore(): Ref<HTMLElement | undefined>[] {
   return [topRef, bottomRef];
 }
+
+// 监听音量变化
+watch(
+  () => playerConfig.value.volume,
+  (val) => {
+    emit('volumeChange', val);
+  },
+);
 
 // 暴露函数
 defineExpose({

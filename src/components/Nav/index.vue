@@ -22,6 +22,7 @@
       >
         <ion-icon :icon="peopleOutline"></ion-icon>
       </ion-button>
+      <List />
       <ion-button
         size="small"
         color="light"
@@ -61,6 +62,7 @@
 import NightOverlayBtn from './nightOverlayBtn.vue';
 import { IonButton, IonIcon } from '@ionic/vue';
 import Setting from '@/components/Nav/setting.vue';
+import List from '@/components/Nav/list.vue';
 import {
   eyeOffOutline,
   peopleOutline,

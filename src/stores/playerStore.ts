@@ -24,6 +24,7 @@ export const usePlayerStore = defineStore(
     const topRoomList = ref<PlayerItem[]>([]);
     const nightOverlayOpacity = ref(80);
     const menuItemIsDragging = ref(false);
+    const debug = ref(false);
 
     const config = reactive({
       autoCloseNav: true,
@@ -169,6 +170,7 @@ export const usePlayerStore = defineStore(
       nightOverlayOpacity,
       topRoomList,
       config,
+      debug,
       switchBackgroundMode,
       updateRoomInfo,
       removeRoom,
@@ -188,6 +190,7 @@ export const usePlayerStore = defineStore(
         'nightOverlayOpacity',
         'topRoomList',
         'config',
+        'debug',
       ],
     },
   },

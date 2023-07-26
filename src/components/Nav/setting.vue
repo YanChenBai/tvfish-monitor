@@ -46,6 +46,11 @@
             >检查</ion-button
           >
         </ion-item>
+        <ion-item>
+          <ion-toggle v-model:modelValue="debug" v-vibration="5"
+            >调试信息</ion-toggle
+          >
+        </ion-item>
       </ion-list>
     </ion-content>
   </ion-modal>
@@ -74,7 +79,7 @@ import { PermissionState } from '@capacitor/core';
 import { message } from '@/utils/message';
 
 defineOptions({ name: 'NavSetting' });
-const { nightOverlayOpacity, config } = storeToRefs(usePlayerStore());
+const { nightOverlayOpacity, config, debug } = storeToRefs(usePlayerStore());
 const settingModal = ref();
 
 function cancel() {

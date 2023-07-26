@@ -1,6 +1,7 @@
 <template>
   <div class="live-danmu-player">
     <div
+      v-if="debug"
       style="
         position: absolute;
         left: 10px;
@@ -76,7 +77,7 @@ const defConfig = {
   name: '',
   status: RoomStatus.CLOSE,
 };
-const { playerList, roomList } = storeToRefs(usePlayerStore());
+const { playerList, roomList, debug } = storeToRefs(usePlayerStore());
 const playerStore = computed(() => playerList.value[props.playerName]);
 const roomInfo = computed(() => {
   if (playerStore.value !== null) {

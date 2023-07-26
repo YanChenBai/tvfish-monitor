@@ -3,12 +3,7 @@
     <slot name="target"></slot>
   </div>
 
-  <ion-popover
-    :is-open="popoverOpen"
-    trigger="click-trigger"
-    trigger-action="click"
-    @didDismiss="popoverOpen = false"
-  >
+  <ion-popover :is-open="popoverOpen" @didDismiss="popoverOpen = false">
     <ion-content class="ion-padding">
       {{ `音量控制   ${playerListConfig[playerName].volume}` }}
       <ion-range
