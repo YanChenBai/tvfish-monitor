@@ -28,6 +28,7 @@ export interface RoomListItem {
   keyframe: string;
   status: RoomStatus;
   shortId: number;
+  tags: string;
 }
 
 export interface PlayerItem {

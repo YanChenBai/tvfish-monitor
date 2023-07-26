@@ -6,7 +6,9 @@
           <div class="name status" :class="{ [roomStatusClass[status]]: true }">
             {{ playerName }}
           </div>
-          <div class="content">{{ name }} | {{ title }}</div>
+          <div class="content">
+            {{ name }} {{ name === '' ? '' : '|' }} {{ title }}
+          </div>
         </div>
         <ion-button
           color="danger"

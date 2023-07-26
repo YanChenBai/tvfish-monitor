@@ -8,7 +8,7 @@ app.disableHardwareAcceleration();
 // 打包后最好添加 --disable-gpu 做为启动参数
 function createWindow() {
   win = new BrowserWindow({
-    // frame: false,
+    frame: false,
     // transparent: true,
     // webPreferences: {},
   });
@@ -40,5 +40,5 @@ if (!gotTheLock) {
 
 app.whenReady().then(async () => {
   createWindow();
-  // startServers(9000);
+  startServers(9000);
 });

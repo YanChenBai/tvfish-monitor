@@ -84,6 +84,7 @@ export const usePlayerStore = defineStore(
           keyframe: res.keyframe,
           status: res.status,
           shortId: res.shortId,
+          tags: res.tags,
         });
         if (msg) {
           await message('添加成功!');
@@ -111,6 +112,7 @@ export const usePlayerStore = defineStore(
         item.news = res.news;
         item.keyframe = IMAGE_PROXY + res.keyframe;
         item.status = res.status;
+        item.tags = res.tags;
         if (msg) await message('更新成功!');
       }
     }

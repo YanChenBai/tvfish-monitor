@@ -427,9 +427,11 @@ async function inputDefData() {
 
 // 名字搜索
 const searchByName = computed(() => {
-  return roomList.value.filter(
-    (item) => item.name.search(keyWorld.value) !== -1,
-  );
+  return roomList.value.filter((item) => {
+    const findName = item.name.search(keyWorld.value) !== -1;
+    const findTags = item.tags.search(keyWorld.value) !== -1;
+    return findName || findTags;
+  });
 });
 
 // 打开设置

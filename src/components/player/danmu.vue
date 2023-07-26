@@ -238,6 +238,6 @@ onMounted(() => {
   font-weight: 600;
   text-shadow: 1px 1px 2px #000;
   font-size: 24px;
-  -webkit-text-stroke: 1px #00000088;
+  /* -webkit-text-stroke: 1px #00000088; */
 }
 </style>

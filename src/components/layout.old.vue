@@ -29,13 +29,11 @@ import layout, { getPlayerCode } from '@/hooks/layout';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
 import { ref } from 'vue';
-import list from '@/config/layouts/vertical';
 
 defineOptions({ name: 'LayoutWrap' });
 const type = ref(null),
   url = ref('');
 const { layoutIndex, navState } = storeToRefs(usePlayerStore());
-console.log(list);
 </script>
 
 <style scoped>

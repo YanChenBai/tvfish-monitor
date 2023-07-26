@@ -9,7 +9,6 @@ async function getUserInfo(rooomId) {
       `https://api.live.bilibili.com/live_user/v1/Master/info?uid=${roomInfo.uid}`,
     );
     const data = userData.data.data;
-
     if (userData.data.code === 0) {
       const user_info = {
         face: data.info.face,
@@ -37,8 +36,16 @@ async function getRoomInfo(roomId) {
       id: roomId,
     },
   });
-  const { room_id, live_status, title, keyframe, uid, short_id } =
-    res.data.data;
+  const {
+    room_id,
+    live_status,
+    title,
+    keyframe,
+    uid,
+    short_id,
+    tags,
+    live_time,
+  } = res.data.data;
   if (res.data.code === 0) {
     return {
       uid,
@@ -47,6 +54,8 @@ async function getRoomInfo(roomId) {
       status: live_status,
       title,
       keyframe,
+      tags,
+      liveTime: new Date(live_time).getTime(),
     };
   } else {
     throw new Error('请求错误');
