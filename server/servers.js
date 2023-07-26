@@ -65,7 +65,7 @@ router.get('/getLiveInfo', async (req, res, next) => {
 
     const joiParams = {
       roomId: Joi.number().required(),
-      qn: Joi.number().optional().default(0),
+      qn: Joi.number().optional().default(null),
       type: Joi.string().allow('bili', 'douyu'),
     };
 
@@ -107,4 +107,5 @@ function startServers(port) {
     console.log('Server is running on port ' + port);
   });
 }
+// startServers(8100);
 module.exports = { startServers };

@@ -44,7 +44,9 @@ async function getRealUrl(roomId, qn = null, line = null) {
 
   fun = executeStrJs(func_sign, ['sign']);
   let params = fun.sign(realId, did, t10);
-  params += `&cdn=${line}&rate=${qn}`;
+  params += `${line === null ? '' : '&cdn=' + line}${
+    qn === null ? '' : '&rate=' + qn
+  }`;
 
   const url = `https://www.douyu.com/lapi/live/getH5Play/${realId}?${params}`;
   const resInfo = await axios({ method: 'POST', url });

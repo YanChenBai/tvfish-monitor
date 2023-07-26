@@ -4,15 +4,15 @@ const axios = require('axios');
 
 const defParams = {
   protocol: '0,1',
-  format: '0,1,2',
-  codec: '0,1',
+  format: '2',
+  codec: '0',
   qn: 10000,
   platform: 'h5',
   ptype: 8,
 };
 
 // 获取直播源
-async function getLiveInfo(roomId, qn = 10000, line = 0) {
+async function getLiveInfo(roomId, qn = 150, line = 0) {
   let res;
   const params = { ...defParams };
   if (line === null) {
@@ -21,7 +21,7 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
   if (qn !== null) {
     params.qn = qn;
   } else {
-    params.qn = 10000;
+    params.qn = 150;
   }
 
   // 获取真实的房间ID
@@ -35,7 +35,6 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
   }
 
   params['room_id'] = roomInfoRes.data.roomId;
-
   try {
     res = await axios({
       method: 'GET',
@@ -44,14 +43,15 @@ async function getLiveInfo(roomId, qn = 10000, line = 0) {
     });
 
     const codecIndex = 0;
+    const streamIndex = 0;
+    const formatIndex = 0;
     const { playurl_info } = res.data.data;
 
     // http_hls, http_stream
-    const stream = playurl_info.playurl.stream.find(
-      (item) => item.protocol_name === 'http_hls',
-    );
-    const format = stream.format.find((item) => item.format_name == 'ts');
+    const stream = playurl_info.playurl.stream[streamIndex];
+    const format = stream.format[formatIndex];
     const codec = format.codec[codecIndex];
+
     const baseUrl = codec.base_url;
     const host = codec.url_info[line].host;
     const extra = codec.url_info[line].extra;
