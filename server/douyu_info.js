@@ -41,7 +41,7 @@ async function getUserInfoDouyu(roomId) {
       title: data.room_name,
       keyframe: data.room_pic,
       platform: 'douyu',
-      tags: data.tags,
+      tags: data.authInfo.desc,
       liveTime: data.show_time * 1000,
     };
     return getResponseBody(200, '请求成功！', reqData);

@@ -4,6 +4,8 @@
       :playerName="playerName"
       :lines="lines"
       :qualitys="qualitys"
+      :currentQuality="currentQuality"
+      :currentLine="currentLine"
       @qualityChange="qualityChange"
       @lineChange="lineChange"
       @refresh="update"
@@ -43,7 +45,9 @@ const playerRef = ref<InstanceType<typeof LiveDanmuPlayer>>(),
   qualitys = ref<QualityType[]>([]),
   quality = ref<number | null>(null),
   lines = ref<LineType[]>([]),
-  line = ref<string | null>(null);
+  line = ref<string | null>(null),
+  currentQuality = ref<number | null>(null),
+  currentLine = ref<any>(null);
 
 const player = computed(() => playerList.value[props.playerName]);
 
@@ -160,6 +164,8 @@ async function update(sysMessage = false): Promise<RoomListItem | false> {
       } else {
         qualitys.value = res.data.quality;
         lines.value = res.data.lines;
+        currentQuality.value = res.data.qn;
+        currentLine.value = res.data.line;
         const type =
           player.value.platform === Platform.Bili
             ? ConfigType.Hls

@@ -16,7 +16,7 @@
         <ion-grid>
           <ion-row>
             <template
-              v-for="(item, index) in layout"
+              v-for="(layout, index) in layouts"
               :key="`layoutIndex_item_${index}`"
             >
               <ion-col size="4" size-sm="3">
@@ -26,22 +26,24 @@
                 >
                   <div
                     class="preview-item"
-                    :style="{ 'grid-template-areas': item.area }"
                     @click="updateLayout(index)"
                     v-vibration="5"
                   >
                     <div
-                      v-for="key in item.num"
+                      v-for="(item, key) in layout"
                       :key="`layoutIndex_item_block_${index}_${key}`"
                       class="preview-win"
                       :style="{
-                        'grid-area': String.fromCharCode(97 + key - 1),
+                        left: `${size * item.x}%`,
+                        top: `${size * item.y}%`,
+                        width: `calc(${size * item.w}% - 4px)`,
+                        height: `calc(${size * item.h}% - 4px)`,
                       }"
                     ></div>
                   </div>
                   <div class="item-num">
                     <div class="num">{{ index + 1 }}</div>
-                    <div class="win-num">{{ item.num }}win</div>
+                    <div class="win-num">{{ layout.length }}win</div>
                   </div>
                 </div>
               </ion-col>
@@ -66,13 +68,14 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/vue';
-import layout from '@/hooks/layout';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
 import { ref } from 'vue';
 import '@/theme/hideScrollbar.css';
 defineOptions({ name: 'layoutPreview' });
+import layouts from '@/config/lauouts';
 
+const size = 100 / 12;
 const layoutModal = ref();
 const { layoutIndex } = storeToRefs(usePlayerStore());
 
@@ -98,19 +101,18 @@ function updateLayout(index: number) {
   box-sizing: border-box;
 }
 .preview-item-wrap {
+  width: 100%;
+  height: 132px;
   background: #4b4b4b;
   border-radius: 4px;
-  padding-bottom: 4px;
+  padding: 4px 0 0 4px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .preview-item {
-  display: grid;
   width: 100%;
-  height: 70px;
-  padding: 2px;
-  border-radius: 4px;
-  cursor: pointer;
+  height: 100px;
   position: relative;
-  box-sizing: border-box;
 }
 
 .preview-item-wrap:hover .preview-win,
@@ -123,22 +125,22 @@ function updateLayout(index: number) {
 
 .preview-win {
   transition: all 0.3s;
-  margin: 2px;
-  border-radius: 4px;
+  border-radius: 2px;
   background: #121212;
+  position: absolute;
 }
 
 .item-num {
   width: 100%;
   color: #121212;
   text-align: center;
-  height: 20px;
+  height: 28px;
   line-height: 20px;
   font-size: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 4px;
+  padding: 4px;
   transition: all 0.3s;
 }
 

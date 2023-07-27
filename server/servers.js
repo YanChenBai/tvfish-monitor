@@ -56,7 +56,7 @@ app.use('/img', async function name(req, res, next) {
 
 const router = express.Router();
 
-router.get('/getLiveInfo', async (req, res, next) => {
+router.get('/getLiveInfo', async (req, res) => {
   try {
     const type = await Joi.string()
       .allow('bili', 'douyu')
@@ -90,7 +90,7 @@ router.get('/getLiveInfo', async (req, res, next) => {
   }
 });
 
-router.get('/getRoomInfo', async (req, res, next) => {
+router.get('/getRoomInfo', async (req, res) => {
   const roomId = req.query.roomId;
   const type = req.query.type;
   if (type === 'bili') {
@@ -107,5 +107,5 @@ function startServers(port) {
     console.log('Server is running on port ' + port);
   });
 }
-startServers(9000);
+// startServers(9000);
 module.exports = { startServers };

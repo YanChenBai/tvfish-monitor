@@ -15,8 +15,8 @@ function createWindow() {
 
   // 关闭菜单栏
   // Menu.setApplicationMenu(null);
-  // win.loadFile(path.resolve(__dirname, './dist/index.html'));
-  win.loadURL('http://localhost:8100');
+  win.loadFile(path.resolve(__dirname, './dist/index.html'));
+  // win.loadURL('http://localhost:8100');
 }
 
 // 确保窗口被关闭

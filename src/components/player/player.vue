@@ -41,6 +41,8 @@
       :name="roomInfo.name"
       :lines="lines"
       :qualitys="qualitys"
+      :currentQuality="currentQuality"
+      :currentLine="currentLine"
     />
   </div>
 </template>
@@ -62,6 +64,8 @@ const props = defineProps<{
   lines: LineType[];
   qualitys: QualityType[];
   playerName: string;
+  currentQuality: number | null;
+  currentLine: any | null;
 }>();
 
 const emit = defineEmits([
@@ -216,12 +220,12 @@ defineExpose({
   height: 100%;
   position: relative;
   z-index: 9;
+  overflow: hidden;
 }
 .video-wrap video {
   position: relative;
   height: 100%;
   width: 100%;
-  z-index: 9;
 }
 .status-text {
   display: flex;

@@ -429,7 +429,9 @@ async function inputDefData() {
 const searchByName = computed(() => {
   return roomList.value.filter((item) => {
     const findName = item.name.search(keyWorld.value) !== -1;
-    const findTags = item.tags.search(keyWorld.value) !== -1;
+    const findTags = item.tags
+      ? item.tags.search(keyWorld.value) !== -1
+      : false;
     return findName || findTags;
   });
 });

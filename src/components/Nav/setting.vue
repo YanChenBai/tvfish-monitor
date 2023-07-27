@@ -16,7 +16,6 @@
             <div>{{ nightOverlayOpacity }}</div>
           </ion-label>
           <ion-range
-            :min="40"
             @ionChange="onIonChange"
             :value="nightOverlayOpacity"
             v-vibration="5"

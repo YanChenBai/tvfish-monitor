@@ -64,10 +64,9 @@
                 size="small"
                 v-vibration="5"
               >
-                清晰度
+                {{ qualityChangeName }}
               </ion-button>
             </template>
-            清晰度
           </PopoverSelect>
           <PopoverSelect :list="lines" @change="lineChange">
             <template #target>
@@ -77,10 +76,9 @@
                 size="small"
                 v-vibration="5"
               >
-                线路
+                {{ currentLineName }}
               </ion-button>
             </template>
-            线路
           </PopoverSelect>
 
           <ion-button
@@ -118,6 +116,8 @@ const props = defineProps<{
   status: RoomStatus;
   lines: LineType[];
   qualitys: QualityType[];
+  currentQuality: number | null;
+  currentLine: any | null;
 }>();
 const emit = defineEmits([
   'destroy', // 销毁
@@ -134,7 +134,21 @@ const playerConfig = computed(() => playerListConfig.value[props.playerName]);
 const show = ref(false);
 const topRef = ref<HTMLElement>(),
   bottomRef = ref<HTMLElement>();
-
+const currentLineName = computed(() => {
+  if (props.currentLine === null) {
+    return '线路';
+  } else {
+    return props.lines.find((item) => item.line === props.currentLine)!.name;
+  }
+});
+const qualityChangeName = computed(() => {
+  if (props.currentQuality === null) {
+    return '线路';
+  } else {
+    return props.qualitys.find((item) => item.qn === props.currentQuality)!
+      .name;
+  }
+});
 const qualityChange = (item: QualityType) => emit('qualityChange', item);
 const lineChange = (item: LineType) => emit('lineChange', item);
 const openControl = () => {
