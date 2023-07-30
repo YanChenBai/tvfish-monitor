@@ -29,7 +29,7 @@ import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
 import { IMAGE_PROXY } from '@/config/proxy';
 import { impactHeavy, vibrate } from '@/utils/impact';
-import { notification } from '@/hooks/notification';
+import { notification } from '@/utils/notification';
 
 defineOptions({ name: 'playerWrap' });
 
@@ -206,3 +206,4 @@ watch(
 </script>
 
 <style scoped></style>
+@/utils/notification

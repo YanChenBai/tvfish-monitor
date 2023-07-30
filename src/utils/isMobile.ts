@@ -11,6 +11,8 @@ const phone: Platforms[] = [
   'phablet',
 ];
 
+const exclude: Platforms[] = ['mobileweb'];
+
 export function isPhone() {
   const platform = getPlatforms();
   if (phone.indexOf(platform[0]) === -1) return false;

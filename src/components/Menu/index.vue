@@ -1,73 +1,70 @@
 <template>
-  <Transition name="menu">
-    <div class="menu-wrap" ref="menuWrap" v-show="menuState">
-      <!-- 搜索直播间 -->
-      <div>
-        <ion-input
-          style="min-height: 26px; margin-bottom: 10px; color: #ffff"
-          color="primary"
-          placeholder="搜索主播"
-          :clear-input="true"
-          v-model:modelValue="keyWorldDebounced"
-        ></ion-input>
-      </div>
+  <MenuCompoent :ignore="ignore">
+    <!-- 搜索直播间 -->
+    <div>
+      <ion-input
+        style="min-height: 26px; margin-bottom: 10px; color: #ffff"
+        color="primary"
+        placeholder="搜索主播"
+        :clear-input="true"
+        v-model:modelValue="keyWorldDebounced"
+      ></ion-input>
+    </div>
 
-      <!-- 直播间列表 -->
-      <div class="menu-content hide-scrollbar" ref="menuContentRef">
-        <div v-for="item in searchByName" class="menu-content-item">
-          <MenuItem
-            :key="`${item.platform}@${item.roomId}`"
-            :disabled="updateLoading || addloading"
-            :info="item"
-            @drag="dragItem"
-            @setting="openSet(item)"
-            @tips="openTips(item)"
-          ></MenuItem>
-        </div>
-      </div>
-
-      <!-- 操作的按钮 -->
-      <div class="add">
-        <ion-button v-vibration="5">
-          {{ searchByName.length }}
-        </ion-button>
-
-        <!-- 添加/导入/导出按钮 -->
-        <ion-button id="menuModal" :disabled="updateLoading" v-vibration="5">
-          <ion-icon :icon="personAddOutline"></ion-icon>
-        </ion-button>
-
-        <!-- 更新全部 -->
-        <ion-button
-          id="updateAll"
-          @click="updateAll"
-          :disabled="updateLoading || inputLoading || addloading"
-          v-vibration="5"
-        >
-          <ion-icon :icon="refresh" v-if="!updateLoading"></ion-icon>
-          <div v-else style="display: flex; align-items: center">
-            <ion-spinner name="bubbles"></ion-spinner>
-            {{ updateIndex + 1 }} / {{ roomList.length }}
-          </div>
-        </ion-button>
-
-        <!-- 整理顺序 -->
-        <ion-button
-          :disabled="updateLoading || inputLoading || addloading"
-          @click="sortList"
-          v-vibration="5"
-        >
-          <ion-icon :icon="swapVerticalOutline"></ion-icon>
-        </ion-button>
-
-        <!-- 直播间列表返回顶部 -->
-        <ion-button @click="goTop" v-vibration="5">
-          <ion-icon :icon="arrowUpOutline"></ion-icon>
-        </ion-button>
+    <!-- 直播间列表 -->
+    <div class="menu-content hide-scrollbar" ref="menuContentRef">
+      <div v-for="item in searchByName" class="menu-content-item">
+        <MenuItem
+          :key="`${item.platform}@${item.roomId}`"
+          :disabled="updateLoading || addloading"
+          :info="item"
+          @drag="dragItem"
+          @setting="openSet(item)"
+          @tips="openTips(item)"
+        ></MenuItem>
       </div>
     </div>
-  </Transition>
 
+    <!-- 操作的按钮 -->
+    <div class="add">
+      <ion-button v-vibration="5">
+        {{ searchByName.length }}
+      </ion-button>
+
+      <!-- 添加/导入/导出按钮 -->
+      <ion-button id="menuModal" :disabled="updateLoading" v-vibration="5">
+        <ion-icon :icon="personAddOutline"></ion-icon>
+      </ion-button>
+
+      <!-- 更新全部 -->
+      <ion-button
+        id="updateAll"
+        @click="updateAll"
+        :disabled="updateLoading || inputLoading || addloading"
+        v-vibration="5"
+      >
+        <ion-icon :icon="refresh" v-if="!updateLoading"></ion-icon>
+        <div v-else style="display: flex; align-items: center">
+          <ion-spinner name="bubbles"></ion-spinner>
+          {{ updateIndex + 1 }} / {{ roomList.length }}
+        </div>
+      </ion-button>
+
+      <!-- 整理顺序 -->
+      <ion-button
+        :disabled="updateLoading || inputLoading || addloading"
+        @click="sortList"
+        v-vibration="5"
+      >
+        <ion-icon :icon="swapVerticalOutline"></ion-icon>
+      </ion-button>
+
+      <!-- 直播间列表返回顶部 -->
+      <ion-button @click="goTop" v-vibration="5">
+        <ion-icon :icon="arrowUpOutline"></ion-icon>
+      </ion-button>
+    </div>
+  </MenuCompoent>
   <!-- 添加直播间 / 导入 / 导出 的模态框 -->
   <ion-modal ref="menuModal" trigger="menuModal">
     <ion-header>
@@ -248,12 +245,11 @@ import { Clipboard } from '@capacitor/clipboard';
 import '@/theme/hideScrollbar.css';
 import { message } from '@/utils/message';
 import defRoomList from '@/config/roomList';
-import { isPhone } from '@/utils/isMobile';
-import { useBackButton } from '@ionic/vue';
 import { Platform, PlayerItem, RoomListItem } from '@/types/player';
-import { onClickOutside, watchDebounced } from '@vueuse/core';
+import { watchDebounced } from '@vueuse/core';
 import { vibrate } from '@/utils/impact';
 import { useScroll } from '@vueuse/core';
+import MenuCompoent from '@/components/menu.vue';
 
 defineOptions({ name: 'MenuList' });
 
@@ -270,7 +266,6 @@ const data = reactive<{
 
 const menuModal = ref(),
   actionSheet = ref(),
-  menuWrap = ref(),
   outModal = ref(),
   jsonData = ref(''),
   updateLoading = ref(false),
@@ -540,24 +535,13 @@ watchDebounced(keyWorldDebounced, (val) => (keyWorld.value = val), {
   maxWait: 1000,
 });
 
-// 关闭Menu
-onClickOutside(menuWrap, () => (menuState.value = false), {
-  ignore: [
-    menuModal,
-    menuWrap,
-    outModal,
-    actionSheet,
-    removeAlertRef,
-    tipsPopoverRef,
-  ],
-});
-
-if (isPhone()) {
-  // 监听系统返回
-  useBackButton(10, () => {
-    menuState.value = false;
-  });
-}
+const ignore = [
+  menuModal,
+  outModal,
+  actionSheet,
+  removeAlertRef,
+  tipsPopoverRef,
+];
 </script>
 
 <style scoped>
