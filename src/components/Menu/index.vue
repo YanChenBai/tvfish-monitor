@@ -1,32 +1,14 @@
 <template>
-  <MenuWrap ref="menuWrapRef" :ignore="ignore">
-    <MenuContent :disabled="false" @setting="setting"> </MenuContent>
-  </MenuWrap>
-  <Setting ref="settingRef" />
+  <MenuWrap ref="menuWrapRef"> </MenuWrap>
 </template>
 
 <script setup lang="ts">
 import MenuWrap from './menu.vue';
-import MenuContent from './content.vue';
-import { RoomListItem } from '@/types/player';
-import Setting from '@/components/Menu/setting.vue';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
 defineOptions({ name: 'MenuIndex' });
 
-const settingRef = ref<InstanceType<typeof Setting>>(),
-  menuWrapRef = ref<InstanceType<typeof MenuWrap>>(),
-  ignore = ref<any[]>([settingRef]);
-function setting(room: RoomListItem) {
-  if (settingRef.value) {
-    settingRef.value.open();
-    console.log(ignore.value);
-  }
-}
-
-onMounted(() => {
-  menuWrapRef.value?.addIgnore(ignore.value);
-});
+const menuWrapRef = ref<InstanceType<typeof MenuWrap>>();
 </script>
 
 <style scoped></style>

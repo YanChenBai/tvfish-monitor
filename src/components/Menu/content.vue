@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import { IonInput } from '@ionic/vue';
 import { usePlayerStore } from '@/stores/playerStore';
 import MenuItem from '@/components/Menu/item.vue';
 import { RoomListItem } from '@/types/player';

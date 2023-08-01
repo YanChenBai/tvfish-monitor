@@ -12,6 +12,7 @@ import {
 } from '@/types/player';
 import { isPhone } from '@/utils/isMobile';
 import { BackgroundMode } from '@anuradev/capacitor-background-mode';
+import StoreQuery from '@/utils/storeQuey';
 
 export const usePlayerStore = defineStore(
   'player',
@@ -53,20 +54,24 @@ export const usePlayerStore = defineStore(
       h: { volume: 0, danmu: false },
     });
 
+    const roomListCurd = new StoreQuery(roomList.value);
+
     async function addRoom(roomId: number, type: Platform, msg = true) {
       try {
         const res = await getRoomInfo(roomId, type);
         if (res === false) {
           return;
         }
+        const findRoom = roomListCurd.queryAll({
+          platform: res.platform,
+          roomId: res.roomId,
+        });
 
-        for (const item of roomList.value) {
-          if (item.platform === res.platform && res.roomId === item.roomId) {
-            if (msg) {
-              await message('直播间已经添加了!');
-            }
-            return;
+        if (findRoom.length > 0) {
+          if (msg) {
+            await message('直播间已经添加了!');
           }
+          return;
         }
 
         res.keyframe =
@@ -74,7 +79,7 @@ export const usePlayerStore = defineStore(
 
         res.face = type === Platform.Bili ? IMAGE_PROXY + res.face : res.face;
 
-        roomList.value.push({
+        roomListCurd.create({
           roomId: res.roomId,
           platform: res.platform,
           name: res.name,
@@ -101,30 +106,34 @@ export const usePlayerStore = defineStore(
     ) {
       const res = await getRoomInfo(roomId, platform);
       if (res) {
-        const item = roomList.value.find(
-          (item) => item.roomId === res.roomId && item.platform === platform,
+        roomListCurd.update(
+          {
+            roomId: res.roomId,
+            platform: res.platform,
+          },
+          {
+            roomId: res.roomId,
+            platform: res.platform,
+            name: res.name,
+            face: res.face,
+            title: res.title,
+            news: res.news,
+            keyframe: res.keyframe,
+            status: res.status,
+            shortId: res.shortId,
+            tags: res.tags,
+          },
         );
-        if (item === undefined) return;
-        item.name = res.name;
-        item.face = IMAGE_PROXY + res.face;
-        item.roomId = res.roomId;
-        item.title = res.title;
-        item.news = res.news;
-        item.keyframe = IMAGE_PROXY + res.keyframe;
-        item.status = res.status;
-        item.tags = res.tags;
         if (msg) await message('更新成功!');
       }
     }
 
     async function removeRoom(roomId: number, platform: Platform) {
-      const findIndex = roomList.value.findIndex(
-        (item) => item.roomId === roomId && item.platform === platform,
-      );
-      if (findIndex !== -1) {
-        roomList.value.splice(findIndex, 1);
-        await message('更新成功!');
-      }
+      roomListCurd.remove({
+        roomId,
+        platform,
+      });
+      await message('更新成功!');
     }
 
     const queryTop = (roomId: number, platform: Platform) =>

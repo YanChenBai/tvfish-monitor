@@ -27,7 +27,7 @@ import { RoomListItem } from '@/types/player';
 import { vibrate } from '@/utils/impact';
 import { ActionSheetButton, IonActionSheet, IonAlert } from '@ionic/vue';
 import { computed, ref } from 'vue';
-import { sortList } from '@/hooks/useMenuContent';
+import { sortList } from '@/hooks/useMenu';
 import StoreQuery from '@/utils/storeQuey';
 
 defineOptions({ name: 'MenuSetting' });
@@ -129,8 +129,9 @@ const alertButtons = [
   },
 ];
 
-function open() {
+function open(room: RoomListItem) {
   actionSheetIsOpen.value = true;
+  currentSelectRoom.value = room;
 }
 
 defineExpose({

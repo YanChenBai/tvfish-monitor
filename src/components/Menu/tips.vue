@@ -1,9 +1,5 @@
 <template>
-  <ion-popover
-    ref="tipsPopoverRef"
-    :is-open="isOpen"
-    @didDismiss="isOpen = false"
-  >
+  <ion-popover :is-open="isOpen" @didDismiss="isOpen = false">
     <ion-content class="ion-padding">
       <template v-if="content">
         <p class="room-name">{{ content.name }}</p>
@@ -40,8 +36,7 @@ import { message } from '@/utils/message';
 
 defineOptions({ name: 'MenuTips' });
 
-const tipsPopoverRef = ref(),
-  isOpen = ref(false),
+const isOpen = ref(false),
   content = ref<RoomListItem | null>(null);
 
 // 复制直播间地址
@@ -59,12 +54,12 @@ async function copyRoomAddress() {
 }
 
 // 打开提示
-const openTips = (item: RoomListItem | null = null) => {
+const open = (item: RoomListItem) => {
   isOpen.value = true;
   content.value = item;
 };
 
-defineExpose({ openTips });
+defineExpose({ open });
 </script>
 
 <style scoped>
