@@ -13,7 +13,6 @@
   <!-- 直播间列表 -->
   <div class="menu-content hide-scrollbar" ref="menuContentRef">
     <div v-for="item in showList" class="menu-content-item">
-      <!-- updateLoading || addloading -->
       <MenuItem
         :key="`${item.platform}@${item.roomId}`"
         :disabled="disabled"

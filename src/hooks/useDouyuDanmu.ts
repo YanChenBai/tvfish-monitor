@@ -10,7 +10,7 @@ export interface DouyuDanmu {
   avatar: string; // 头像地址 https://apic.douyucdn.cn/upload/ + avatar + _small.jpg
   lv: number; // 等级
   txt: string; // 弹幕内容
-  color: undefined | 2 | 3 | 6 | 4 | 5 | 1; // 弹幕颜色 undefine就是普通弹幕 2蓝色 3绿色 6粉色 4橙色 5紫色 1红色
+  color: string; // 弹幕颜色 undefine就是普通弹幕 2蓝色 3绿色 6粉色 4橙色 5紫色 1红色
   fansName: string; // 粉丝牌名字
   fansLv: number; // 粉丝牌等级
   diamond: boolean; // 是否是钻粉
@@ -21,6 +21,16 @@ export interface DouyuDanmu {
   vip: boolean; // vip，如果是 453/则为vip  454/则为超级vip
   key: number; // 时间戳
 }
+
+const colorList = [
+  '#1e87f0',
+  '#7ac84b',
+  '#ff69b4',
+  '#ff7f00',
+  '#ff7f00',
+  '#ff0000',
+];
+
 export function useDouyuDanmu(rid: number, handle: DouyuDanmuHandles) {
   const stt = new STT();
 
@@ -42,12 +52,13 @@ export function useDouyuDanmu(rid: number, handle: DouyuDanmuHandles) {
     }
     if (msgType === 'chatmsg') {
       const data = stt.deserialize(msg);
+      const color = data.col ? colorList[data.col] : '#fff';
       const obj: DouyuDanmu = {
         nn: data.nn, // 昵称
         avatar: data.ic, // 头像地址 https://apic.douyucdn.cn/upload/ + avatar + _small.jpg
         lv: data.level, // 等级
         txt: data.txt, // 弹幕内容
-        color: data.col, // 弹幕颜色 undefine就是普通弹幕 2蓝色 3绿色 6粉色 4橙色 5紫色 1红色
+        color: color, // 弹幕颜色 undefine就是普通弹幕 2蓝色 3绿色 6粉色 4橙色 5紫色 1红色
         fansName: data.bnn, // 粉丝牌名字
         fansLv: data.bl, // 粉丝牌等级
         diamond: data.diaf, // 是否是钻粉

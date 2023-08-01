@@ -155,7 +155,7 @@ import '@/theme/hideScrollbar.css';
 import { sortList } from '@/hooks/useMenu';
 import { computed, reactive, ref } from 'vue';
 import { vibrate } from '@/utils/impact';
-import { Platform, PlayerItem } from '@/types/player';
+import { Platform } from '@/types/player';
 import { usePlayerStore } from '@/stores/playerStore';
 import defRoomList from '@/config/roomList';
 import { Clipboard } from '@capacitor/clipboard';

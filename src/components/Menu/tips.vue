@@ -19,6 +19,9 @@
         <p>
           公告: <span class="tips-item">{{ content.news }}</span>
         </p>
+        <p>
+          Tags: <span class="tips-item">{{ content.tags }}</span>
+        </p>
         <ion-button @click="copyRoomAddress" v-vibration="5"
           >复制直播间地址</ion-button
         >
