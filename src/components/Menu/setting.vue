@@ -22,19 +22,18 @@
 </template>
 
 <script setup lang="ts">
-import { usePlayerStore } from '@/stores/playerStore';
 import { RoomListItem } from '@/types/player';
 import { vibrate } from '@/utils/impact';
 import { ActionSheetButton, IonActionSheet, IonAlert } from '@ionic/vue';
 import { computed, ref } from 'vue';
 import { sortList } from '@/hooks/useMenu';
-import StoreQuery from '@/utils/storeQuey';
+import useRoomList from '@/hooks/useRoomList';
+import useTopRoom from '@/hooks/useTopRoom';
 
 defineOptions({ name: 'MenuSetting' });
 
-const playerStore = usePlayerStore();
-const topRoomListCurd = new StoreQuery(playerStore.topRoomList);
-const roomListCurd = new StoreQuery(playerStore.roomList);
+const topRoom = useTopRoom();
+const roomList = useRoomList();
 
 const actionSheetRef = ref(),
   actionSheetIsOpen = ref(false),
@@ -59,9 +58,9 @@ function handler(type: boolean) {
   const room = getInfo();
   if (room) {
     if (type) {
-      topRoomListCurd.create(room);
+      topRoom.create(room);
     } else {
-      topRoomListCurd.remove(room);
+      topRoom.remove(room);
     }
     sortList();
   }
@@ -88,7 +87,7 @@ const actionSheetButtons = computed(() => {
   ];
 
   if (room) {
-    const isTop = topRoomListCurd.queryOne({
+    const isTop = topRoom.queryOne({
       roomId: room.roomId,
       platform: room.platform,
     });
@@ -124,7 +123,7 @@ const alertButtons = [
     handler() {
       vibrate(5);
       const room = getInfo();
-      if (room) roomListCurd.remove(room);
+      if (room) roomList.remove(room.roomId, room.platform);
     },
   },
 ];

@@ -71,7 +71,7 @@ import {
   settingsOutline,
 } from 'ionicons/icons';
 import LayoutModal from './preview.vue';
-import MenuPlayer from '@/components/Menu/index.vue';
+import MenuPlayer from '@/components/Menu/menu.vue';
 import { hideBar } from '@/utils/barStatus';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';

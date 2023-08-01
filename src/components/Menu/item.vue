@@ -60,20 +60,19 @@ import { IonIcon } from '@ionic/vue';
 import { moveOutline, settingsOutline } from 'ionicons/icons';
 import { usePlayerStore } from '@/stores/playerStore';
 import { DropType } from '@/types/drop';
-import {
-  useDrag,
-  DragPreviewImage,
-  DragPreviewOptions,
-  ConnectDragPreview,
-} from 'vue3-dnd';
+import { useDrag, DragPreviewImage } from 'vue3-dnd';
 import { computed, ref } from 'vue';
 import { RoomListItem, RoomStatus } from '@/types/player';
 import { impactHeavy, vibrate } from '@/utils/impact';
 import { roomStatusClass } from '@/config/status';
+import useRoomList from '@/hooks/useRoomList';
+import useTopRoom from '@/hooks/useTopRoom';
 
 defineOptions({ name: 'MenuItem' });
 
 const playerStore = usePlayerStore();
+const roomList = useRoomList();
+const topRoom = useTopRoom();
 const emit = defineEmits(['drag', 'setting', 'tips']);
 
 const props = defineProps<{
@@ -87,7 +86,11 @@ const setting = () => emit('setting');
 const tips = () => emit('tips', props.info);
 
 const isTop = computed(
-  () => playerStore.queryTop(props.info.roomId, props.info.platform) !== -1,
+  () =>
+    topRoom.queryOneIndex({
+      roomId: props.info.roomId,
+      platform: props.info.platform,
+    }) !== -1,
 );
 
 const getStyle = computed(() => ({
@@ -97,7 +100,7 @@ const getStyle = computed(() => ({
 
 function update() {
   vibrate(15);
-  playerStore.updateRoomInfo(props.info.roomId, props.info.platform);
+  roomList.update(props.info.roomId, props.info.platform);
 }
 
 // 用于防止拖拽多次触发

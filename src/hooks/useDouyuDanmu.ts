@@ -1,4 +1,3 @@
-import { ref } from 'vue';
 import { Ex_WebSocket_UnLogin } from '@/utils/douyuDanmu';
 import { STT } from '@/utils/stt.js';
 import { getStrMiddle } from '@/utils/douyuDanmu';

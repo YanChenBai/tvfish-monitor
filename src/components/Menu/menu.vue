@@ -1,10 +1,15 @@
 <template>
   <Transition name="menu">
     <div class="menu-wrap" ref="menuWrapRef" v-show="menuState">
-      <MenuContent :disabled="false" @setting="openSetting" @tips="openTips" />
+      <MenuContent
+        ref="menuContentRef"
+        :disabled="disabled"
+        @setting="openSetting"
+        @tips="openTips"
+      />
       <Setting ref="settingRef" />
       <Tips ref="tipsRef" />
-      <Btns ref="btnsRef" />
+      <Btns ref="btnsRef" @goTop="goTop" />
     </div>
   </Transition>
 </template>
@@ -18,14 +23,23 @@ import { useMenu } from '@/hooks/useMenu';
 import { usePlayerStore } from '@/stores/playerStore';
 import { RoomListItem } from '@/types/player';
 import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 defineOptions({ name: 'menuCompoent' });
 const { menuState } = storeToRefs(usePlayerStore()),
   menuWrapRef = ref(),
   settingRef = ref<InstanceType<typeof Setting>>(),
   tipsRef = ref<InstanceType<typeof Tips>>(),
-  btnsRef = ref<InstanceType<typeof Btns>>();
+  btnsRef = ref<InstanceType<typeof Btns>>(),
+  menuContentRef = ref<InstanceType<typeof MenuContent>>();
+
+const disabled = computed(() => {
+  if (btnsRef.value) {
+    return btnsRef.value.loading.update || btnsRef.value.loading.add;
+  } else {
+    return false;
+  }
+});
 
 function openSetting(room: RoomListItem) {
   if (settingRef.value) settingRef.value.open(room);
@@ -33,6 +47,10 @@ function openSetting(room: RoomListItem) {
 
 function openTips(room: RoomListItem) {
   if (tipsRef.value) tipsRef.value.open(room);
+}
+
+function goTop() {
+  if (menuContentRef.value) menuContentRef.value.goTop();
 }
 
 onMounted(() => {
