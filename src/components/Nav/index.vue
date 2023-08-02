@@ -1,6 +1,8 @@
 <template>
   <div class="nav" v-show="navState">
-    <div class="electron-drag" v-if="!isPhone()">右键关闭</div>
+    <div class="electron-drag">
+      <template v-if="!isPhone()">右键关闭</template>
+    </div>
     <div class="btns">
       <NightOverlayBtn></NightOverlayBtn>
       <Setting></Setting>

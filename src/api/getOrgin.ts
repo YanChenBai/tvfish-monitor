@@ -3,9 +3,9 @@ import axios from 'axios';
 
 console.log(import.meta.env);
 
-// axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
+axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
 // axios.defaults.baseURL = 'http://localhost:8100/';
-axios.defaults.baseURL = 'http://localhost:9000/';
+// axios.defaults.baseURL = 'http://localhost:9000/';
 
 export async function getDouyuOrgin(
   roomId: number,
