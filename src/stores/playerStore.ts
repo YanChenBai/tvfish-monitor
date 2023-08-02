@@ -5,6 +5,7 @@ import {
   PlayerList,
   PlayerConfigList,
   PlayerItem,
+  PinyinInfo,
 } from '@/types/player';
 import { isPhone } from '@/utils/isMobile';
 import { BackgroundMode } from '@anuradev/capacitor-background-mode';
@@ -18,6 +19,7 @@ export const usePlayerStore = defineStore(
     const roomList = ref<RoomListItem[]>([]);
     const menuState = ref(false);
     const topRoomList = ref<PlayerItem[]>([]);
+    const pinyinList = ref<PinyinInfo[]>([]);
     const nightOverlayOpacity = ref(80);
     const menuItemIsDragging = ref(false);
     const debug = ref(false);
@@ -74,6 +76,7 @@ export const usePlayerStore = defineStore(
       topRoomList,
       config,
       debug,
+      pinyinList,
       switchBackgroundMode,
     };
   },

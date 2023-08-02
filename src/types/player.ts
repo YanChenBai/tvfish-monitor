@@ -48,3 +48,7 @@ interface PlayerConfigItem {
 export interface PlayerConfigList {
   [key: string]: PlayerConfigItem;
 }
+
+export interface PinyinInfo extends PlayerItem {
+  value: string[];
+}

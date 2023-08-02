@@ -33,6 +33,7 @@ import { RoomListItem } from '@/types/player';
 import { ref, watch } from 'vue';
 import { useScroll, watchDebounced } from '@vueuse/core';
 import { vibrate } from '@/utils/impact';
+import StoreQuery from '@/utils/storeQuey';
 
 defineOptions({ name: 'menuContent' });
 
@@ -45,26 +46,36 @@ defineProps<{
 }>();
 
 const playerStore = usePlayerStore();
+const pinyinListCurd = new StoreQuery(playerStore.pinyinList);
 const showList = ref<RoomListItem[]>(playerStore.roomList),
   keyword = ref(),
   menuContentRef = ref(),
   { arrivedState } = useScroll(menuContentRef);
 
-// 搜索节流
-watchDebounced(
-  keyword,
-  (val) => {
-    showList.value = playerStore.roomList.filter((item) => {
-      const findName = item.name.search(val) !== -1;
-      const findTags = item.tags ? item.tags.search(val) !== -1 : false;
-      return findName || findTags;
+function updateShowList() {
+  showList.value = playerStore.roomList.filter((item) => {
+    const findName = item.name.search(keyword.value) !== -1;
+    const findTags = item.tags ? item.tags.search(keyword.value) !== -1 : false;
+    const pinyin = pinyinListCurd.queryOne({
+      roomId: item.roomId,
+      platform: item.platform,
     });
-  },
-  {
-    debounce: 100,
-    maxWait: 1000,
-  },
-);
+    const findPinYin = pinyin
+      ? pinyin.value.findIndex((item) => item.search(keyword.value) !== -1) !==
+        -1
+      : false;
+    return findName || findTags || findPinYin;
+  });
+}
+
+// 搜索节流
+watchDebounced(keyword, () => updateShowList(), {
+  debounce: 100,
+  maxWait: 1000,
+});
+
+// 列表改变的话更新显示的内容
+watch(playerStore.roomList, () => updateShowList());
 
 // 返回顶部
 function goTop() {
