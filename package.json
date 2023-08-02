@@ -3,7 +3,7 @@
   "author": "Byc",
   "description": "电视鱼监控器",
   "private": false,
-  "version": "2.1.0",
+  "version": "2.8.2",
   "main": "./electron.main.js",
   "homepage": "./",
   "scripts": {

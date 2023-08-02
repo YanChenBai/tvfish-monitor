@@ -85,6 +85,7 @@ export const usePlayerStore = defineStore(
       paths: [
         'layoutIndex',
         'roomList',
+        'pinyinList',
         'playerList',
         'playerListConfig',
         'nightOverlayOpacity',
