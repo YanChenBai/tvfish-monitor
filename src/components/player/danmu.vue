@@ -23,7 +23,13 @@
             {{ (danmu.content as SuperChatMsg).content }}
           </div>
         </div>
-        <div v-else-if="danmu.type === DnamuType.DEF" class="dnamu-def">
+        <div
+          v-else-if="danmu.type === DnamuType.DEF"
+          class="dnamu-def"
+          :style="{
+            color: danmu.color,
+          }"
+        >
           {{ danmu.content }}
         </div>
         <div v-else-if="danmu.type === DnamuType.EMO" class="dnamu-def">
@@ -88,9 +94,14 @@ let connectClose = (): any => ({});
 function addDnamu(msg: {
   content: string | SuperChatMsg | any;
   type: DnamuType;
+  color: string;
 }) {
   if (danmakuRef.value === undefined) return;
-  danmakuRef.value.insert(msg);
+  try {
+    danmakuRef.value.insert(msg);
+  } catch (error) {
+    //
+  }
 }
 
 // 启动b站弹幕
@@ -101,6 +112,7 @@ function biliDanmu(id: number) {
         addDnamu({
           content: msg.body,
           type: DnamuType.EMO,
+          color: '',
         });
       } else if (msg.body.in_message_emoticon !== undefined) {
         for (const key in msg.body.in_message_emoticon) {
@@ -116,11 +128,13 @@ function biliDanmu(id: number) {
         addDnamu({
           content: msg.body.content,
           type: DnamuType.EMO_IN_MSG,
+          color: msg.body.user.badge ? msg.body.user.badge.color : '#fff',
         });
       } else {
         addDnamu({
           content: msg.body.content,
           type: DnamuType.DEF,
+          color: msg.body.user.badge ? msg.body.user.badge.color : '#fff',
         });
       }
     },
@@ -132,6 +146,7 @@ function biliDanmu(id: number) {
       addDnamu({
         content: msg.body,
         type: DnamuType.SC,
+        color: '#fff',
       }),
     onRoomInfoChange: (msg) => emit('titleChange', msg.body.title),
   });
@@ -145,6 +160,7 @@ function douyuDanmu(id: number) {
       addDnamu({
         content: msg.txt,
         type: DnamuType.DEF,
+        color: msg.color,
       });
     },
   });
@@ -232,12 +248,14 @@ onMounted(() => {
 }
 .content {
   color: #f5f5f5;
+  padding: 0 6px;
 }
 .dnamu-def {
-  color: rgb(63, 149, 224);
+  color: #fff;
   font-weight: 600;
-  text-shadow: 1px 1px 2px #000;
-  font-size: 24px;
+  text-shadow: 1px 0 1px #000000, 0 1px 1px #000000, 0 -1px 1px #000000,
+    -1px 0 1px #000000;
+  font-size: 26px;
   /* -webkit-text-stroke: 1px #00000088; */
 }
 </style>

@@ -2,7 +2,7 @@
   <!-- 操作的按钮 -->
   <div class="btns">
     <ion-button v-vibration="5">
-      {{ playerStore.roomList.length }}
+      {{ num }}
     </ion-button>
 
     <!-- 添加/导入/导出按钮 -->
@@ -20,7 +20,7 @@
       <ion-icon :icon="refresh" v-if="!loading.update"></ion-icon>
       <div v-else style="display: flex; align-items: center">
         <ion-spinner name="bubbles"></ion-spinner>
-        <!-- {{ updateIndex + 1 }} / {{ roomList.length }} -->
+        {{ updateMsg }}
       </div>
     </ion-button>
 
@@ -153,13 +153,14 @@ import {
 } from 'ionicons/icons';
 import '@/theme/hideScrollbar.css';
 import { sortList } from '@/hooks/useMenu';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { vibrate } from '@/utils/impact';
-import { Platform, PlayerItem } from '@/types/player';
+import { Platform } from '@/types/player';
 import { usePlayerStore } from '@/stores/playerStore';
 import defRoomList from '@/config/roomList';
 import { Clipboard } from '@capacitor/clipboard';
 import { message } from '@/utils/message';
+import useRoomList from '@/hooks/useRoomList';
 
 defineOptions({ name: 'MenuBtns' });
 
@@ -183,6 +184,9 @@ const loading = reactive({
 const jsonData = ref(''),
   inputMsg = ref(''),
   updateMsg = ref('');
+const num = computed(() => playerStore.roomList.length);
+
+const roomList = useRoomList();
 
 function close() {
   if (menuModalRef.value) menuModalRef.value.$el.dismiss(null, 'cancel');
@@ -197,7 +201,7 @@ async function add() {
     const type = data.type;
     const roomId = data.roomId;
 
-    await playerStore.addRoom(roomId, type);
+    await roomList.add(roomId, type);
     sortList();
   } catch (error) {
     console.log(error);
@@ -211,9 +215,10 @@ async function updateAll() {
   loading.update = true;
   const count = playerStore.roomList.length;
   let now = 0;
+  updateMsg.value = `${now} / ${count}`;
   for (let index = 0; index < count; index++) {
     try {
-      await playerStore.updateRoomInfo(
+      await roomList.update(
         playerStore.roomList[index].roomId,
         playerStore.roomList[index].platform,
         false,
@@ -222,6 +227,7 @@ async function updateAll() {
     } catch (error) {
       now++;
     }
+    updateMsg.value = `${now} / ${count}`;
   }
   await message('更新完成!');
   sortList();
@@ -243,12 +249,12 @@ async function inputData() {
     let now = 0;
     inputMsg.value = `0 / ${count}`;
     for (const roomId of list[Platform.Bili]) {
-      await playerStore.addRoom(roomId, Platform.Bili, false);
+      await roomList.add(roomId, Platform.Bili, false);
       inputMsg.value = `${now++} / ${count}`;
     }
 
     for (const roomId of list[Platform.Douyu]) {
-      await playerStore.addRoom(roomId, Platform.Douyu, false);
+      await roomList.add(roomId, Platform.Douyu, false);
       inputMsg.value = `${now++} / ${count}`;
     }
 
@@ -288,6 +294,7 @@ async function inputDefData() {
 
 defineExpose({
   ignore: [menuModalRef],
+  loading,
 });
 </script>
 
