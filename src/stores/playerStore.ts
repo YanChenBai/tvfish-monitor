@@ -39,6 +39,14 @@ export const usePlayerStore = defineStore(
       f: null,
       g: null,
       h: null,
+      i: null,
+      j: null,
+      k: null,
+      l: null,
+      m: null,
+      n: null,
+      o: null,
+      p: null,
     });
     const playerListConfig = reactive<PlayerConfigList>({
       a: { volume: 0, danmu: false },
@@ -49,6 +57,14 @@ export const usePlayerStore = defineStore(
       f: { volume: 0, danmu: false },
       g: { volume: 0, danmu: false },
       h: { volume: 0, danmu: false },
+      i: { volume: 0, danmu: false },
+      j: { volume: 0, danmu: false },
+      k: { volume: 0, danmu: false },
+      l: { volume: 0, danmu: false },
+      m: { volume: 0, danmu: false },
+      n: { volume: 0, danmu: false },
+      o: { volume: 0, danmu: false },
+      p: { volume: 0, danmu: false },
     });
 
     function switchBackgroundMode(state: boolean) {

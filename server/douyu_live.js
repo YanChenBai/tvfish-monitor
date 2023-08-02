@@ -10,7 +10,7 @@ async function getRealUrl(roomId, qn = null, line = null) {
   const t10 = parseInt(new Date().getTime() / 1000).toString();
   const _t13 = new Date().getTime().toString();
   const cdn = 'ws-h5';
-  const rate = 0;
+  const rate = 2;
   if (!qn) {
     qn = rate;
   }

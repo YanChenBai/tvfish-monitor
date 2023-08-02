@@ -65,13 +65,13 @@ router.get('/getLiveInfo', async (req, res) => {
 
     const joiParams = {
       roomId: Joi.number().required(),
-      qn: Joi.number().optional().default(null),
       type: Joi.string().allow('bili', 'douyu'),
     };
 
     if (type === 'bili') {
       const schema = Joi.object({
         ...joiParams,
+        qn: Joi.number().optional().default(null),
         line: Joi.number().optional().default(0),
       });
       const value = await schema.validateAsync(req.query);
@@ -80,6 +80,7 @@ router.get('/getLiveInfo', async (req, res) => {
     } else if (type === 'douyu') {
       const schema = Joi.object({
         ...joiParams,
+        qn: Joi.number().optional().default(0),
         line: Joi.string().optional().default('ws-h5'),
       });
       const value = await schema.validateAsync(req.query);

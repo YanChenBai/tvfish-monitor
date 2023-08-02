@@ -1,6 +1,6 @@
 <template>
   <div class="nav" v-show="navState">
-    <div class="electron-drag"></div>
+    <div class="electron-drag" v-if="!isPhone()">右键关闭</div>
     <div class="btns">
       <NightOverlayBtn></NightOverlayBtn>
       <Setting></Setting>
@@ -49,7 +49,7 @@
         v-vibration="5"
         @click="navState = false"
       >
-        <ion-icon :icon="close"></ion-icon>
+        <ion-icon :icon="chevronUpOutline"></ion-icon>
       </ion-button>
     </div>
   </div>
@@ -69,6 +69,7 @@ import {
   layersOutline,
   close,
   settingsOutline,
+  chevronUpOutline,
 } from 'ionicons/icons';
 import LayoutModal from './preview.vue';
 import MenuPlayer from '@/components/Menu/menu.vue';
@@ -133,6 +134,11 @@ useEventListener(window, 'blur', () => {
 .electron-drag {
   width: calc(100% - 250px);
   height: 100%;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: rgba(255, 255, 255, 0.4);
   -webkit-app-region: drag;
 }
 .btns {
