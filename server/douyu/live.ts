@@ -1,17 +1,20 @@
-const getResponseBody = require('./response.js');
-const md5 = require('js-md5');
-const axios = require('axios');
-const { executeStrJs } = require('./tools.js');
-const { getUserInfoDouyu } = require('./douyu_info.js');
+import md5 from 'js-md5';
+import axios from 'axios';
+import { executeStrJs, getResponseBody } from '../utils';
+import { getUserInfoDouyu } from './info';
 
 // 获取真实url
-async function getRealUrl(roomId, qn = null, line = null) {
+export async function getRealUrl(
+  roomId: string,
+  qn: number | null = null,
+  line: string | null = null,
+) {
   const did = '10000000000000000000000000001501';
-  const t10 = parseInt(new Date().getTime() / 1000).toString();
-  const _t13 = new Date().getTime().toString();
+  const t10 = (new Date().getTime() / 1000).toFixed(0);
+  // const _t13 = new Date().getTime().toString();
   const cdn = 'ws-h5';
   const rate = 2;
-  if (!qn) {
+  if (qn === null) {
     qn = rate;
   }
   if (!line) {
@@ -32,7 +35,7 @@ async function getRealUrl(roomId, qn = null, line = null) {
   );
   const func_ub9 = result[1].replace(/eval.*?;}/g, 'strc;}');
 
-  let fun = executeStrJs(func_ub9, ['ub98484234']);
+  let fun: any = executeStrJs(func_ub9, ['ub98484234']);
   const js_res = fun.ub98484234();
 
   const v = js_res.match(/v=(\d+)/)[1];
@@ -54,14 +57,14 @@ async function getRealUrl(roomId, qn = null, line = null) {
   if (resInfo.data.error === 0) {
     const data = resInfo.data.data;
     const liveUrl = `${data['rtmp_url']}/${data['rtmp_live']}`;
-    const quality = [];
+    const quality: { name: string; qn: number }[] = [];
     for (const item of data['multirates']) {
       quality.push({
         name: item.name,
         qn: item.rate,
       });
     }
-    const lines = data['cdnsWithName'].map((item) => ({
+    const lines = data['cdnsWithName'].map((item: any) => ({
       name: item.name,
       line: item.cdn,
     }));
@@ -80,7 +83,3 @@ async function getRealUrl(roomId, qn = null, line = null) {
     return getResponseBody(500, '请求错误！', res);
   }
 }
-
-module.exports = {
-  getRealUrl,
-};

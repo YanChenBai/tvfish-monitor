@@ -1,57 +1,21 @@
-const { getLiveInfo } = require('./bili_live');
-const { getUserInfo } = require('./bili_info');
-const { getUserInfoDouyu } = require('./douyu_info.js');
-const { getRealUrl } = require('./douyu_live');
-const getResponseBody = require('./response.js');
-const Joi = require('joi');
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const express = require('express');
+import Joi from 'joi';
+import express from 'express';
+import { getLiveInfo } from './bili/live';
+import { getUserInfo } from './bili/info';
+import { getUserInfoDouyu } from './douyu/info';
+import { getRealUrl } from './douyu/live';
+import { getResponseBody } from './utils';
+import md5 from 'js-md5';
+import path from 'path';
+import fs from 'fs';
+import axios from 'axios';
+import sharp from 'sharp';
 const app = express();
 
 app.all('*', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', '*');
   next();
-});
-
-app.use('/img', async function name(req, res, next) {
-  try {
-    delete req.headers.referer;
-    delete req.headers.origin;
-    delete req.headers.host;
-
-    const url = req.query.url;
-    const regx = /^(https?:\/\/(?:[\w-]+\.)+[\w-]+)/i;
-
-    const tmp = url.match(regx);
-    if (tmp === null) {
-      next();
-      return;
-    }
-    const domain = tmp[0];
-    const suffix = url.replace(domain, '');
-    console.log(domain, suffix);
-
-    // // 创建代理中间件，并设重设请求头
-    const proxy = createProxyMiddleware({
-      target: domain,
-      changeOrigin: true,
-      cookieDomainRewrite: { '*': '' },
-      pathRewrite: {
-        '^/img': suffix,
-      },
-    });
-
-    // 调用代理中间件处理请求
-    proxy(req, res, () => {
-      // 如果没有触发代理中间件，则继续处理下一个中间件
-      next();
-    });
-  } catch (error) {
-    // 处理异常
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
 });
 
 const router = express.Router();
@@ -75,7 +39,6 @@ router.get('/getLiveInfo', async (req, res) => {
         line: Joi.number().optional().default(0),
       });
       const value = await schema.validateAsync(req.query);
-      console.log(value);
       res.json(await getLiveInfo(value.roomId, value.qn, value.line));
     } else if (type === 'douyu') {
       const schema = Joi.object({
@@ -92,7 +55,7 @@ router.get('/getLiveInfo', async (req, res) => {
 });
 
 router.get('/getRoomInfo', async (req, res) => {
-  const roomId = req.query.roomId;
+  const roomId = req.query.roomId as string;
   const type = req.query.type;
   if (type === 'bili') {
     res.json(await getUserInfo(roomId));
@@ -100,8 +63,27 @@ router.get('/getRoomInfo', async (req, res) => {
     res.json(await getUserInfoDouyu(roomId));
   }
 });
+router.get('/img', async function name(req, res) {
+  const url = req.query.url as string;
+  const regx = /^(https?:\/\/(?:[\w-]+\.)+[\w-]+)/i;
 
-function startServers(port) {
+  const isUrl = regx.test(url);
+
+  if (!isUrl) {
+    return res.status(400).send('url 格式错误!');
+  }
+
+  const response = await axios.get(`${url}`, {
+    responseType: 'arraybuffer',
+  });
+  const remoteImageBuffer = response.data;
+  const newBuffer = await sharp(remoteImageBuffer).jpeg().toBuffer();
+
+  // 返回远程图片
+  res.setHeader('Content-Type', 'JPEG');
+  return res.end(newBuffer);
+});
+export function startServers(port: number) {
   app.use(router);
   // 启动服务器
   app.listen(port, () => {
@@ -109,4 +91,3 @@ function startServers(port) {
   });
 }
 // startServers(9000);
-module.exports = { startServers };

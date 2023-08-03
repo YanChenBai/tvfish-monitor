@@ -1,5 +1,5 @@
 // 字符串js导出函数
-function executeStrJs(str, out_function = []) {
+export function executeStrJs(str: string, out_function: string[] = []) {
   const strFunction = new Function(
     'exports',
     'module',
@@ -17,6 +17,14 @@ function executeStrJs(str, out_function = []) {
   return executeModule.exports;
 }
 
-module.exports = {
-  executeStrJs,
-};
+export function getResponseBody<T = any>(
+  code: number,
+  message: string,
+  data: T | null = null,
+) {
+  return {
+    code: code,
+    data: data,
+    message: message,
+  };
+}

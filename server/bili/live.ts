@@ -1,6 +1,6 @@
-const getResponseBody = require('./response.js');
-const { getUserInfo } = require('./bili_info.js');
-const axios = require('axios');
+import { getResponseBody } from '../utils';
+import { getUserInfo } from './info';
+import axios from 'axios';
 
 const defParams = {
   protocol: '0,1',
@@ -9,10 +9,11 @@ const defParams = {
   qn: 10000,
   platform: 'h5',
   ptype: 8,
+  room_id: '',
 };
 
 // 获取直播源
-async function getLiveInfo(roomId, qn = 150, line = 0) {
+export async function getLiveInfo(roomId: string, qn = 150, line = 0) {
   let res;
   const params = { ...defParams };
   if (line === null) {
@@ -56,13 +57,13 @@ async function getLiveInfo(roomId, qn = 150, line = 0) {
     const host = codec.url_info[line].host;
     const extra = codec.url_info[line].extra;
     const findQuality = playurl_info.playurl.g_qn_desc.filter(
-      (item) => codec.accept_qn.indexOf(item.qn) !== -1,
+      (item: any) => codec.accept_qn.indexOf(item.qn) !== -1,
     );
-    const quality = findQuality.map((item) => ({
+    const quality = findQuality.map((item: any) => ({
       qn: item.qn,
       name: item.desc,
     }));
-    const lines = codec.url_info.map((_item, index) => ({
+    const lines = codec.url_info.map((_item: any, index: number) => ({
       name: `线路${index + 1}`,
       line: index,
     }));
@@ -79,5 +80,3 @@ async function getLiveInfo(roomId, qn = 150, line = 0) {
     return getResponseBody(500, '请求错误！');
   }
 }
-
-module.exports = { getLiveInfo };

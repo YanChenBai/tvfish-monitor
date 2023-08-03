@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import PlayerWrap from '@/components/playerWrap.vue';
-import layouts from '@/config/lauouts';
+// import layouts from '@/config/lauouts';
 import { getPlayerCode } from '@/hooks/layout';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
@@ -30,11 +30,10 @@ import { ref } from 'vue';
 defineOptions({ name: 'LayoutWrap' });
 
 const size = 100 / 12;
-
 const type = ref(null),
   url = ref('');
 const playerStore = usePlayerStore();
-const { layoutIndex, navState } = storeToRefs(playerStore);
+const { layoutIndex, navState, layouts } = storeToRefs(playerStore);
 </script>
 
 <style scoped>

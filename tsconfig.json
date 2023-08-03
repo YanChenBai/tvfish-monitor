@@ -3,12 +3,14 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
+    "allowSyntheticDefaultImports": true,
     "moduleResolution": "Node",
     "strict": true,
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
+    "baseUrl": "./",
     "lib": [
       "ESNext",
       "DOM"

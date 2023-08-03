@@ -1,11 +1,16 @@
 import { RoomListItem } from '@/types/player';
 import axios from 'axios';
 
-console.log(import.meta.env);
-
-axios.defaults.baseURL = 'http://npm.bycrx.ltd:8100/';
-// axios.defaults.baseURL = 'http://localhost:8100/';
-// axios.defaults.baseURL = 'http://localhost:9000/';
+switch (import.meta.env.VITE_MODE) {
+  case 'ELECTRON_DEV':
+  case 'ELECTRON_PRO':
+    axios.defaults.baseURL = import.meta.env.VITE_ELECTRON_SERVER;
+    break;
+  case 'IONIC_DEV':
+  case 'IONIC_PRO':
+  default:
+    axios.defaults.baseURL = import.meta.env.VITE_IONIC_SERVER;
+}
 
 export async function getDouyuOrgin(
   roomId: number,

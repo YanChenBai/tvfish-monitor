@@ -9,10 +9,12 @@ import {
 } from '@/types/player';
 import { isPhone } from '@/utils/isMobile';
 import { BackgroundMode } from '@anuradev/capacitor-background-mode';
+import { getLayoutConfig } from '@/hooks/getLayoutConfig';
 
 export const usePlayerStore = defineStore(
   'player',
   () => {
+    const layouts = ref(getLayoutConfig());
     const layoutIndex = ref<number>(isPhone() ? 9 : 15);
     const navState = ref(true);
     const showNightOverlay = ref(false);
@@ -79,6 +81,10 @@ export const usePlayerStore = defineStore(
       }
     }
 
+    function updateLayouts() {
+      layouts.value = getLayoutConfig();
+    }
+
     return {
       layoutIndex,
       roomList,
@@ -93,7 +99,9 @@ export const usePlayerStore = defineStore(
       config,
       debug,
       pinyinList,
+      layouts,
       switchBackgroundMode,
+      updateLayouts,
     };
   },
   {

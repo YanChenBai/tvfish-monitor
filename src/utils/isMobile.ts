@@ -19,6 +19,11 @@ export function isPhone() {
   else return true;
 }
 
+export function isElecreon() {
+  const platform = getPlatforms();
+  return platform.findIndex((item) => item === 'electron') !== -1;
+}
+
 export default function isMobile() {
   const flag = navigator.userAgent.match(
     /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i,

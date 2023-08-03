@@ -1,7 +1,7 @@
 <template>
   <div class="nav" v-show="navState">
     <div class="electron-drag">
-      <template v-if="!isPhone()">右键关闭</template>
+      <template v-if="isElecreon()">右键关闭</template>
     </div>
     <div class="btns">
       <NightOverlayBtn></NightOverlayBtn>
@@ -78,7 +78,7 @@ import MenuPlayer from '@/components/Menu/menu.vue';
 import { hideBar } from '@/utils/barStatus';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
-import { isPhone } from '@/utils/isMobile';
+import { isElecreon, isPhone } from '@/utils/isMobile';
 import { watch } from 'vue';
 import { useEventListener } from '@vueuse/core';
 

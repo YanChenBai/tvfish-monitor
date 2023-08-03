@@ -1,22 +1,41 @@
 import legacy from '@vitejs/plugin-legacy';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import DefineOptions from 'unplugin-vue-define-options/vite';
+import electron from 'vite-plugin-electron';
 
-// "@ionic-native/background-mode": "^5.36.0",
 // https://vitejs.dev/config/
-export default defineConfig({
-  root: __dirname,
-  base: './',
-  build: {
-    assetsDir: null,
-    chunkSizeWarningLimit: 10240,
-  },
-  plugins: [DefineOptions(), vue(), legacy()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+export default ({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
+  const MODE = env.VITE_MODE;
+  console.log(MODE);
+  return defineConfig({
+    base: './',
+    server: {
+      port: 8100,
     },
-  },
-});
+    build: {
+      assetsDir: null,
+      chunkSizeWarningLimit: 10240,
+    },
+    plugins: [
+      DefineOptions(),
+      vue(),
+      electron({
+        entry: ['electron/main.ts', 'electron/preload.ts'],
+        onstart(args) {
+          if (MODE === 'ELECTRON_DEV' || MODE === 'ELECTRON_PRO') {
+            args.startup();
+          }
+        },
+      }),
+      legacy(),
+    ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
+    },
+  });
+};

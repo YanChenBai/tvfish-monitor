@@ -1,8 +1,8 @@
-const getResponseBody = require('./response.js');
-const axios = require('axios');
+import { getResponseBody } from '../utils';
+import axios from 'axios';
 
 // 获取真实id
-async function getRealId(roomId) {
+export async function getRealId(roomId: string) {
   let res = await axios.get('https://m.douyu.com/' + roomId);
   res = res.data;
   const tmp_str = res.toString().match(/"rid":(\d{1,8}),"vipId"/g);
@@ -15,7 +15,7 @@ async function getRealId(roomId) {
 }
 
 // 获取主播信息
-async function getUserInfoDouyu(roomId) {
+export async function getUserInfoDouyu(roomId: string) {
   try {
     const realId = await getRealId(roomId);
     if (realId === null) return getResponseBody(404, '没找到对应主播！');
@@ -49,8 +49,3 @@ async function getUserInfoDouyu(roomId) {
     return getResponseBody(500, '请求错误！', err);
   }
 }
-
-module.exports = {
-  getRealId,
-  getUserInfoDouyu,
-};

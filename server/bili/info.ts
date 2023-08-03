@@ -1,8 +1,8 @@
-const getResponseBody = require('./response.js');
-const axios = require('axios');
+import { getResponseBody } from '../utils';
+import axios from 'axios';
 
 // 获取用户信息
-async function getUserInfo(rooomId) {
+export async function getUserInfo(rooomId: string) {
   try {
     const roomInfo = await getRoomInfo(rooomId);
     const userData = await axios.get(
@@ -28,7 +28,7 @@ async function getUserInfo(rooomId) {
 }
 
 // 获取房间数据
-async function getRoomInfo(roomId) {
+async function getRoomInfo(roomId: string) {
   const res = await axios({
     method: 'GET',
     url: 'https://api.live.bilibili.com/room/v1/Room/get_info',
@@ -61,7 +61,3 @@ async function getRoomInfo(roomId) {
     throw new Error('请求错误');
   }
 }
-
-module.exports = {
-  getUserInfo,
-};

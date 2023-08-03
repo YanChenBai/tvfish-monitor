@@ -10,8 +10,20 @@
     </ion-header>
     <ion-content>
       <div class="content hide-scrollbar">
-        <div style="text-align: center; font-size: 20px; padding: 10px 0">
-          当前布局: {{ layoutIndex + 1 }}
+        <div
+          style="
+            text-align: center;
+            font-size: 20px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <span> 当前布局: {{ layoutIndex + 1 }} </span>
+          <ion-button v-if="isElecreon()" @click="playerStore.updateLayouts()"
+            >更新布局</ion-button
+          >
         </div>
         <ion-grid>
           <ion-row>
@@ -72,12 +84,13 @@ import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
 import { ref } from 'vue';
 import '@/theme/hideScrollbar.css';
+import { isElecreon } from '@/utils/isMobile';
 defineOptions({ name: 'layoutPreview' });
-import layouts from '@/config/lauouts';
 
 const size = 100 / 12;
 const layoutModal = ref();
-const { layoutIndex } = storeToRefs(usePlayerStore());
+const playerStore = usePlayerStore();
+const { layoutIndex, layouts } = storeToRefs(playerStore);
 
 function cancel() {
   layoutModal.value.$el.dismiss(null, 'cancel');
