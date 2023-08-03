@@ -4,10 +4,10 @@ const { startServers } = require('../server/dist/server.js');
 import path from 'path';
 
 const MODE = process.env.VITE_MODE as 'ELECTRON_PRO' | 'ELECTRON_DEV';
-process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = '';
 let win;
+
 app.disableHardwareAcceleration();
-app;
+
 function createWindow() {
   win = new BrowserWindow({
     frame: false,
@@ -21,6 +21,11 @@ function createWindow() {
   } else {
     win.loadFile(path.resolve(__dirname, '../dist/index.html'));
   }
+
+  // 窗口关闭时清除引用
+  win.on('closed', () => {
+    win = null;
+  });
 }
 
 // 确保窗口被关闭
@@ -31,19 +36,18 @@ app.on('window-all-closed', () => {
 // 单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
 if (gotTheLock) {
+  // 当运行第二个实例时，将焦点聚焦到主窗口
   app.on('second-instance', () => {
-    // 当运行第二个实例时,将会聚焦到mainWindow这个窗口
     if (win) {
       if (win.isMinimized()) win.restore();
       win.focus();
-      win.show();
     }
+  });
+
+  app.whenReady().then(() => {
+    createWindow();
+    startServers(9000);
   });
 } else {
   app.quit();
 }
-
-app.whenReady().then(() => {
-  startServers(9000);
-  createWindow();
-});
