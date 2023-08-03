@@ -1,4 +1,4 @@
-import layouts from '@/config/lauouts';
+import layouts from '@/config/layouts';
 import { isElecreon } from '@/utils/isMobile';
 
 interface LayoutItem {

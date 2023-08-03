@@ -8,7 +8,7 @@
   "homepage": "./",
   "scripts": {
     "dev": "cross-env VITE_MODE=IONIC_DEV vite",
-    "build": "cross-env VITE_MODE=IONIC_PRO vue-tsc && vite build",
+    "build": "cross-env VITE_MODE=IONIC_PRO \"vue-tsc && vite build\"",
     "build:electron": "cross-env VITE_MODE=ELECTRON_PRO \"vue-tsc && vite build\"",
     "preview": "vite preview",
     "test:e2e": "cypress run",
@@ -86,6 +86,7 @@
     "files": [
       "./dist",
       "./dist-electron/main.js",
+      "./dist-electron/preload.js",
       "./server/dist"
     ],
     "productName": "TVFISH Monitor",
