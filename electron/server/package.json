@@ -1,0 +1,24 @@
+{
+  "name": "live_orgin",
+  "description": "Live Orgin",
+  "author": "白厌尘yanchen",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "start": "cross-env VITE_MODE=ELECTRON_DEV node servers.js"
+  },
+  "dependencies": {
+    "sharp": "^0.32.4",
+    "axios": "^0.27.2",
+    "js-md5": "^0.7.3",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "pako": "^2.1.0",
+    "joi": "^17.9.2"
+  },
+  "devDependencies": {
+    "validator": "^13.7.0",
+    "typescript": "^5.1.6",
+    "cross-env": "^7.0.3"
+  }
+}
