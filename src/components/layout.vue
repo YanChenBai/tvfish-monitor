@@ -5,7 +5,7 @@
   >
     <div
       class="layout-item"
-      v-for="(item, key) in layouts[layoutIndex]"
+      v-for="(item, key) in jointLayouts[layoutIndex]"
       :key="`${item.x}_${item.y}`"
       :style="{
         left: `${size * item.x}%`,
@@ -25,7 +25,7 @@ import layouts from '@/config/layouts';
 import { getPlayerCode } from '@/hooks/layout';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 defineOptions({ name: 'LayoutWrap' });
 
@@ -34,7 +34,8 @@ const size = 100 / 12;
 const type = ref(null),
   url = ref('');
 const playerStore = usePlayerStore();
-const { layoutIndex, navState } = storeToRefs(playerStore);
+const { layoutIndex, navState, configLayout } = storeToRefs(playerStore);
+const jointLayouts = computed(() => [...layouts, ...configLayout.value]);
 </script>
 
 <style scoped>

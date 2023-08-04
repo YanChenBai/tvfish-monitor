@@ -16,7 +16,7 @@
         <ion-grid>
           <ion-row>
             <template
-              v-for="(layout, index) in layouts"
+              v-for="(layout, index) in jointLayouts"
               :key="`layoutIndex_item_${index}`"
             >
               <ion-col size="4" size-sm="3">
@@ -70,15 +70,15 @@ import {
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import '@/theme/hideScrollbar.css';
 defineOptions({ name: 'layoutPreview' });
 import layouts from '@/config/layouts';
 
 const size = 100 / 12;
 const layoutModal = ref();
-const { layoutIndex } = storeToRefs(usePlayerStore());
-
+const { layoutIndex, configLayout } = storeToRefs(usePlayerStore());
+const jointLayouts = computed(() => [...layouts, ...configLayout.value]);
 function cancel() {
   layoutModal.value.$el.dismiss(null, 'cancel');
 }

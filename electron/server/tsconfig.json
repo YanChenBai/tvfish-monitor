@@ -2,7 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "baseUrl": "./",
-    "outDir": "./dist",
+    "outDir": "../dist-electron/server",
     "target": "ESNext",
     "module": "CommonJS",
     "sourceMap": true,

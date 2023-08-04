@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
+console.log(window);
 </script>
 <style>
 body {

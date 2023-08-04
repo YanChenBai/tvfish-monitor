@@ -7,12 +7,27 @@ import {
   PlayerItem,
   PinyinInfo,
 } from '@/types/player';
-import { isPhone } from '@/utils/isMobile';
+import { isElecreon, isPhone } from '@/utils/isMobile';
 import { BackgroundMode } from '@anuradev/capacitor-background-mode';
+
+type LayoutList = Array<{ x: number; y: number; w: number; h: number }[]>;
+declare global {
+  interface Window {
+    api: {
+      getConfig: {
+        (): LayoutList;
+      };
+      watchConfig: {
+        (cb: { (config: LayoutList): void }): void;
+      };
+    };
+  }
+}
 
 export const usePlayerStore = defineStore(
   'player',
   () => {
+    const configLayout = ref<LayoutList>([]);
     const layoutIndex = ref<number>(isPhone() ? 9 : 15);
     const navState = ref(true);
     const showNightOverlay = ref(false);
@@ -28,6 +43,7 @@ export const usePlayerStore = defineStore(
       autoCloseNav: true,
       leaveWinCloseNav: true,
       backgroundMode: true,
+      autoUpdateMaxCount: 10,
     });
 
     const playerList = reactive<PlayerList>({
@@ -79,7 +95,15 @@ export const usePlayerStore = defineStore(
       }
     }
 
+    if (isElecreon()) {
+      window.api.watchConfig((data: LayoutList) => {
+        console.log(data);
+        configLayout.value = data;
+      });
+    }
+
     return {
+      configLayout,
       layoutIndex,
       roomList,
       playerList,

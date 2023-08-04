@@ -1,6 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { startServers } = require('../server/dist/server.js');
+import { startServers } from './server/server';
 import path from 'path';
 
 const MODE = process.env.VITE_MODE as 'ELECTRON_PRO' | 'ELECTRON_DEV';

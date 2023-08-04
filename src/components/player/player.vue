@@ -1,27 +1,11 @@
 <template>
   <div class="live-danmu-player">
-    <div
-      v-if="debug"
-      style="
-        position: absolute;
-        left: 10px;
-        top: 10px;
-        z-index: 999;
-        color: #fff;
-        background-color: #000000c7;
-        border-radius: 6px;
-        padding: 0 10px;
-      "
-    >
-      <p>CurrentTime: {{ (updateLastTime / 1000).toFixed(3) }}</p>
-      <p>状态:{{ updateStatus }}</p>
-    </div>
     <VueDanmuKu
       :playerName="playerName"
       ref="danmakuRef"
       @click="openControl()"
       @live-end="refresh(true)"
-      @live-start="refresh(true)"
+      @live-start="autoUpdate(20)"
       @titleChange="titleChange"
     />
     <div class="video-wrap">
@@ -57,6 +41,7 @@ import Player from '@/hooks/player';
 import { QualityType, LineType, Platform, RoomStatus } from '@/types/player';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
+import { useAutoUpdatePlayer } from '@/hooks/useAutoUpdatePlayer';
 
 defineOptions({ name: 'LiveDanmuPlayer' });
 
@@ -81,7 +66,7 @@ const defConfig = {
   name: '',
   status: RoomStatus.CLOSE,
 };
-const { playerList, roomList, debug } = storeToRefs(usePlayerStore());
+const { playerList, roomList, config } = storeToRefs(usePlayerStore());
 const playerStore = computed(() => playerList.value[props.playerName]);
 const roomInfo = computed(() => {
   if (playerStore.value !== null) {
@@ -101,6 +86,8 @@ const roomInfo = computed(() => {
     return defConfig;
   }
 });
+
+const state = computed(() => roomInfo.value.status);
 
 const player = ref<Player | null>(null),
   danmakuRef = ref(),
@@ -157,6 +144,14 @@ const showPlayer = computed(() => {
   return true;
 });
 
+const autoUpdate = (max?: number) =>
+  useAutoUpdatePlayer(
+    videoRef,
+    state,
+    max ? max : config.value.autoUpdateMaxCount,
+    () => emit('anomaly'),
+  );
+
 onMounted(() => {
   // 关闭控制栏
   onClickOutside(danmakuRef, () => controlRef.value!.closeControl(), {
@@ -164,22 +159,7 @@ onMounted(() => {
   });
 });
 
-const updateLastTime = ref(0),
-  updateStatus = ref(false);
-let updateTimer: number | null = null;
-onMounted(() => {
-  // 检测播放状态
-  videoRef.value!.addEventListener('timeupdate', (ev) => {
-    if (roomInfo.value.status !== RoomStatus.LIVE) return;
-    updateTimer ? clearTimeout(updateTimer) : '';
-    updateStatus.value = false;
-    updateLastTime.value = ev.timeStamp;
-    updateTimer = setTimeout(() => {
-      updateStatus.value = true;
-      emit('anomaly');
-    }, 2000);
-  });
-});
+onMounted(() => autoUpdate());
 
 // 暴露函数
 defineExpose({

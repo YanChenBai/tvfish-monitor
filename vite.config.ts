@@ -23,7 +23,11 @@ export default ({ mode }) => {
       DefineOptions(),
       vue(),
       electron({
-        entry: ['electron/main.ts', 'electron/preload.ts'],
+        entry: [
+          'electron/main.ts',
+          'electron/preload.ts',
+          'electron/server/server.ts',
+        ],
         onstart(args) {
           if (MODE === 'ELECTRON_DEV' || MODE === 'ELECTRON_PRO') {
             args.startup();

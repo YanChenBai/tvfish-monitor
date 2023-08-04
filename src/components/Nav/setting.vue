@@ -45,11 +45,11 @@
             >检查</ion-button
           >
         </ion-item>
-        <ion-item>
+        <!-- <ion-item>
           <ion-toggle v-model:modelValue="debug" v-vibration="5"
             >调试信息</ion-toggle
           >
-        </ion-item>
+        </ion-item> -->
       </ion-list>
     </ion-content>
   </ion-modal>

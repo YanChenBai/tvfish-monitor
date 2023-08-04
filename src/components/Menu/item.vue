@@ -53,7 +53,7 @@
         <img
           v-if="keyframeState"
           draggable="false"
-          :src="`${IMAGE_PROXY}?url=${info.keyframe}`"
+          :src="`${IMAGE_PROXY}?cache=false&url=${info.keyframe}`"
           @error="() => (keyframeState = false)"
         />
       </div>
