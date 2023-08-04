@@ -4,7 +4,7 @@
       <div class="face" @click="update">
         <img
           draggable="false"
-          :src="`${IMAGE_PROXY}?w=60&h=60&url=${info.face}`"
+          :src="`${IMAGE_PROXY}?w=80&h=80&url=${info.face}`"
         />
       </div>
       <div class="info" @click="tips">
@@ -53,7 +53,7 @@
         <img
           v-if="keyframeState"
           draggable="false"
-          :src="`${IMAGE_PROXY}?cache=false&url=${info.keyframe}`"
+          :src="`${IMAGE_PROXY}?ac=true&w=400&url=${info.keyframe}`"
           @error="() => (keyframeState = false)"
         />
       </div>

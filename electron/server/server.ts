@@ -19,6 +19,7 @@ const cachePath =
   MODE === 'ELECTRON_DEV'
     ? path.resolve(__dirname, './cache')
     : path.resolve((process as any).resourcesPath, './cache');
+const autoClearPath = path.resolve(cachePath, './auto_clear');
 
 const app = express();
 interface ImageParams {
@@ -26,7 +27,7 @@ interface ImageParams {
   fit?: keyof FitEnum;
   w?: number;
   h?: number;
-  cache: boolean;
+  ac: boolean;
 }
 
 app.all('*', function (req, res, next) {
@@ -85,21 +86,24 @@ async function getImage(
   url: string,
   cacheFilePath: string,
   resize: ResizeOptions,
-  cache = true,
 ) {
-  const response = await axios.get(url, {
-    responseType: 'arraybuffer',
-  });
-  const remoteImageBuffer = response.data;
-  const newBuffer = await sharp(remoteImageBuffer)
-    .resize(resize)
-    .png()
-    .toBuffer();
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer',
+    });
+    const remoteImageBuffer = response.data;
+    const newBuffer = await sharp(remoteImageBuffer)
+      .resize(resize)
+      .png()
+      .toBuffer();
 
-  // 将远程图片保存到本地缓存文件
-  if (cache) await fs.writeFileSync(cacheFilePath, newBuffer);
+    // 将远程图片保存到本地缓存文件
+    await fs.writeFileSync(cacheFilePath, newBuffer);
 
-  return newBuffer;
+    return newBuffer;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 router.get('/img', async function name(req, res) {
@@ -112,11 +116,11 @@ router.get('/img', async function name(req, res) {
       .optional(),
     w: Joi.string().pattern(regxNum).optional(),
     h: Joi.string().pattern(regxNum).optional(),
-    cache: Joi.boolean().default(true).optional(),
+    ac: Joi.boolean().default(false).optional(),
   });
 
   let url = '';
-  let cache: boolean;
+  let autoClear: boolean;
   const resize: ResizeOptions = {};
   try {
     const value: ImageParams = await schema.validateAsync(req.query);
@@ -124,40 +128,58 @@ router.get('/img', async function name(req, res) {
     value.fit ? (resize.fit = value.fit) : '';
     value.w ? (resize.width = Number(value.w)) : '';
     value.h ? (resize.height = Number(value.h)) : '';
-    cache = value.cache;
+    autoClear = value.ac;
   } catch (err) {
     return res.status(400).send('参数错误！');
   }
 
   const findname = md5(url) + '.png';
-  const cacheFilePath = path.resolve(cachePath, findname);
-  if (!cache) {
-    const buffer = await getImage(url, cacheFilePath, resize, false);
-    // 返回远程图片
-    res.setHeader('Content-Type', ' image/png');
-    return res.end(buffer);
-  }
+  const cacheFilePath = path.resolve(
+    autoClear ? autoClearPath : cachePath,
+    findname,
+  );
 
   try {
     const cachedImage = await fs.readFileSync(cacheFilePath);
-    console.log('cached: ' + cacheFilePath);
+    console.log(`cached      [ac=${autoClear}]: `, findname);
     res.setHeader('Content-Type', 'image/png');
     return res.end(cachedImage);
   } catch (error) {
-    console.log('uncached: ' + cacheFilePath);
-    const buffer = await getImage(url, cacheFilePath, resize, true);
+    console.log(`cached miss [ac=${autoClear}]: `, url, findname);
+    const buffer = await getImage(url, cacheFilePath, resize);
     // 返回远程图片
     res.setHeader('Content-Type', ' image/png');
     return res.end(buffer);
   }
 });
 
-export async function startServers(port: number) {
+async function isExist(path: string) {
+  console.log(path);
   try {
-    await fs.promises.stat(cachePath);
+    return await fs.promises.stat(path);
   } catch (error) {
-    await fs.promises.mkdir(cachePath, { recursive: true });
+    return await fs.promises.mkdir(path, { recursive: true });
   }
+}
+
+async function startAutoClear(interval = 1000 * 60 * 60) {
+  await isExist(autoClearPath);
+  return setTimeout(() => {
+    const files = fs.readdirSync(autoClearPath);
+    files.forEach((file) => {
+      const filePath = path.resolve(autoClearPath, file);
+      const stats = fs.statSync(filePath);
+      if (stats.isFile()) {
+        fs.unlinkSync(filePath);
+        console.log(`clear cache file: ${file}`);
+      }
+    });
+  }, interval);
+}
+
+export async function startServers(port: number) {
+  await isExist(cachePath);
+  await startAutoClear();
   app.use(router);
   // 启动服务器
   app.listen(port, () => {

@@ -9,15 +9,15 @@
   "scripts": {
     "dev": "cross-env VITE_MODE=IONIC_DEV vite",
     "build": "cross-env VITE_MODE=IONIC_PRO \"vue-tsc && vite build\"",
-    "build:electron": "cross-env VITE_MODE=ELECTRON_PRO \"vue-tsc && vite build\"",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
     "lint": "eslint",
-    "electron:build": "cross-env VITE_MODE=ELECTRON_PRO electron-builder",
     "electron:dev": "cross-env VITE_MODE=ELECTRON_DEV vite",
-    "build:web:": "cross-env VITE_MODE=IONIC_PRO ionic build",
-    "build:android:": "cross-env VITE_MODE=IONIC_PRO ionic capacitor build android --prod --release"
+    "electron:build-prepro": "cross-env VITE_MODE=ELECTRON_PRO \"vue-tsc && vite build\"",
+    "electron:build": "npm run electron:build-prepro && cross-env VITE_MODE=ELECTRON_PRO electron-builder",
+    "build:web:": "cross-env VITE_MODE=IONIC_PRO npx ionic build",
+    "build:android:": "cross-env VITE_MODE=IONIC_PRO npx ionic capacitor build android --prod --release"
   },
   "dependencies": {
     "@anuradev/capacitor-background-mode": "file:capacitor-plugins/capacitor-background-mode",

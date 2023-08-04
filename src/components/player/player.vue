@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import VueDanmuKu from './danmu.vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import Control from '@/components/player/control.vue';
 import { ConfigType } from '@/hooks/player';
@@ -158,7 +158,6 @@ onMounted(() => {
     ignore: [...controlRef.value!.getIgnore()],
   });
 });
-
 onMounted(() => autoUpdate());
 
 // 暴露函数

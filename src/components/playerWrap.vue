@@ -10,7 +10,7 @@
       @lineChange="lineChange"
       @refresh="update"
       @titleChange="titleChange"
-      @anomaly="anomaly"
+      @anomaly="() => update()"
       ref="playerRef"
       :key="`playerWrap-${playerName}`"
     />
@@ -187,10 +187,6 @@ async function update(sysMessage = false): Promise<RoomListItem | false> {
     playerRef.value!.destroy();
     return false;
   }
-}
-
-async function anomaly() {
-  update();
 }
 
 onMounted(() => update());
