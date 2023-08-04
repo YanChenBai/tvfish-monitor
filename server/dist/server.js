@@ -64,17 +64,36 @@ router.get('/getRoomInfo', async (req, res) => {
     }
 });
 router.get('/img', async function name(req, res) {
-    const url = req.query.url;
-    const regx = /^(https?:\/\/(?:[\w-]+\.)+[\w-]+)/i;
-    const isUrl = regx.test(url);
-    if (!isUrl) {
-        return res.status(400).send('url 格式错误!');
+    const regxUrl = /^(https?:\/\/(?:[\w-]+\.)+[\w-]+)/i;
+    const regxNum = /^\d+(\.\d+)?$/i;
+    const schema = joi_1.default.object({
+        url: joi_1.default.string().pattern(regxUrl).required(),
+        fit: joi_1.default.string()
+            .valid('contain', 'cover', 'fill', 'inside', 'outside')
+            .optional(),
+        w: joi_1.default.string().pattern(regxNum).optional(),
+        h: joi_1.default.string().pattern(regxNum).optional(),
+    });
+    let url = '';
+    const resize = {};
+    try {
+        const value = await schema.validateAsync(req.query);
+        url = value.url;
+        value.fit ? (resize.fit = value.fit) : '';
+        value.w ? (resize.width = Number(value.w)) : '';
+        value.h ? (resize.height = Number(value.h)) : '';
     }
-    const response = await axios_1.default.get(`${url}`, {
+    catch (err) {
+        return res.status(400).send('参数错误！');
+    }
+    const response = await axios_1.default.get(url, {
         responseType: 'arraybuffer',
     });
     const remoteImageBuffer = response.data;
-    const newBuffer = await (0, sharp_1.default)(remoteImageBuffer).jpeg().toBuffer();
+    const newBuffer = await (0, sharp_1.default)(remoteImageBuffer)
+        .resize(resize)
+        .jpeg()
+        .toBuffer();
     // 返回远程图片
     res.setHeader('Content-Type', 'JPEG');
     return res.end(newBuffer);

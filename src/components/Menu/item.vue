@@ -2,7 +2,10 @@
   <div class="item-wrap" :class="{ ['is-top']: isTop }">
     <div class="item-box" :style="getStyle">
       <div class="face" @click="update">
-        <img draggable="false" :src="info.face" />
+        <img
+          draggable="false"
+          :src="`${IMAGE_PROXY}?w=60&h=60&url=${info.face}`"
+        />
       </div>
       <div class="info" @click="tips">
         <div class="name">
@@ -15,7 +18,10 @@
           <div class="ellipsis-width">公告：{{ info.news }}</div>
         </div>
       </div>
-      <DragPreviewImage :connect="(preview as any)" :src="info.face" />
+      <DragPreviewImage
+        :connect="(preview as any)"
+        :src="`${IMAGE_PROXY}?w=60&h=60&url=${info.face}`"
+      />
       <div class="drag" :ref="drag">
         <ion-icon :icon="moveOutline"></ion-icon>
       </div>
@@ -47,7 +53,7 @@
         <img
           v-if="keyframeState"
           draggable="false"
-          :src="info.keyframe"
+          :src="`${IMAGE_PROXY}?url=${info.keyframe}`"
           @error="() => (keyframeState = false)"
         />
       </div>
@@ -67,6 +73,7 @@ import { impactHeavy, vibrate } from '@/utils/impact';
 import { roomStatusClass } from '@/config/status';
 import useRoomList from '@/hooks/useRoomList';
 import useTopRoom from '@/hooks/useTopRoom';
+import { IMAGE_PROXY } from '@/config/proxy';
 
 defineOptions({ name: 'MenuItem' });
 

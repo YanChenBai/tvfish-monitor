@@ -1,6 +1,4 @@
-import { PlayerItem } from './../types/player';
 import { getRoomInfo } from '@/api/getOrgin';
-import { IMAGE_PROXY } from '@/config/proxy';
 import { usePlayerStore } from '@/stores/playerStore';
 import { Platform, RoomListItem } from '@/types/player';
 import { message } from '@/utils/message';
@@ -59,10 +57,6 @@ export default function useRoomList() {
         return;
       }
 
-      if (platform === Platform.Bili) {
-        res.keyframe = IMAGE_PROXY + res.keyframe;
-        res.face = IMAGE_PROXY + res.face;
-      }
       pinyinCreateOrUpdate(res);
       curd.create(res);
       if (msg) await message('添加成功!');
@@ -75,10 +69,6 @@ export default function useRoomList() {
     try {
       const res = await getRoomInfo(roomId, platform);
       if (res) {
-        if (platform === Platform.Bili) {
-          res.keyframe = IMAGE_PROXY + res.keyframe;
-          res.face = IMAGE_PROXY + res.face;
-        }
         pinyinCreateOrUpdate(res);
         curd.update(
           {
@@ -111,5 +101,11 @@ export default function useRoomList() {
     await message('更新成功!');
   }
 
-  return { add, update, remove };
+  return {
+    add,
+    update,
+    remove,
+    query: (roomId: number, platform: Platform) =>
+      curd.queryOne({ roomId, platform }),
+  };
 }

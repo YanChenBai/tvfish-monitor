@@ -12,6 +12,13 @@ import axios from 'axios';
 import sharp from 'sharp';
 const app = express();
 
+interface ImageParams {
+  url: string;
+  fit?: keyof sharp.FitEnum;
+  w?: number;
+  h?: number;
+}
+
 app.all('*', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', '*');
@@ -64,20 +71,37 @@ router.get('/getRoomInfo', async (req, res) => {
   }
 });
 router.get('/img', async function name(req, res) {
-  const url = req.query.url as string;
-  const regx = /^(https?:\/\/(?:[\w-]+\.)+[\w-]+)/i;
+  const regxUrl = /^(https?:\/\/(?:[\w-]+\.)+[\w-]+)/i;
+  const regxNum = /^\d+(\.\d+)?$/i;
+  const schema = Joi.object({
+    url: Joi.string().pattern(regxUrl).required(),
+    fit: Joi.string()
+      .valid('contain', 'cover', 'fill', 'inside', 'outside')
+      .optional(),
+    w: Joi.string().pattern(regxNum).optional(),
+    h: Joi.string().pattern(regxNum).optional(),
+  });
 
-  const isUrl = regx.test(url);
-
-  if (!isUrl) {
-    return res.status(400).send('url 格式错误!');
+  let url = '';
+  const resize: sharp.ResizeOptions = {};
+  try {
+    const value: ImageParams = await schema.validateAsync(req.query);
+    url = value.url;
+    value.fit ? (resize.fit = value.fit) : '';
+    value.w ? (resize.width = Number(value.w)) : '';
+    value.h ? (resize.height = Number(value.h)) : '';
+  } catch (err) {
+    return res.status(400).send('参数错误！');
   }
 
-  const response = await axios.get(`${url}`, {
+  const response = await axios.get(url, {
     responseType: 'arraybuffer',
   });
   const remoteImageBuffer = response.data;
-  const newBuffer = await sharp(remoteImageBuffer).jpeg().toBuffer();
+  const newBuffer = await sharp(remoteImageBuffer)
+    .resize(resize)
+    .jpeg()
+    .toBuffer();
 
   // 返回远程图片
   res.setHeader('Content-Type', 'JPEG');

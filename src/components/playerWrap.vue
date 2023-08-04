@@ -27,7 +27,6 @@ import { QualityType, LineType, RoomListItem, Platform } from '@/types/player';
 import { computed, onMounted, ref, watch } from 'vue';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
-import { IMAGE_PROXY } from '@/config/proxy';
 import { impactHeavy, vibrate } from '@/utils/impact';
 import { notification } from '@/utils/notification';
 
@@ -141,10 +140,6 @@ function titleChange(title: string) {
 function updateRoomInfo(info: RoomListItem) {
   const findIndex = fundRoomIndex(info.roomId, info.platform);
   if (findIndex !== -1) {
-    if (info.platform === Platform.Bili) {
-      info.face = IMAGE_PROXY + info.face;
-      info.keyframe = IMAGE_PROXY + info.keyframe;
-    }
     const tmp = { ...roomList.value[findIndex] };
     roomList.value[findIndex] = info;
     return tmp;

@@ -35,6 +35,9 @@
   "references": [
     {
       "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./server"
     }
   ]
 }

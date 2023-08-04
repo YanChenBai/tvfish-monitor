@@ -34,7 +34,7 @@
         </div>
         <div v-else-if="danmu.type === DnamuType.EMO" class="dnamu-def">
           <img
-            :src="IMAGE_PROXY + danmu.content.emoticon.url"
+            :src="`${IMAGE_PROXY}?url=${danmu.content.emoticon.url}`"
             style="max-height: 40px"
             :style="{
               height: `${danmu.content.emoticon?.height}px`,
@@ -119,9 +119,7 @@ function biliDanmu(id: number) {
           const item = msg.body.in_message_emoticon[key];
           msg.body.content = msg.body.content.replaceAll(
             key,
-            `<img src='${
-              IMAGE_PROXY + item.url
-            }' style='max-height: 40px;height: ${item.height}px' />`,
+            `<img src='${IMAGE_PROXY}?url=${item.url}' style='max-height: 40px;height: ${item.height}px' />`,
           );
         }
 

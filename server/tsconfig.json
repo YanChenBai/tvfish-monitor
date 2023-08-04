@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "composite": true,
+    "baseUrl": "./",
     "outDir": "./dist",
     "target": "ESNext",
     "module": "CommonJS",
