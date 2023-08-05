@@ -139,9 +139,7 @@ function biliDanmu(id: number) {
         });
       }
     },
-    onLiveStart: () => {
-      emit('liveStart');
-    },
+    onLiveStart: () => emit('liveStart'),
     onLiveEnd: () => emit('liveEnd'),
     onIncomeSuperChat: (msg: Message<SuperChatMsg>) =>
       addDnamu({
@@ -164,6 +162,8 @@ function douyuDanmu(id: number) {
         color: msg.color,
       });
     },
+    onLiveStart: () => emit('liveStart'),
+    onLiveEnd: () => emit('liveEnd'),
   });
   connectClose = () => close();
 }
@@ -209,15 +209,13 @@ function getScaleSize(h: number, w: number, def = 40) {
 
 /** 弹幕容器宽度重新计算 */
 // 1. 布局切换
-watch(layoutIndex, () => {
-  if (danmakuRef.value === undefined) return;
-  danmakuRef.value.resize();
-});
+watch(layoutIndex, () =>
+  setTimeout(() => (danmakuRef.value ? danmakuRef.value.resize() : ''), 0),
+);
 
 // 2. 窗口大小切换
 const debouncedFn = useDebounceFn(() => {
-  if (danmakuRef.value === undefined) return;
-  danmakuRef.value.resize();
+  setTimeout(() => (danmakuRef.value ? danmakuRef.value.resize() : ''), 0);
 }, 1000);
 
 window.addEventListener('resize', debouncedFn);

@@ -26,7 +26,7 @@ export function useAutoUpdatePlayer(
     updateTimer = setInterval(() => {
       autoUpdateCount++;
       cb();
-      console.log('刷新' + autoUpdateCount);
+      console.log('刷新' + autoUpdateCount, 'max', max, 'interval', interval);
 
       if (autoUpdateCount >= max) updateTimer ? clearInterval(updateTimer) : '';
     }, interval);

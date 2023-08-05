@@ -5,7 +5,7 @@
       ref="danmakuRef"
       @click="openControl()"
       @live-end="refresh(true)"
-      @live-start="autoUpdate(20, 5000)"
+      @live-start="autoUpdate(20, 5000, true)"
       @titleChange="titleChange"
     />
     <div class="video-wrap">
@@ -145,14 +145,17 @@ const showPlayer = computed(() => {
   return true;
 });
 
-const autoUpdate = (max?: number, interval?: number) =>
+const autoUpdate = (max?: number, interval?: number, autoClose = false) => {
+  console.log('开始自动刷新');
   useAutoUpdatePlayer(
     videoRef,
     state,
     max ? max : config.value.autoUpdateMaxCount,
     interval ? interval : config.value.autoUpdateMaxInterval,
     () => emit('anomaly'),
+    autoClose,
   );
+};
 
 onMounted(() => {
   // 关闭控制栏

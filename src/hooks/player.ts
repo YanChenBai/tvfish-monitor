@@ -123,7 +123,6 @@ export default class LiveDanmuPlayer {
 
     // 断流重连
     player.on(FlvJs.Events.ERROR, () => {
-      console.log('断流重连');
       this.refresh(config);
     });
 

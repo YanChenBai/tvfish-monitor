@@ -1,10 +1,24 @@
 import { Ex_WebSocket_UnLogin } from '@/utils/douyuDanmu';
 import { STT } from '@/utils/stt.js';
 import { getStrMiddle } from '@/utils/douyuDanmu';
+import { RoomStatus } from '@/types/player';
 export interface DouyuDanmuHandles {
   // 普通弹幕
   onIncomeDanmu: { (msg: DouyuDanmu): void };
+  onLiveEnd: { (msg: LiveStatusChange): void };
+  onLiveStart: { (msg: LiveStatusChange): void };
 }
+
+export interface LiveStatusChange {
+  roomId: number; // 房间ID
+  endTime: string; // 下播时间
+  status: RoomStatus.LIVE | RoomStatus.CLOSE; // 直播间状态
+  code: string; // 类型?不知到干啥的
+  changeCause: string; // 开关播原因
+  changeCauseType: string; // 开关播原因类型
+  notify: string; // 通知类型
+}
+
 export interface DouyuDanmu {
   nn: string; // 昵称
   avatar: string; // 头像地址 https://apic.douyucdn.cn/upload/ + avatar + _small.jpg
@@ -70,6 +84,27 @@ export function useDouyuDanmu(rid: number, handle: DouyuDanmuHandles) {
         key: data.cid, // 时间戳
       };
       handle.onIncomeDanmu(obj);
+    } else if (msgType === 'rss') {
+      const data = stt.deserialize(msg);
+      console.log(data);
+
+      const obj: LiveStatusChange = {
+        roomId: Number(data.rid),
+        endTime: data.endtime,
+        status: data.ss === '0' ? RoomStatus.CLOSE : RoomStatus.LIVE,
+        code: data.code,
+        changeCause: data.rt,
+        changeCauseType: data.rtv,
+        notify: data.notify,
+      };
+      switch (obj.status) {
+        case RoomStatus.CLOSE:
+          handle.onLiveEnd(obj);
+          break;
+        case RoomStatus.LIVE:
+          handle.onLiveStart(obj);
+          break;
+      }
     }
   };
 
