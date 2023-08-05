@@ -23,8 +23,14 @@ import { ConfigType } from '@/hooks/player';
 import { useDrag, useDrop } from 'vue3-dnd';
 import { DropType } from '@/types/drop';
 import { usePlayerStore } from '@/stores/playerStore';
-import { QualityType, LineType, RoomListItem, Platform } from '@/types/player';
-import { computed, onMounted, ref, watch } from 'vue';
+import {
+  QualityType,
+  LineType,
+  RoomListItem,
+  Platform,
+  RoomStatus,
+} from '@/types/player';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
 import { impactHeavy, vibrate } from '@/utils/impact';
@@ -157,26 +163,31 @@ async function update(sysMessage = false): Promise<RoomListItem | false> {
         playerRef.value!.destroy(false);
         return res.data;
       } else {
-        qualitys.value = res.data.quality;
-        lines.value = res.data.lines;
-        currentQuality.value = res.data.qn;
-        currentLine.value = res.data.line;
-        const type =
-          player.value.platform === Platform.Bili
-            ? ConfigType.Hls
-            : ConfigType.Flv;
         const info: RoomListItem = res.data.info;
-        const oldData = updateRoomInfo(info);
-        playerRef.value!.refreshPlayer(
-          res.data.url,
-          playerListConfig.value[props.playerName].volume / 100,
-          type,
-        );
-        if (sysMessage) {
-          // 避免重复开播提醒
-          if (oldData !== undefined && oldData.status !== info.status) {
-            await notification(`${info.name} - 开播啦!`, info.title);
+        if (info.status === RoomStatus.LIVE) {
+          qualitys.value = res.data.quality;
+          lines.value = res.data.lines;
+          currentQuality.value = res.data.qn;
+          currentLine.value = res.data.line;
+          const type =
+            player.value.platform === Platform.Bili
+              ? ConfigType.Hls
+              : ConfigType.Flv;
+
+          const oldData = updateRoomInfo(info);
+          playerRef.value!.refreshPlayer(
+            res.data.url,
+            playerListConfig.value[props.playerName].volume / 100,
+            type,
+          );
+          if (sysMessage) {
+            // 避免重复开播提醒
+            if (oldData !== undefined && oldData.status !== info.status) {
+              await notification(`${info.name} - 开播啦!`, info.title);
+            }
           }
+        } else {
+          updateRoomInfo(info);
         }
         return info;
       }
@@ -194,7 +205,9 @@ watch(
   () => playerList.value[props.playerName],
   () => update(),
 );
+onUnmounted(() => {
+  if (playerRef.value) playerRef.value.destroy(false);
+});
 </script>
 
 <style scoped></style>
-@/utils/notification

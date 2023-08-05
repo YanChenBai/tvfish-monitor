@@ -33,3 +33,4 @@ npm-debug.log*
 /www
 /api/node_modules
 **/cache/*
+/.env

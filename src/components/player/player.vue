@@ -5,7 +5,7 @@
       ref="danmakuRef"
       @click="openControl()"
       @live-end="refresh(true)"
-      @live-start="autoUpdate(20)"
+      @live-start="autoUpdate(20, 5000)"
       @titleChange="titleChange"
     />
     <div class="video-wrap">
@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import VueDanmuKu from './danmu.vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import Control from '@/components/player/control.vue';
 import { ConfigType } from '@/hooks/player';
@@ -90,7 +90,7 @@ const roomInfo = computed(() => {
 const state = computed(() => roomInfo.value.status);
 
 const player = ref<Player | null>(null),
-  danmakuRef = ref(),
+  danmakuRef = ref<InstanceType<typeof VueDanmuKu>>(),
   controlRef = ref<InstanceType<typeof Control>>(),
   videoRef = ref<HTMLMediaElement>();
 
@@ -103,6 +103,7 @@ const openControl = () =>
 const titleChange = (title: string) => emit('titleChange', title);
 // 销毁播放器
 function destroy(clear = true) {
+  if (danmakuRef.value) danmakuRef.value.connectClose();
   if (player.value) {
     player.value.destroy();
     if (clear) playerList.value[props.playerName] = null;
@@ -144,17 +145,18 @@ const showPlayer = computed(() => {
   return true;
 });
 
-const autoUpdate = (max?: number) =>
+const autoUpdate = (max?: number, interval?: number) =>
   useAutoUpdatePlayer(
     videoRef,
     state,
     max ? max : config.value.autoUpdateMaxCount,
+    interval ? interval : config.value.autoUpdateMaxInterval,
     () => emit('anomaly'),
   );
 
 onMounted(() => {
   // 关闭控制栏
-  onClickOutside(danmakuRef, () => controlRef.value!.closeControl(), {
+  onClickOutside(danmakuRef as any, () => controlRef.value!.closeControl(), {
     ignore: [...controlRef.value!.getIgnore()],
   });
 });

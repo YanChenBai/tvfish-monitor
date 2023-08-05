@@ -35,7 +35,12 @@
         <div v-else-if="danmu.type === DnamuType.EMO" class="dnamu-def">
           <img
             :src="`${IMAGE_PROXY}?h=40&url=${danmu.content.emoticon.url}`"
-            style="height: 40px"
+            :style="
+              getScaleSize(
+                danmu.content.emoticon.height,
+                danmu.content.emoticon.width,
+              )
+            "
           />
         </div>
         <div
@@ -114,9 +119,10 @@ function biliDanmu(id: number) {
       } else if (msg.body.in_message_emoticon !== undefined) {
         for (const key in msg.body.in_message_emoticon) {
           const item = msg.body.in_message_emoticon[key];
+          const scale = getScaleSize(item.height, item.width, 30);
           msg.body.content = msg.body.content.replaceAll(
             key,
-            `<img src='${IMAGE_PROXY}?h=30&url=${item.url}' style='max-height: 30px;margin-left:4px' />`,
+            `<img src='${IMAGE_PROXY}?h=30&url=${item.url}' style='height:${scale.height};width:${scale.width};margin-left:4px' />`,
           );
         }
 
@@ -193,6 +199,14 @@ function switchDanmu() {
   }
 }
 
+function getScaleSize(h: number, w: number, def = 40) {
+  const scale = def / h;
+  return {
+    height: `${h * scale}px`,
+    width: `${w * scale}px`,
+  };
+}
+
 /** 弹幕容器宽度重新计算 */
 // 1. 布局切换
 watch(layoutIndex, () => {
@@ -227,6 +241,10 @@ watch(
 onMounted(() => {
   switchDanmu();
   setTimeout(() => danmakuRef.value?.resize(), 0);
+});
+
+defineExpose({
+  connectClose,
 });
 </script>
 

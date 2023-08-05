@@ -10,6 +10,9 @@
     </ion-header>
     <ion-content>
       <ion-list>
+        <ion-item v-if="isElecreon()">
+          <ion-label>Ctrl + R 刷新窗口</ion-label>
+        </ion-item>
         <ion-item>
           <ion-label>
             黑暗增强
@@ -45,6 +48,23 @@
             >检查</ion-button
           >
         </ion-item>
+        <ion-item>
+          <ion-input
+            v-bind:modelValue="config.autoUpdateMaxCount"
+            label="自动重连次数 (需要刷新)"
+            type="number"
+            placeholder="000"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            v-bind:modelValue="config.autoUpdateMaxInterval"
+            label="自动重连间隔 (需要刷新)"
+            type="number"
+            placeholder="000"
+          ></ion-input>
+          ms
+        </ion-item>
         <!-- <ion-item>
           <ion-toggle v-model:modelValue="debug" v-vibration="5"
             >调试信息</ion-toggle
@@ -59,6 +79,7 @@
 import { ref } from 'vue';
 import { usePlayerStore } from '@/stores/playerStore';
 import {
+  IonInput,
   IonButtons,
   IonButton,
   IonModal,
@@ -76,9 +97,10 @@ import { storeToRefs } from 'pinia';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { PermissionState } from '@capacitor/core';
 import { message } from '@/utils/message';
+import { isElecreon } from '@/utils/isMobile';
 
 defineOptions({ name: 'NavSetting' });
-const { nightOverlayOpacity, config, debug } = storeToRefs(usePlayerStore());
+const { nightOverlayOpacity, config } = storeToRefs(usePlayerStore());
 const settingModal = ref();
 
 function cancel() {

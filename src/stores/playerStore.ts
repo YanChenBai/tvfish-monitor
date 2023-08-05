@@ -44,6 +44,7 @@ export const usePlayerStore = defineStore(
       leaveWinCloseNav: true,
       backgroundMode: true,
       autoUpdateMaxCount: 10,
+      autoUpdateMaxInterval: 2000,
     });
 
     const playerList = reactive<PlayerList>({

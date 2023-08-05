@@ -5,6 +5,7 @@ export function useAutoUpdatePlayer(
   video: Ref<HTMLMediaElement | undefined>,
   status: Ref<RoomStatus> | ComputedRef<RoomStatus>,
   max = 10,
+  interval = 4000,
   cb: { (): void },
   isAutoClose = false,
 ) {
@@ -13,15 +14,14 @@ export function useAutoUpdatePlayer(
     autoUpdateCount = 0;
 
   function timeUpdateEvent(ev: Event) {
-    if (status.value !== RoomStatus.LIVE) return;
     updateTimer ? clearInterval(updateTimer) : '';
     autoUpdateCount = 0;
     updateLastTime.value = ev.timeStamp;
-    console.log(ev.timeStamp);
 
     if (video.value && isAutoClose)
       video.value.removeEventListener('timeupdate', timeUpdateEvent, false);
 
+    if (status.value !== RoomStatus.LIVE) return;
     // 自动刷新，如果超过两秒没有上报time的话就开始自动循环10次刷新如果有重新上报那就中断
     updateTimer = setInterval(() => {
       autoUpdateCount++;
@@ -29,7 +29,7 @@ export function useAutoUpdatePlayer(
       console.log('刷新' + autoUpdateCount);
 
       if (autoUpdateCount >= max) updateTimer ? clearInterval(updateTimer) : '';
-    }, 4000);
+    }, interval);
   }
 
   if (video.value) {
