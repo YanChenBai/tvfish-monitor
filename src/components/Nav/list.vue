@@ -16,7 +16,9 @@
         <div class="item" v-for="(item, key) in playerListConfig" :key="key">
           <div class="name">
             <div class="face" v-if="playerList[key] !== null">
-              <img :src="getRoom(playerList[key]!)!.face" />
+              <img
+                :src="`${IMAGE_PROXY}?w=80&h=80&url=${getRoom(playerList[key]!)!.face}`"
+              />
             </div>
             <div class="win">{{ key.toString().toLocaleUpperCase() }}</div>
             <template v-if="playerList[key] === null">未分配</template>
@@ -61,15 +63,14 @@ import { listCircleOutline } from 'ionicons/icons';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { PlayerItem } from '@/types/player';
+import { IMAGE_PROXY } from '@/config/proxy';
+import useRoomList from '@/hooks/useRoomList';
 defineOptions({ name: 'PlayerlistSetting' });
 const playerStore = usePlayerStore();
-const { playerListConfig, playerList, roomList } = storeToRefs(playerStore);
-
+const { playerListConfig, playerList } = storeToRefs(playerStore);
+const curd = useRoomList();
 const popoverOpen = ref(false);
-const getRoom = (room: PlayerItem) =>
-  roomList.value.find(
-    (item) => room.roomId === item.roomId && room.platform === item.platform,
-  );
+const getRoom = (room: PlayerItem) => curd.query(room.roomId, room.platform);
 </script>
 
 <style scoped>

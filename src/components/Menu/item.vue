@@ -20,7 +20,7 @@
       </div>
       <DragPreviewImage
         :connect="(preview as any)"
-        :src="`${IMAGE_PROXY}?w=60&h=60&url=${info.face}`"
+        :src="`${IMAGE_PROXY}?w=80&h=80&url=${info.face}`"
       />
       <div class="drag" :ref="drag">
         <ion-icon :icon="moveOutline"></ion-icon>
