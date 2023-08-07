@@ -110,13 +110,6 @@ export default class LiveDanmuPlayer {
     }
   }
 
-  // reconnectionRefresh(config: Config) {
-  //   if (this.nowReNum < this.ReconnectionLimit) {
-  //     this.refresh(config);
-  //     this.nowReNum++;
-  //   }
-  // }
-
   autoReconnection(config: Config) {
     if (this.player === null) return;
     const player = this.player as FlvJs.Player;
@@ -125,38 +118,5 @@ export default class LiveDanmuPlayer {
     player.on(FlvJs.Events.ERROR, () => {
       this.refresh(config);
     });
-
-    // 画面卡死重连
-    // player.on(
-    //   FlvJs.Events.STATISTICS_INFO,
-    //   (res: FlvJs.FlvPlayerStatisticsInfo) => {
-    //     if (this.lastDecodedFrame === 0) {
-    //       if (res.decodedFrames !== undefined)
-    //         this.lastDecodedFrame = res.decodedFrames;
-    //       return;
-    //     } else if (this.lastDecodedFrame != res.decodedFrames) {
-    //       if (res.decodedFrames !== undefined)
-    //         this.lastDecodedFrame = res.decodedFrames;
-    //     } else {
-    //       this.lastDecodedFrame = 0;
-    //       this.refresh(config);
-    //     }
-    //   },
-    // );
-
-    // FIX 会让画面开始
-    // Flv自动跳帧
-    // this.flvSyncTimer = setInterval(() => {
-    //   if (player.buffered.length) {
-    //     const end = player.buffered.end(0); // 最新的buff数据
-    //     const diff = end - player.currentTime;
-    //     console.log(diff);
-
-    //     if (diff > this.autoSkipFrameInterval) {
-    //       // console.log(diff);
-    //       (this.player as FlvJs.Player).currentTime = player.buffered.end(0);
-    //     }
-    //   }
-    // });
   }
 }

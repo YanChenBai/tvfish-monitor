@@ -97,6 +97,7 @@
     },
     "nsis": {
       "oneClick": false,
+      "createDesktopShortcut": true,
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "./resources/electron_logo.ico",
       "uninstallerIcon": "./resources/electron_logo.ico",

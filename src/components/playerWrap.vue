@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import LiveDanmuPlayer from '@/components/player/player.vue';
-import { ConfigType } from '@/hooks/player';
+import { ConfigType } from '@/utils/player';
 import { useDrag, useDrop } from 'vue3-dnd';
 import { DropType } from '@/types/drop';
 import { usePlayerStore } from '@/stores/playerStore';
