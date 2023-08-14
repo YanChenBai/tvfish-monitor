@@ -10,7 +10,7 @@ import { useDrag, useDrop } from 'vue3-dnd';
 import { useRepo } from 'pinia-orm';
 import PlayerStore from '@/stores/player';
 import { computed, onMounted, provide, reactive, watch } from 'vue';
-import { liveConfigProvide, playerProvide } from '@/utils/provides';
+import { playerWrapProvide } from '@/utils/provides';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { Platform, RoomListItem, RoomStatus } from '@/types/player';
 import { ConfigType } from '@/hooks/usePlayer';
@@ -35,7 +35,7 @@ const player = computed(() =>
 
 // 初始化播放器, 没有的话进行一个注的册
 if (userRepo.where('id', props.playerId).first() === null) {
-  console.log(userRepo.save({ id: props.playerId }));
+  userRepo.save({ id: props.playerId });
 }
 
 // 创建拖拽放置
@@ -83,7 +83,7 @@ async function getOrgin(roomId: number, type: Platform) {
 
 // 更新数据
 async function update(): Promise<boolean> {
-  if (player.value !== null && player.value.room !== null) {
+  if (player.value?.room) {
     try {
       const res: any = await getOrgin(
         player.value.room.roomId,
@@ -118,12 +118,11 @@ async function update(): Promise<boolean> {
 }
 
 onMounted(() => {
-  if (player.value && player.value.room) update();
+  if (player.value?.room) update();
 });
 
 // 依赖注入
-provide(playerProvide, player);
-provide(liveConfigProvide, liveConfig);
+provide(playerWrapProvide, { player, config: liveConfig });
 </script>
 
 <style scoped></style>
