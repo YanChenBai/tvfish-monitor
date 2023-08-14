@@ -6,12 +6,19 @@
 
 <script setup lang="ts">
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
-console.log(window);
 </script>
 <style>
 body {
   overflow: hidden;
   border-radius: 2px;
   background-color: #121212;
+}
+.dplayer-controller-mask,
+.dplayer-controller,
+.dplayer-subtitle,
+.dplayer-danmaku,
+.dplayer-mask,
+.dplayer-bezel {
+  display: none !important;
 }
 </style>

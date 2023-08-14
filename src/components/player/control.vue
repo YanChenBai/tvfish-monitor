@@ -103,8 +103,9 @@ import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
 import { refresh as refreshIcon, volumeHigh, close } from 'ionicons/icons';
-import { Ref, computed, ref, watch } from 'vue';
+import { Ref, computed, inject, ref, watch } from 'vue';
 import { QualityType, LineType, RoomStatus } from '@/types/player';
+import { linesProvide } from '@/utils/provides';
 
 defineOptions({ name: 'PlayerControl' });
 
@@ -177,6 +178,11 @@ watch(
     emit('volumeChange', val);
   },
 );
+
+const tmp = inject(linesProvide);
+watch(tmp!, () => {
+  console.log(tmp);
+});
 
 // 暴露函数
 defineExpose({

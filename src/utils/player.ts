@@ -15,7 +15,6 @@ export default class LiveDanmuPlayer {
   el: HTMLMediaElement | null = null;
   config: Config | null = null;
   player: FlvJs.Player | Hls | null = null;
-  flvSyncTimer: number | null = null;
   // 解码帧
   lastDecodedFrame = 0;
   // 跳帧间隔
@@ -62,7 +61,6 @@ export default class LiveDanmuPlayer {
     // hlsPlayer
     this.player = hlsPlayer;
     this.destroy = () => {
-      if (this.flvSyncTimer) clearInterval(this.flvSyncTimer);
       hlsPlayer.destroy();
     };
   }
@@ -85,7 +83,6 @@ export default class LiveDanmuPlayer {
         flvPlayer.unload();
         flvPlayer.detachMediaElement();
         flvPlayer.destroy();
-        if (this.flvSyncTimer !== null) clearTimeout(this.flvSyncTimer);
       } catch (error) {
         error;
       }

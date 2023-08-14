@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import VueDanmuKu from './danmu.vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, provide, ref } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import Control from '@/components/player/control.vue';
 import Player, { ConfigType } from '@/utils/player';

@@ -14,13 +14,14 @@
         height: `${size * item.h}%`,
       }"
     >
-      <PlayerWrap :type="type" :url="url" :playerName="getPlayerCode(key)" />
+      <!-- <PlayerWrap :type="type" :url="url" :playerName="getPlayerCode(key)" /> -->
+      <PlayerWrap :playerId="key" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import PlayerWrap from '@/components/playerWrap.vue';
+import PlayerWrap from '@/components/newPlayer/wrap.vue';
 import layouts from '@/config/layouts';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/stores/playerStore';
