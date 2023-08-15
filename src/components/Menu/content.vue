@@ -12,14 +12,14 @@
 
   <!-- 直播间列表 -->
   <div class="menu-content hide-scrollbar" ref="menuContentRef">
-    <div v-for="item in showList" class="menu-content-item">
+    <div v-for="item in list" class="menu-content-item">
       <MenuItem
         :key="`${item.platform}@${item.roomId}`"
         :disabled="disabled"
         :info="item"
         @drag="() => (playerStore.menuState = false)"
-        @setting="$emit('setting', item)"
-        @tips="$emit('tips', item)"
+        @setting="openSetting(item)"
+        @tips="openTips(item)"
       ></MenuItem>
     </div>
   </div>
@@ -29,43 +29,39 @@
 import { IonInput } from '@ionic/vue';
 import { usePlayerStore } from '@/stores/playerStore';
 import MenuItem from '@/components/Menu/item.vue';
-import { RoomListItem } from '@/types/player';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useScroll, watchDebounced } from '@vueuse/core';
 import { vibrate } from '@/utils/impact';
-import StoreQuery from '@/utils/storeQuey';
+import injectStrict from '@/utils/injectStrict';
+import { menuProvides, repoProvides } from '@/utils/provides';
 
 defineOptions({ name: 'menuContent' });
-
-defineEmits<{
-  (e: 'setting', item: RoomListItem): void;
-  (e: 'tips', item: RoomListItem): void;
-}>();
 defineProps<{
   disabled: boolean;
 }>();
-
+const { roomRepo } = injectStrict(repoProvides);
+const { openSetting, openTips } = injectStrict(menuProvides);
 const playerStore = usePlayerStore();
-const pinyinListCurd = new StoreQuery(playerStore.pinyinList);
-const showList = ref<RoomListItem[]>(playerStore.roomList),
-  keyword = ref(),
+const keyword = ref(),
   menuContentRef = ref(),
   { arrivedState } = useScroll(menuContentRef);
 
+const list = computed(() => roomRepo.all());
+
 function updateShowList() {
-  showList.value = playerStore.roomList.filter((item) => {
-    const findName = item.name.search(keyword.value) !== -1;
-    const findTags = item.tags ? item.tags.search(keyword.value) !== -1 : false;
-    const pinyin = pinyinListCurd.queryOne({
-      roomId: item.roomId,
-      platform: item.platform,
-    });
-    const findPinYin = pinyin
-      ? pinyin.value.findIndex((item) => item.search(keyword.value) !== -1) !==
-        -1
-      : false;
-    return findName || findTags || findPinYin;
-  });
+  // showList.value = playerStore.roomList.filter((item) => {
+  //   const findName = item.name.search(keyword.value) !== -1;
+  //   const findTags = item.tags ? item.tags.search(keyword.value) !== -1 : false;
+  //   const pinyin = pinyinListCurd.queryOne({
+  //     roomId: item.roomId,
+  //     platform: item.platform,
+  //   });
+  //   const findPinYin = pinyin
+  //     ? pinyin.value.findIndex((item) => item.search(keyword.value) !== -1) !==
+  //       -1
+  //     : false;
+  //   return findName || findTags || findPinYin;
+  // });
 }
 
 // 搜索节流
@@ -73,9 +69,6 @@ watchDebounced(keyword, () => updateShowList(), {
   debounce: 100,
   maxWait: 1000,
 });
-
-// 列表改变的话更新显示的内容
-watch(playerStore.roomList, () => updateShowList());
 
 // 返回顶部
 function goTop() {
@@ -91,7 +84,7 @@ watch(arrivedState, (val) => {
 });
 
 defineExpose({
-  showList,
+  list,
   goTop,
 });
 </script>

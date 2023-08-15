@@ -9,49 +9,26 @@
 <script setup lang="ts">
 import DPlayer from 'dplayer';
 import { usePlayer } from '@/hooks/usePlayer';
-import { computed, inject, onMounted, provide, ref } from 'vue';
+import { computed, onMounted, provide, reactive, ref } from 'vue';
 import { playerProvide, playerWrapProvide } from '@/utils/provides';
 import Control from './control.vue';
+import injectStrict from '@/utils/injectStrict';
+import { UsePlayer } from '@/types/playerNew';
 defineOptions({ name: 'PlayerComponent' });
 
-const { player, config } = inject(playerWrapProvide)!;
-const videoRef = ref<HTMLMediaElement>(),
+const { playerConfig, liveConfig } = injectStrict(playerWrapProvide);
+const videoRef = ref<HTMLDivElement>(),
   controlRef = ref<InstanceType<typeof Control>>();
-const volume = computed(() => (player.value?.volume ? player.value.volume : 0));
-let destroy: { (): void } = () => null,
-  refresh: { (): void } = () => null;
+
 // 初始化
 onMounted(() => {
-  if (videoRef.value) {
-    const dp = new DPlayer({
-      container: videoRef.value,
-      live: true,
-      mutex: false,
-      preventClickToggle: true,
-      hotkey: false,
-      video: {
-        url: '',
-        type: 'autoType',
-        customType: {
-          autoType() {
-            //
-          },
-        },
-      },
-    });
-    dp.volume(volume.value, true, true);
-    const { destroy: playerDestroy, refresh: playerRefresh } = usePlayer(
-      dp.video,
-      config,
-    );
-    destroy = playerDestroy;
-    refresh = playerRefresh;
-  }
+  const player = usePlayer(videoRef, liveConfig);
+  player.dplayer.volume(playerConfig.value.volume, false, false);
+  provide(playerProvide, player);
 });
 // 打开控制栏
 const openControl = () =>
   controlRef.value ? controlRef.value.openControl() : '';
-provide(playerProvide, { refresh, destroy });
 </script>
 
 <style scoped>
@@ -61,6 +38,10 @@ provide(playerProvide, { refresh, destroy });
   height: 100%;
   min-width: 100px;
   min-height: 100px;
+}
+
+.video {
+  width: 100%;
 }
 
 .danmu {

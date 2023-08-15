@@ -3,12 +3,19 @@
     <div v-show="show" class="control-wrap" @mouseleave="closeControl()">
       <div class="control-wrap-top" ref="topRef">
         <div class="title">
-          <div class="name status" :class="{ [roomStatusClass[0]]: true }">
-            {{ player!.id + 1 }}
+          <div
+            class="name status"
+            :class="{
+              [roomStatusClass[
+                playerConfig.room ? playerConfig.room.status : 0
+              ]]: true,
+            }"
+          >
+            {{ playerConfig.id + 1 }}
           </div>
-          <div class="content">
-            {{ player?.room?.name }}
-            {{ player?.room?.title }}
+          <div class="content" v-if="playerConfig.room">
+            {{ playerConfig.room.name }} -
+            {{ playerConfig.room.title }}
           </div>
         </div>
         <ion-button
@@ -34,7 +41,7 @@
             <ion-icon :icon="refreshIcon"></ion-icon>
           </ion-button>
 
-          <!-- <PlayerSlider :player-name="playerName" @change="volumeChange">
+          <PlayerSlider>
             <template #target>
               <ion-button
                 color="light"
@@ -46,18 +53,18 @@
                 <div class="volume">{{ playerConfig.volume }}</div>
               </ion-button>
             </template>
-          </PlayerSlider> -->
+          </PlayerSlider>
         </div>
         <div class="right">
-          <!-- <ion-button
+          <ion-button
             color="light"
             fill="clear"
             size="small"
             @click="danmuSwitch()"
             v-vibration="5"
-            >弹幕 {{ player.danmu ? '关' : '开' }}</ion-button
-          > -->
-          <!-- <PopoverSelect :list="qualitys" @change="qualityChange">
+            >弹幕 {{ playerConfig.danmu ? '关' : '开' }}</ion-button
+          >
+          <!-- <PopoverSelect :list="liveConfig.lines" @change="qualityChange">
             <template #target>
               <ion-button
                 color="light"
@@ -68,8 +75,8 @@
                 {{ qualityChangeName }}
               </ion-button>
             </template>
-          </PopoverSelect>
-          <PopoverSelect :list="lines" @change="lineChange">
+          </PopoverSelect> -->
+          <!-- <PopoverSelect :list="lines" @change="lineChange">
             <template #target>
               <ion-button
                 color="light"
@@ -106,7 +113,12 @@ import PlayerSlider from './slider.vue';
 import { refresh as refreshIcon, volumeHigh, close } from 'ionicons/icons';
 import { Ref, computed, inject, ref, watch } from 'vue';
 import { QualityType, LineType, RoomStatus } from '@/types/player';
-import { playerProvide, playerWrapProvide } from '@/utils/provides';
+import {
+  playerProvide,
+  playerWrapProvide,
+  repoProvides,
+} from '@/utils/provides';
+import injectStrict from '@/utils/injectStrict';
 
 defineOptions({ name: 'PlayerControl' });
 
@@ -121,15 +133,10 @@ const { navState } = storeToRefs(usePlayerStore());
 //   //   currentQuality: number | null;
 //   //   currentLine: any | null;
 // }>();
-const emit = defineEmits([
-  'qualityChange', // 清晰切换
-  'lineChange', // 线路切换
-  'open', // 打开控制栏
-  'close', // 关闭控制栏
-  'volumeChange',
-]);
-const { destroy, refresh } = inject(playerProvide)!;
-const { player, config } = inject(playerWrapProvide)!;
+
+const player = injectStrict(playerProvide);
+const { playerConfig, liveConfig } = injectStrict(playerWrapProvide);
+const { playerRepo } = injectStrict(repoProvides);
 
 const roomStatusClass = ['close', 'live', 'rec', 'def'];
 
@@ -151,19 +158,28 @@ const topRef = ref<HTMLElement>(),
 //       .name;
 //   }
 // });
-const qualityChange = (item: QualityType) => emit('qualityChange', item);
-const lineChange = (item: LineType) => emit('lineChange', item);
+
+function destroy() {
+  player.destroy();
+  playerRepo.where('id', playerConfig.value.id).update({ roomTypeId: '' });
+}
+
+function refresh() {
+  player.refresh();
+}
+
+const danmuSwitch = () => {
+  playerRepo.where('id', playerConfig.value.id).update({
+    danmu: !playerConfig.value.danmu,
+  });
+};
+
 const openControl = () => {
   show.value = true;
   navState.value = true;
 };
+
 const closeControl = () => (show.value = false);
-
-// const danmuSwitch = () =>
-//   (playerListConfig.value[props.playerName].danmu = !playerConfig.value.danmu);
-
-// 监听声音变化
-const volumeChange = (val: number) => emit('volumeChange', val);
 
 // 获取关闭控制栏时点击需要排除的地方
 function getIgnore(): Ref<HTMLElement | undefined>[] {

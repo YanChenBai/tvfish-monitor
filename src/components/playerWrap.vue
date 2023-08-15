@@ -30,11 +30,12 @@ import {
   Platform,
   RoomStatus,
 } from '@/types/player';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { storeToRefs } from 'pinia';
 import { impactHeavy, vibrate } from '@/utils/impact';
 import { notification } from '@/utils/notification';
+import { repoProvides } from '@/utils/provides';
 
 defineOptions({ name: 'playerWrap' });
 
@@ -201,6 +202,7 @@ async function update(sysMessage = false): Promise<RoomListItem | false> {
 }
 
 onMounted(() => update());
+
 watch(
   () => playerList.value[props.playerName],
   () => update(),

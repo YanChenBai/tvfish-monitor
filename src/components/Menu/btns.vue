@@ -25,13 +25,13 @@
     </ion-button>
 
     <!-- 整理顺序 -->
-    <ion-button
+    <!-- <ion-button
       :disabled="loading.update || loading.input || loading.add"
       @click="sortList"
       v-vibration="5"
     >
       <ion-icon :icon="swapVerticalOutline"></ion-icon>
-    </ion-button>
+    </ion-button> -->
 
     <!-- 直播间列表返回顶部 -->
     <ion-button @click="$emit('goTop')" v-vibration="5">
@@ -160,7 +160,9 @@ import { usePlayerStore } from '@/stores/playerStore';
 import defRoomList from '@/config/roomList';
 import { Clipboard } from '@capacitor/clipboard';
 import { message } from '@/utils/message';
-import useRoomList from '@/hooks/useRoomList';
+import useRoom from '@/hooks/useRoom';
+import { repoProvides } from '@/utils/provides';
+import injectStrict from '@/utils/injectStrict';
 
 defineOptions({ name: 'MenuBtns' });
 
@@ -186,7 +188,8 @@ const jsonData = ref(''),
   updateMsg = ref('');
 const num = computed(() => playerStore.roomList.length);
 
-const roomList = useRoomList();
+const { roomRepo } = injectStrict(repoProvides);
+const useroom = useRoom(roomRepo);
 
 function close() {
   if (menuModalRef.value) menuModalRef.value.$el.dismiss(null, 'cancel');
@@ -200,9 +203,7 @@ async function add() {
     if (data.roomId === undefined) throw new Error('roomId为空');
     const type = data.type;
     const roomId = data.roomId;
-
-    await roomList.add(roomId, type);
-    sortList();
+    await useroom.add(roomId, type);
   } catch (error) {
     console.log(error);
     await message('更新失败!');
@@ -218,7 +219,7 @@ async function updateAll() {
   updateMsg.value = `${now} / ${count}`;
   for (let index = 0; index < count; index++) {
     try {
-      await roomList.update(
+      await useroom.update(
         playerStore.roomList[index].roomId,
         playerStore.roomList[index].platform,
         false,
@@ -230,7 +231,6 @@ async function updateAll() {
     updateMsg.value = `${now} / ${count}`;
   }
   await message('更新完成!');
-  sortList();
   loading.update = false;
 }
 
@@ -249,12 +249,12 @@ async function inputData() {
     let now = 0;
     inputMsg.value = `0 / ${count}`;
     for (const roomId of list[Platform.Bili]) {
-      await roomList.add(roomId, Platform.Bili, false);
+      await useroom.add(roomId, Platform.Bili, false);
       inputMsg.value = `${now++} / ${count}`;
     }
 
     for (const roomId of list[Platform.Douyu]) {
-      await roomList.add(roomId, Platform.Douyu, false);
+      await useroom.add(roomId, Platform.Douyu, false);
       inputMsg.value = `${now++} / ${count}`;
     }
 

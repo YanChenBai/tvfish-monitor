@@ -2,7 +2,7 @@ import { Model } from 'pinia-orm';
 import { Str, Num, Bool, Uid, HasOne } from 'pinia-orm/dist/decorators';
 import Room from './room';
 
-export default class Player extends Model {
+export default class PlayerStore extends Model {
   static entity = 'playerNew';
   static primaryKey = 'id';
 

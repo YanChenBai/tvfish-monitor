@@ -1,16 +1,13 @@
+import {
+  LiveConfig,
+  PlayerOrgin,
+  ConfigType,
+  UsePlayer,
+} from '@/types/playerNew';
+import DPlayer from 'dplayer';
 import FlvJs from 'flv.js';
 import Hls from 'hls.js';
-import { Ref, watch } from 'vue';
-
-export enum ConfigType {
-  Flv = 'flv',
-  Hls = 'hls',
-}
-
-export interface Config {
-  url: string;
-  type: ConfigType;
-}
+import { Ref, reactive, watch } from 'vue';
 
 function initFlv(el: HTMLMediaElement, url: string) {
   console.log(el);
@@ -56,46 +53,84 @@ function initHls(el: HTMLMediaElement, url: string) {
   };
 }
 
-export function usePlayer(video: HTMLMediaElement, config: Config | undefined) {
-  let player: FlvJs.Player | null | Hls = null;
-  let destroy: { (): void } = () => null;
+function useDPlayer(video: HTMLDivElement): DPlayer {
+  return new DPlayer({
+    container: video,
+    live: true,
+    mutex: false,
+    preventClickToggle: true,
+    volume: 0,
+    hotkey: false,
+    video: {
+      url: '',
+      type: 'autoType',
+      customType: {
+        autoType: () => ({}),
+      },
+    },
+  });
+}
+
+export function usePlayer(
+  video: Ref<HTMLDivElement | undefined>,
+  config: LiveConfig,
+): UsePlayer {
+  if (video.value === undefined) throw new Error('Use it in onMounted!');
+
+  const player = reactive<UsePlayer>({
+    destroy: () => null,
+    refresh: () => null,
+    changePlayer: () => null,
+    playerOrgin: null,
+    dplayer: useDPlayer(video.value),
+  });
 
   // 初始化
   function changePlayer() {
     if (!config) return;
     if (config.type === ConfigType.Flv) {
       const { destroy: flvDestroy, player: flvPlayer } = initFlv(
-        video,
+        player.dplayer.video,
         config.url,
       );
-      destroy = flvDestroy;
-      player = flvPlayer;
+      player.destroy = () => {
+        player.playerOrgin = null;
+        flvDestroy();
+      };
+      player.playerOrgin = {
+        type: ConfigType.Flv,
+        player: flvPlayer,
+      };
     } else if (config.type === ConfigType.Hls) {
       const { destroy: hlsDestroy, player: hlsPlayer } = initHls(
-        video,
+        player.dplayer.video,
         config.url,
       );
-      destroy = hlsDestroy;
-      player = hlsPlayer;
+      player.destroy = () => {
+        player.playerOrgin = null;
+        return hlsDestroy();
+      };
+      player.playerOrgin = {
+        type: ConfigType.Hls,
+        player: hlsPlayer,
+      };
     }
   }
 
   // 刷新
   function refresh() {
-    destroy();
+    player.destroy();
     changePlayer();
   }
-  console.log(config);
+
+  player.changePlayer = changePlayer;
+  player.refresh = refresh;
 
   // 自动刷新
-  watch(config!, () => {
+  watch(config, () => {
     console.log(config);
     refresh();
   });
 
-  return {
-    destroy,
-    refresh,
-    player,
-  };
+  return player;
 }

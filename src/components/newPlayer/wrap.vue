@@ -7,20 +7,24 @@
 <script setup lang="ts">
 import Player from './player.vue';
 import { useDrag, useDrop } from 'vue3-dnd';
-import { useRepo } from 'pinia-orm';
-import PlayerStore from '@/stores/player';
-import { computed, onMounted, provide, reactive, watch } from 'vue';
-import { playerWrapProvide } from '@/utils/provides';
+import { computed, onMounted, provide, reactive } from 'vue';
+import { playerWrapProvide, repoProvides } from '@/utils/provides';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
 import { Platform, RoomListItem, RoomStatus } from '@/types/player';
-import { ConfigType } from '@/hooks/usePlayer';
+import {
+  ConfigType,
+  DragType,
+  DragTypeItem,
+  LiveConfig,
+} from '@/types/playerNew';
+import injectStrict from '@/utils/injectStrict';
 defineOptions({ name: 'PlayerWrap' });
 
 const props = defineProps<{
   playerId: number;
 }>();
 
-const liveConfig = reactive({
+const liveConfig = reactive<LiveConfig>({
   line: null,
   lines: [],
   quality: null,
@@ -28,21 +32,39 @@ const liveConfig = reactive({
   type: ConfigType.Flv,
   url: '',
 });
-const userRepo = useRepo(PlayerStore);
-const player = computed(() =>
-  userRepo.with('room').where('id', props.playerId).first(),
-);
+
+const { playerRepo } = injectStrict(repoProvides);
 
 // 初始化播放器, 没有的话进行一个注的册
-if (userRepo.where('id', props.playerId).first() === null) {
-  userRepo.save({ id: props.playerId });
+if (playerRepo.where('id', props.playerId).first() === null) {
+  playerRepo.save({ id: props.playerId });
 }
+
+const playerConfig = computed(
+  () => playerRepo.with('room').where('id', props.playerId).first()!,
+);
 
 // 创建拖拽放置
 const [, drop] = useDrop({
-  accept: [],
-  drop: () => {
-    //
+  accept: [DragType.CARD_DRAG, DragType.PLAYER_DRAG],
+  drop: (item: DragTypeItem) => {
+    if (item.type === DragType.CARD_DRAG) {
+      // 当卡片放置时更新 roomTypeId
+      playerRepo.where('id', playerConfig.value.id).update({
+        roomTypeId: item.roomTypeId,
+      });
+    } else if (item.type === DragType.PLAYER_DRAG) {
+      // 放置的目标是自己的话排除
+      if (item.playerId === playerConfig.value.id) return;
+
+      // 交换 roomTypeId
+      playerRepo
+        .where('id', item.playerId)
+        .update({ roomTypeId: playerConfig.value.roomTypeId });
+      playerRepo
+        .where('id', playerConfig.value.id)
+        .update({ roomTypeId: item.roomTypeId });
+    }
   },
   collect(monitor) {
     if (monitor.isOver()) {
@@ -54,8 +76,12 @@ const [, drop] = useDrop({
 // 创建拖拽
 let dragLock = true;
 const [, drag] = useDrag({
-  type: '',
-  item: {},
+  type: DragType.PLAYER_DRAG,
+  item: {
+    playerId: playerConfig.value.id,
+    roomTypeId: playerConfig.value.roomTypeId,
+    type: DragType.PLAYER_DRAG,
+  } as DragTypeItem,
   collect(monitor) {
     if (dragLock && monitor.isDragging()) {
       dragLock = false;
@@ -83,11 +109,11 @@ async function getOrgin(roomId: number, type: Platform) {
 
 // 更新数据
 async function update(): Promise<boolean> {
-  if (player.value?.room) {
+  if (playerConfig.value.room) {
     try {
       const res: any = await getOrgin(
-        player.value.room.roomId,
-        player.value.room.platform,
+        playerConfig.value.room.roomId,
+        playerConfig.value.room.platform,
       );
       if (res.code === -5) {
         return false;
@@ -100,7 +126,7 @@ async function update(): Promise<boolean> {
           liveConfig.quality = qn;
           liveConfig.line = line;
           liveConfig.type =
-            player.value.room.platform === Platform.Bili
+            playerConfig.value.room.platform === Platform.Bili
               ? ConfigType.Hls
               : ConfigType.Flv;
           liveConfig.url = url;
@@ -118,11 +144,11 @@ async function update(): Promise<boolean> {
 }
 
 onMounted(() => {
-  if (player.value?.room) update();
+  if (playerConfig.value) update();
 });
 
 // 依赖注入
-provide(playerWrapProvide, { player, config: liveConfig });
+provide(playerWrapProvide, { playerConfig, liveConfig });
 </script>
 
 <style scoped></style>

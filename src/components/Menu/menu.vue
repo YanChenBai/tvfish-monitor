@@ -1,12 +1,7 @@
 <template>
   <Transition name="menu">
     <div class="menu-wrap" ref="menuWrapRef" v-show="menuState">
-      <MenuContent
-        ref="menuContentRef"
-        :disabled="disabled"
-        @setting="openSetting"
-        @tips="openTips"
-      />
+      <MenuContent ref="menuContentRef" :disabled="disabled" />
       <Setting ref="settingRef" />
       <Tips ref="tipsRef" />
       <Btns ref="btnsRef" @goTop="goTop" />
@@ -21,9 +16,10 @@ import Tips from '@/components/Menu/tips.vue';
 import Btns from './btns.vue';
 import { useMenu } from '@/hooks/useMenu';
 import { usePlayerStore } from '@/stores/playerStore';
-import { RoomListItem } from '@/types/player';
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, provide, ref } from 'vue';
+import Room from '@/stores/room';
+import { menuProvides } from '@/utils/provides';
 
 defineOptions({ name: 'menuCompoent' });
 const { menuState } = storeToRefs(usePlayerStore()),
@@ -41,11 +37,11 @@ const disabled = computed(() => {
   }
 });
 
-function openSetting(room: RoomListItem) {
+function openSetting(room: Room) {
   if (settingRef.value) settingRef.value.open(room);
 }
 
-function openTips(room: RoomListItem) {
+function openTips(room: Room) {
   if (tipsRef.value) tipsRef.value.open(room);
 }
 
@@ -61,6 +57,11 @@ onMounted(() => {
       menuWrapRef,
       tipsRef,
     ]);
+});
+
+provide(menuProvides, {
+  openSetting,
+  openTips,
 });
 </script>
 

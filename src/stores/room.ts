@@ -2,7 +2,7 @@ import { Platform, RoomStatus } from '@/types/player';
 import { Model } from 'pinia-orm';
 import { Str, Num, Bool, Uid } from 'pinia-orm/dist/decorators';
 
-export default class Room extends Model {
+export default class RoomStore extends Model {
   static entity = 'room';
   static primaryKey = ['roomId', 'platform', 'roomTypeId'];
 
@@ -40,13 +40,13 @@ export default class Room extends Model {
   declare tags: string;
 
   @Str('')
-  declare tagsPinyin: string;
+  declare tagsPinyin: string[];
 
   @Str('')
-  declare namePinyin: string;
+  declare namePinyin: string[];
 
   @Bool(false)
-  declare isTop: string;
+  declare isTop: boolean;
 
   static piniaOptions = {
     persist: true,
