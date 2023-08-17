@@ -3,7 +3,7 @@
     <Danmu
       @click="openControl"
       @liveStart="liveStart"
-      @liveEnd="() => {}"
+      @liveEnd="liveStart"
     ></Danmu>
     <div class="video">
       <video ref="videoRef" autoplay></video>
