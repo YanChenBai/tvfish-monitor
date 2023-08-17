@@ -58,50 +58,35 @@ function handler(status: boolean) {
   }
 }
 
-// 按钮回调
+// 设置按钮回调
 const actionSheetButtons = computed(() => {
-  const defBtns: ActionSheetButton[] = [
-    {
-      text: '删除',
-      role: 'delete',
-      cssClass: 'del',
-      handler: () => {
-        vibrate(5);
-        removeIsopen.value = true;
+  if (selectRoom.value === undefined) return [];
+  else {
+    return [
+      {
+        text: selectRoom.value.isTop ? '取消置顶' : '置顶',
+        role: selectRoom.value.isTop ? 'cancelTop' : 'top',
+        handler: () => handler(!selectRoom.value!.isTop),
       },
-    },
-    {
-      text: '取消',
-      role: 'cancel',
-      handler: () => vibrate(5),
-    },
-  ];
-
-  if (selectRoom.value) {
-    const { isTop } = roomRepo
-      .where('roomTypeId', selectRoom.value.roomTypeId)
-      .first()!;
-    if (isTop === false) {
-      defBtns.unshift({
-        text: '置顶',
-        role: 'top',
-        handler: () => handler(true),
-      });
-      return defBtns;
-    } else {
-      defBtns.unshift({
-        text: '取消置顶',
-        role: 'cancelTop',
-        handler: () => handler(false),
-      });
-      return defBtns;
-    }
-  } else {
-    return defBtns;
+      {
+        text: '删除',
+        role: 'delete',
+        cssClass: 'del',
+        handler: () => {
+          vibrate(5);
+          removeIsopen.value = true;
+        },
+      },
+      {
+        text: '取消',
+        role: 'cancel',
+        handler: () => vibrate(5),
+      },
+    ] as ActionSheetButton[];
   }
 });
 
-// 按钮回调
+// 删除按钮回调
 const alertButtons = [
   {
     text: '取消',

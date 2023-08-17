@@ -1,4 +1,5 @@
 import { RoomListItem } from '@/types/player';
+import { GetOrgin } from '@/types/playerNew';
 import axios from 'axios';
 
 switch (import.meta.env.VITE_MODE) {
@@ -16,7 +17,7 @@ export async function getDouyuOrgin(
   roomId: number,
   qn: number | null,
   line: string | null,
-): Promise<any> {
+): Promise<GetOrgin | false> {
   try {
     const res = await axios(
       `/getLiveInfo?roomId=${roomId}&type=douyu${qn ? '&qn=' + qn : ''}${
@@ -33,7 +34,7 @@ export async function getBiliOrgin(
   roomId: number,
   qn: number | null,
   line: string | null,
-): Promise<any> {
+): Promise<GetOrgin | false> {
   try {
     const res = await axios(
       `/getLiveInfo?roomId=${roomId}&type=bili${qn ? '&qn=' + qn : ''}${

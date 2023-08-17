@@ -17,7 +17,8 @@
     "electron:build-prepro": "cross-env VITE_MODE=ELECTRON_PRO \"vue-tsc && vite build\"",
     "build:electron": "npm run electron:build-prepro && cross-env VITE_MODE=ELECTRON_PRO electron-builder",
     "build:web:": "cross-env VITE_MODE=IONIC_PRO npx ionic build",
-    "build:android:": "cross-env VITE_MODE=IONIC_PRO npx ionic capacitor build android --prod --release"
+    "build:android": "cross-env VITE_MODE=IONIC_PRO npx ionic capacitor build android --prod --release",
+    "dev:android": "ionic capacitor run android -l --host=0.0.0.0"
   },
   "dependencies": {
     "@anuradev/capacitor-background-mode": "file:capacitor-plugins/capacitor-background-mode",

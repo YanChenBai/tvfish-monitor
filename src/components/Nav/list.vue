@@ -13,33 +13,36 @@
   <ion-popover :is-open="popoverOpen" @didDismiss="popoverOpen = false">
     <ion-content>
       <div class="box hide-scrollbar">
-        <div class="item" v-for="(item, key) in playerListConfig" :key="key">
+        <div class="item" v-for="(item, key) in list" :key="key">
           <div class="name">
-            <div class="face" v-if="playerList[key] !== null">
-              <img
-                :src="`${IMAGE_PROXY}?w=80&h=80&url=${getRoom(playerList[key]!)!.face}`"
-              />
+            <div class="face" v-if="item.room">
+              <img :src="`${IMAGE_PROXY}?w=80&h=80&url=${item.room.face}`" />
             </div>
-            <div class="win">{{ key.toString().toLocaleUpperCase() }}</div>
-            <template v-if="playerList[key] === null">未分配</template>
+            <div class="win">{{ key + 1 }}</div>
+            <template v-if="!item.room">未分配</template>
             <template v-else>
-              {{ getRoom(playerList[key]!)?.name }}
+              {{ item.room.name }}
             </template>
           </div>
           <div class="vol">
-            <div class="vol-num">{{ playerListConfig[key].volume }}</div>
+            <div class="vol-num">{{ item.volume }}</div>
             <ion-range
               style="width: 240px"
               @ionChange="
-              ({ detail }) => (playerListConfig[key].volume = detail.value as number)
-            "
-              :value="playerListConfig[key].volume"
+                ({ detail }) =>
+                  playerRepo.save({ id: item.id, volume: detail.value })
+              "
+              :value="item.volume"
             ></ion-range>
           </div>
           <div class="danmu-box">
             <div class="danmu">弹幕</div>
             <ion-toggle
-              v-model:modelValue="playerListConfig[key].danmu"
+              @ionChange="
+                ({ detail: { checked } }) =>
+                  playerRepo.save({ id: item.id, danmu: checked })
+              "
+              :checked="item.danmu"
               v-vibration="5"
             ></ion-toggle>
           </div>
@@ -58,19 +61,17 @@ import {
   IonRange,
   IonToggle,
 } from '@ionic/vue';
-import { usePlayerStore } from '@/stores/playerStore';
 import { listCircleOutline } from 'ionicons/icons';
-import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
-import { PlayerItem } from '@/types/player';
+import { computed, ref } from 'vue';
 import { IMAGE_PROXY } from '@/config/proxy';
-import useRoomList from '@/hooks/useRoomList';
+import injectStrict from '@/utils/injectStrict';
+import { repoProvides } from '@/utils/provides';
+
 defineOptions({ name: 'PlayerlistSetting' });
-const playerStore = usePlayerStore();
-const { playerListConfig, playerList } = storeToRefs(playerStore);
-const curd = useRoomList();
+const { playerRepo } = injectStrict(repoProvides);
+
 const popoverOpen = ref(false);
-const getRoom = (room: PlayerItem) => curd.query(room.roomId, room.platform);
+const list = computed(() => playerRepo.with('room').get());
 </script>
 
 <style scoped>

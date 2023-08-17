@@ -3,11 +3,19 @@
     <div v-show="show" class="control-wrap" @mouseleave="closeControl()">
       <div class="control-wrap-top" ref="topRef">
         <div class="title">
-          <div class="name status" :class="{ [roomStatusClass[status]]: true }">
-            {{ playerName }}
+          <div
+            class="name status"
+            :class="{
+              [roomStatusClass[
+                playerConfig.room ? playerConfig.room.status : 0
+              ]]: true,
+            }"
+          >
+            {{ playerConfig.id + 1 }}
           </div>
-          <div class="content">
-            {{ name }} {{ name === '' ? '' : '|' }} {{ title }}
+          <div class="content" v-if="playerConfig.room">
+            {{ playerConfig.room.name }} -
+            {{ playerConfig.room.title }}
           </div>
         </div>
         <ion-button
@@ -33,7 +41,7 @@
             <ion-icon :icon="refreshIcon"></ion-icon>
           </ion-button>
 
-          <PlayerSlider :player-name="playerName" @change="volumeChange">
+          <PlayerSlider>
             <template #target>
               <ion-button
                 color="light"
@@ -56,7 +64,7 @@
             v-vibration="5"
             >弹幕 {{ playerConfig.danmu ? '关' : '开' }}</ion-button
           >
-          <PopoverSelect :list="qualitys" @change="qualityChange">
+          <PopoverSelect :list="liveConfig.qualitys" @change="qualityChange">
             <template #target>
               <ion-button
                 color="light"
@@ -68,7 +76,7 @@
               </ion-button>
             </template>
           </PopoverSelect>
-          <PopoverSelect :list="lines" @change="lineChange">
+          <PopoverSelect :list="liveConfig.lines" @change="lineChange">
             <template #target>
               <ion-button
                 color="light"
@@ -103,80 +111,86 @@ import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
 import { refresh as refreshIcon, volumeHigh, close } from 'ionicons/icons';
-import { Ref, computed, inject, ref, watch } from 'vue';
-import { QualityType, LineType, RoomStatus } from '@/types/player';
+import { Ref, computed, ref } from 'vue';
+import { QualityType, LineType } from '@/types/playerNew';
+import {
+  playerProvides,
+  playerWrapProvides,
+  repoProvides,
+} from '@/utils/provides';
+import injectStrict from '@/utils/injectStrict';
 
 defineOptions({ name: 'PlayerControl' });
 
-const { playerListConfig, navState } = storeToRefs(usePlayerStore());
-const props = defineProps<{
-  playerName: string;
-  title: string;
-  name: string;
-  status: RoomStatus;
-  lines: LineType[];
-  qualitys: QualityType[];
-  currentQuality: number | null;
-  currentLine: any | null;
-}>();
-const emit = defineEmits([
-  'destroy', // 销毁
-  'refresh', // 刷新
-  'qualityChange', // 清晰切换
-  'lineChange', // 线路切换
-  'open', // 打开控制栏
-  'close', // 关闭控制栏
-  'volumeChange',
-]);
+const { navState } = storeToRefs(usePlayerStore());
+const player = injectStrict(playerProvides);
+const { playerConfig, liveConfig, clearLiveConfig, update } =
+  injectStrict(playerWrapProvides);
+const { playerRepo } = injectStrict(repoProvides);
 
 const roomStatusClass = ['close', 'live', 'rec', 'def'];
-const playerConfig = computed(() => playerListConfig.value[props.playerName]);
+
 const show = ref(false);
 const topRef = ref<HTMLElement>(),
   bottomRef = ref<HTMLElement>();
+
 const currentLineName = computed(() => {
-  if (props.currentLine === null) {
+  if (liveConfig.line === null) {
     return '线路';
   } else {
-    return props.lines.find((item) => item.line === props.currentLine)!.name;
+    return liveConfig.lines.find((item) => item.line === liveConfig.line)?.name;
   }
 });
+
 const qualityChangeName = computed(() => {
-  if (props.currentQuality === null) {
+  if (liveConfig.quality === null) {
     return '线路';
   } else {
-    return props.qualitys.find((item) => item.qn === props.currentQuality)!
-      .name;
+    return liveConfig.qualitys.find((item) => item.qn === liveConfig.quality)
+      ?.name;
   }
 });
-const qualityChange = (item: QualityType) => emit('qualityChange', item);
-const lineChange = (item: LineType) => emit('lineChange', item);
+
+function destroy() {
+  player.destroy();
+  clearLiveConfig();
+  playerRepo.where('id', playerConfig.value.id).update({ roomTypeId: '' });
+}
+
+async function refresh() {
+  update();
+}
+
+const qualityChange = (item: QualityType) => {
+  const tmp = liveConfig.quality;
+  liveConfig.quality = item.qn;
+  if (tmp) update();
+};
+
+const lineChange = (item: LineType) => {
+  const tmp = liveConfig.line;
+  liveConfig.line = item.line;
+  if (tmp) update();
+};
+
+const danmuSwitch = () => {
+  playerRepo.where('id', playerConfig.value.id).update({
+    danmu: !playerConfig.value.danmu,
+  });
+};
+
 const openControl = () => {
   show.value = true;
   navState.value = true;
 };
+
 const closeControl = () => (show.value = false);
-const destroy = () => emit('destroy');
-const refresh = () => emit('refresh');
-
-const danmuSwitch = () =>
-  (playerListConfig.value[props.playerName].danmu = !playerConfig.value.danmu);
-
-// 监听声音变化
-const volumeChange = (val: number) => emit('volumeChange', val);
 
 // 获取关闭控制栏时点击需要排除的地方
 function getIgnore(): Ref<HTMLElement | undefined>[] {
   return [topRef, bottomRef];
 }
 
-// 监听音量变化
-watch(
-  () => playerConfig.value.volume,
-  (val) => {
-    emit('volumeChange', val);
-  },
-);
 // 暴露函数
 defineExpose({
   getIgnore,

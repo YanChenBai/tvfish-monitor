@@ -6,8 +6,14 @@ import { message } from '@/utils/message';
 import { pinyin } from 'pinyin-pro';
 
 function getPinYin(str: string): string[] {
+  if (!str || str.length === 0) return [];
   const pinyinList = [];
-  const arr = pinyin(str, { toneType: 'none', type: 'array' });
+  const arr = pinyin(str, {
+    toneType: 'none',
+    type: 'array',
+    v: true,
+    nonZh: 'removed',
+  });
   const omit = arr.map((item) => item.substring(0, 1));
   pinyinList.push(arr.join(''));
   pinyinList.push(omit.join(''));
@@ -20,12 +26,12 @@ export default function useRoom(roomRepo: Repository<RoomStore>) {
       const res = await getRoomInfo(roomId, platform);
       if (res === false) return;
       const namePinyin = getPinYin(res.name);
-      const tagsPinYin = getPinYin(res.tags);
+      const tagsPinyin = getPinYin(res.tags);
       roomRepo.save({
         roomTypeId: `${res.platform}@${res.roomId}`,
         ...res,
         namePinyin,
-        tagsPinYin,
+        tagsPinyin,
       });
       if (msg) await message('添加成功!');
     } catch (error) {
@@ -38,13 +44,13 @@ export default function useRoom(roomRepo: Repository<RoomStore>) {
       const res = await getRoomInfo(roomId, platform);
       if (res === false) return;
       const namePinyin = getPinYin(res.name);
-      const tagsPinYin = getPinYin(res.tags);
+      const tagsPinyin = getPinYin(res.tags);
       const roomTypeId = `${res.platform}@${res.roomId}`;
       roomRepo.where('roomTypeId', roomTypeId).update({
         roomTypeId,
         ...res,
         namePinyin,
-        tagsPinYin,
+        tagsPinyin,
       });
       if (msg) await message('更新成功!');
     } catch (error) {

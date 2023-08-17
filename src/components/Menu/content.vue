@@ -6,7 +6,7 @@
       color="primary"
       placeholder="搜索主播"
       :clear-input="true"
-      v-model:modelValue="keyword"
+      v-model:modelValue="keywordDebounced"
     ></ion-input>
   </div>
 
@@ -34,6 +34,7 @@ import { useScroll, watchDebounced } from '@vueuse/core';
 import { vibrate } from '@/utils/impact';
 import injectStrict from '@/utils/injectStrict';
 import { menuProvides, repoProvides } from '@/utils/provides';
+import { Platform, RoomStatus } from '@/types/player';
 
 defineOptions({ name: 'menuContent' });
 defineProps<{
@@ -42,32 +43,103 @@ defineProps<{
 const { roomRepo } = injectStrict(repoProvides);
 const { openSetting, openTips } = injectStrict(menuProvides);
 const playerStore = usePlayerStore();
-const keyword = ref(),
+const keywordDebounced = ref(),
+  keyword = ref(''),
   menuContentRef = ref(),
   { arrivedState } = useScroll(menuContentRef);
 
-const list = computed(() => roomRepo.all());
+const list = computed(() => {
+  let data = roomRepo.orderBy('isTop', 'desc').get();
 
-function updateShowList() {
-  // showList.value = playerStore.roomList.filter((item) => {
-  //   const findName = item.name.search(keyword.value) !== -1;
-  //   const findTags = item.tags ? item.tags.search(keyword.value) !== -1 : false;
-  //   const pinyin = pinyinListCurd.queryOne({
-  //     roomId: item.roomId,
-  //     platform: item.platform,
-  //   });
-  //   const findPinYin = pinyin
-  //     ? pinyin.value.findIndex((item) => item.search(keyword.value) !== -1) !==
-  //       -1
-  //     : false;
-  //   return findName || findTags || findPinYin;
-  // });
-}
+  try {
+    data = data.filter((item) => {
+      // 直接筛选平台
+      switch (keyword.value.toLocaleLowerCase()) {
+        case 'b站':
+        case '哔哩哔哩':
+        case '哔哩':
+        case 'bl':
+        case 'bili':
+        case 'bilibili':
+          return item.platform === Platform.Bili;
+        case '斗鱼':
+        case 'douyu':
+        case 'dy':
+          return item.platform === Platform.Douyu;
+      }
 
-// 搜索节流
-watchDebounced(keyword, () => updateShowList(), {
-  debounce: 100,
-  maxWait: 1000,
+      // 直接筛选直播状态
+      switch (keyword.value.toLocaleLowerCase()) {
+        case 'live':
+        case '直播':
+        case '上班':
+          return item.status === RoomStatus.LIVE;
+        case 'close':
+        case '下播':
+        case '下班':
+          return item.status === RoomStatus.CLOSE;
+        case 'loop':
+        case '轮播':
+        case '录像':
+          return item.status === RoomStatus.REC;
+      }
+
+      const status = [];
+
+      // 标签拼音和缩写
+      status.push(
+        item.tagsPinyin.find((item) => item.search(keyword.value) !== -1) !==
+          undefined,
+      );
+
+      // 名字拼音和缩写
+      status.push(
+        item.namePinyin.find((item) => item.search(keyword.value) !== -1) !==
+          undefined,
+      );
+
+      // 主播名字
+      status.push(
+        item.name
+          .toLocaleLowerCase()
+          .search(keyword.value.toLocaleLowerCase()) !== -1,
+      );
+
+      // 标签
+      status.push(
+        item.tags
+          .toLocaleLowerCase()
+          .search(keyword.value.toLocaleLowerCase()) !== -1,
+      );
+
+      // 房间标题
+      status.push(
+        item.title
+          .toLocaleLowerCase()
+          .search(keyword.value.toLocaleLowerCase()) !== -1,
+      );
+
+      // 公告
+      status.push(
+        item.news
+          .toLocaleLowerCase()
+          .search(keyword.value.toLocaleLowerCase()) !== -1,
+      );
+      // 真实房间号
+      status.push(item.roomId.toString() === keyword.value);
+
+      // 房间短号
+      status.push(
+        item.shortId === 0 ? false : item.shortId.toString() === keyword.value,
+      );
+
+      return status.indexOf(true) !== -1;
+    });
+  } catch (error) {
+    return data;
+  }
+
+  return data;
 });
 
 // 返回顶部
@@ -77,6 +149,14 @@ function goTop() {
     behavior: 'smooth',
   });
 }
+
+watchDebounced(
+  keywordDebounced,
+  (val) => {
+    keyword.value = val;
+  },
+  { debounce: 400, maxWait: 1000 },
+);
 
 // 监听滚动条到底部或者顶部
 watch(arrivedState, (val) => {

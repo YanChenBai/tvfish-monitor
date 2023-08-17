@@ -1,6 +1,6 @@
 import { Platform, RoomStatus } from '@/types/player';
 import { Model } from 'pinia-orm';
-import { Str, Num, Bool, Uid } from 'pinia-orm/dist/decorators';
+import { Str, Num, Bool, Uid, Attr } from 'pinia-orm/dist/decorators';
 
 export default class RoomStore extends Model {
   static entity = 'room';
@@ -39,10 +39,10 @@ export default class RoomStore extends Model {
   @Str('', { notNullable: true })
   declare tags: string;
 
-  @Str('')
+  @Attr([])
   declare tagsPinyin: string[];
 
-  @Str('')
+  @Attr([])
   declare namePinyin: string[];
 
   @Bool(false)

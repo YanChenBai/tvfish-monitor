@@ -1,15 +1,17 @@
 import PlayerStore from '@/stores/player';
 import RoomStore from '@/stores/room';
-import { ComputedRef, InjectionKey, Ref, reactive } from 'vue';
+import { ComputedRef, InjectionKey } from 'vue';
 import { Repository } from 'pinia-orm';
 import { LiveConfig, UsePlayer } from '@/types/playerNew';
 
-export const playerWrapProvide = Symbol() as InjectionKey<{
+export const playerWrapProvides = Symbol() as InjectionKey<{
   playerConfig: ComputedRef<PlayerStore>;
   liveConfig: LiveConfig;
+  update: { (): void };
+  clearLiveConfig: { (): void };
 }>;
 
-export const playerProvide = Symbol() as InjectionKey<UsePlayer>;
+export const playerProvides = Symbol() as InjectionKey<UsePlayer>;
 
 export const repoProvides = Symbol() as InjectionKey<{
   roomRepo: Repository<RoomStore>;

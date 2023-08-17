@@ -4,14 +4,15 @@ import {
   ConfigType,
   UsePlayer,
 } from '@/types/playerNew';
+import { promiseTimeout, useTimeoutPoll, useCounter } from '@vueuse/core';
 import DPlayer from 'dplayer';
 import FlvJs from 'flv.js';
 import Hls from 'hls.js';
-import { Ref, reactive, watch } from 'vue';
+import { Ref, onMounted, reactive, ref, watch } from 'vue';
 
 function initFlv(el: HTMLMediaElement, url: string) {
-  console.log(el);
   const player: FlvJs.Player = FlvJs.createPlayer({
+    isLive: true,
     type: 'flv',
     url,
   });
@@ -28,14 +29,13 @@ function initFlv(el: HTMLMediaElement, url: string) {
         player.detachMediaElement();
         player.destroy();
       } catch (error) {
-        error;
+        // console.log(error);
       }
     },
   };
 }
 
 function initHls(el: HTMLMediaElement, url: string) {
-  console.log(el);
   const player = new Hls({
     debug: false,
     manifestLoadingMaxRetry: 10,
@@ -53,84 +53,91 @@ function initHls(el: HTMLMediaElement, url: string) {
   };
 }
 
-function useDPlayer(video: HTMLDivElement): DPlayer {
-  return new DPlayer({
-    container: video,
-    live: true,
-    mutex: false,
-    preventClickToggle: true,
-    volume: 0,
-    hotkey: false,
-    video: {
-      url: '',
-      type: 'autoType',
-      customType: {
-        autoType: () => ({}),
-      },
-    },
-  });
-}
-
 export function usePlayer(
-  video: Ref<HTMLDivElement | undefined>,
+  video: Ref<HTMLMediaElement>,
   config: LiveConfig,
 ): UsePlayer {
-  if (video.value === undefined) throw new Error('Use it in onMounted!');
-
   const player = reactive<UsePlayer>({
     destroy: () => null,
     refresh: () => null,
     changePlayer: () => null,
-    playerOrgin: null,
-    dplayer: useDPlayer(video.value),
+    setVolume: (val: number) => {
+      if (video.value === undefined)
+        throw new Error('Player is not initialized!');
+      video.value.volume = val / 100;
+    },
   });
 
   // 初始化
   function changePlayer() {
-    if (!config) return;
+    if (video.value === undefined) throw new Error('init after onMounted!');
+    if (config.url.length === 0) return;
     if (config.type === ConfigType.Flv) {
       const { destroy: flvDestroy, player: flvPlayer } = initFlv(
-        player.dplayer.video,
+        video.value,
         config.url,
       );
-      player.destroy = () => {
-        player.playerOrgin = null;
-        flvDestroy();
-      };
-      player.playerOrgin = {
-        type: ConfigType.Flv,
-        player: flvPlayer,
-      };
-    } else if (config.type === ConfigType.Hls) {
+      player.destroy = () => flvDestroy();
+    }
+    if (config.type === ConfigType.Hls) {
       const { destroy: hlsDestroy, player: hlsPlayer } = initHls(
-        player.dplayer.video,
+        video.value,
         config.url,
       );
-      player.destroy = () => {
-        player.playerOrgin = null;
-        return hlsDestroy();
-      };
-      player.playerOrgin = {
-        type: ConfigType.Hls,
-        player: hlsPlayer,
-      };
+      player.destroy = () => hlsDestroy();
     }
   }
 
-  // 刷新
-  function refresh() {
+  player.changePlayer = changePlayer;
+  player.refresh = () => {
     player.destroy();
     changePlayer();
-  }
-
-  player.changePlayer = changePlayer;
-  player.refresh = refresh;
-
-  // 自动刷新
-  watch(config, () => {
-    console.log(config);
-    refresh();
-  });
+  };
 
   return player;
+}
+
+export function autoRefresh(
+  video: Ref<HTMLMediaElement>,
+  refresh: { (): void },
+) {
+  const { count, inc, reset } = useCounter();
+
+  const tryRefresh = async () => {
+    inc();
+    refresh();
+    if (count.value >= 10) {
+      pause();
+      reset();
+    }
+  };
+
+  const { pause, resume } = useTimeoutPoll(tryRefresh, 1000, {
+    immediate: false,
+  });
+
+  let timer = 0;
+  function timeUpdate() {
+    clearTimeout(timer);
+    pause();
+    timer = setTimeout(() => {
+      resume();
+    }, 500);
+  }
+
+  const start = () => {
+    console.log('start');
+    video.value.addEventListener('timeupdate', timeUpdate, false);
+  };
+
+  const clear = () => {
+    video.value.removeEventListener('timeupdate', timeUpdate, false);
+    pause();
+    reset();
+  };
+
+  return {
+    start,
+    clear,
+  };
 }

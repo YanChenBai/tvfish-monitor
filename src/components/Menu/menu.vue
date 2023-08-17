@@ -20,14 +20,16 @@ import { storeToRefs } from 'pinia';
 import { computed, onMounted, provide, ref } from 'vue';
 import Room from '@/stores/room';
 import { menuProvides } from '@/utils/provides';
+import { templateRef } from '@vueuse/core';
 
 defineOptions({ name: 'menuCompoent' });
 const { menuState } = storeToRefs(usePlayerStore()),
   menuWrapRef = ref(),
-  settingRef = ref<InstanceType<typeof Setting>>(),
-  tipsRef = ref<InstanceType<typeof Tips>>(),
-  btnsRef = ref<InstanceType<typeof Btns>>(),
-  menuContentRef = ref<InstanceType<typeof MenuContent>>();
+  settingRef = templateRef<InstanceType<typeof Setting>>('settingRef'),
+  tipsRef = templateRef<InstanceType<typeof Tips>>('tipsRef'),
+  btnsRef = templateRef<InstanceType<typeof Btns>>('btnsRef'),
+  menuContentRef =
+    templateRef<InstanceType<typeof MenuContent>>('menuContentRef');
 
 const disabled = computed(() => {
   if (btnsRef.value) {
@@ -38,16 +40,14 @@ const disabled = computed(() => {
 });
 
 function openSetting(room: Room) {
-  if (settingRef.value) settingRef.value.open(room);
+  settingRef.value.open(room);
 }
 
 function openTips(room: Room) {
-  if (tipsRef.value) tipsRef.value.open(room);
+  tipsRef.value.open(room);
 }
 
-function goTop() {
-  if (menuContentRef.value) menuContentRef.value.goTop();
-}
+const goTop = () => menuContentRef.value.goTop();
 
 onMounted(() => {
   if (settingRef.value && btnsRef.value)

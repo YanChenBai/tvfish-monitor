@@ -7,7 +7,7 @@
           :src="`${IMAGE_PROXY}?w=80&h=80&url=${info.face}`"
         />
       </div>
-      <div class="info" @click="tips">
+      <div class="info" @click="openTips(info)">
         <div class="name">
           <div class="ellipsis-width">{{ info.name }}</div>
         </div>
@@ -43,7 +43,7 @@
 
         <div
           class="setting"
-          @click.prevent="() => (disabled ? '' : setting())"
+          @click.prevent="() => (disabled ? '' : openSetting(info))"
           v-show="!disabled"
           v-vibration="5"
         >
@@ -74,7 +74,7 @@ import { IMAGE_PROXY } from '@/config/proxy';
 import Room from '@/stores/room';
 import { DragType, DragTypeItem } from '@/types/playerNew';
 import injectStrict from '@/utils/injectStrict';
-import { repoProvides } from '@/utils/provides';
+import { menuProvides, repoProvides } from '@/utils/provides';
 import useRoom from '@/hooks/useRoom';
 
 defineOptions({ name: 'MenuItem' });
@@ -88,11 +88,9 @@ const props = defineProps<{
 }>();
 
 const { roomRepo } = injectStrict(repoProvides);
+const { openSetting, openTips } = injectStrict(menuProvides);
 const useroom = useRoom(roomRepo);
 const keyframeState = ref(true);
-
-const setting = () => emit('setting');
-const tips = () => emit('tips', props.info);
 
 const getStyle = computed(() => ({
   filter:
