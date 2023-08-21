@@ -4,10 +4,10 @@ import axios from 'axios';
 
 const defParams = {
   protocol: '0,1',
-  format: '2',
+  format: '1,2',
   codec: '0',
-  qn: 10000,
-  platform: 'h5',
+  qn: 150,
+  platform: 'web',
   ptype: 8,
   room_id: '',
 };
