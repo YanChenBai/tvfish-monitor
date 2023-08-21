@@ -42,7 +42,7 @@
           >
         </ion-item>
 
-        <ion-item>
+        <!-- <ion-item>
           <ion-label>检查通知权限</ion-label>
           <ion-button @click="requestPermissions" v-vibration="5"
             >检查</ion-button
@@ -64,7 +64,7 @@
             placeholder="000"
           ></ion-input>
           ms
-        </ion-item>
+        </ion-item> -->
         <!-- <ion-item>
           <ion-toggle v-model:modelValue="debug" v-vibration="5"
             >调试信息</ion-toggle

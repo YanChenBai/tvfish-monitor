@@ -1,6 +1,12 @@
 <template>
   <Transition name="control">
-    <div v-show="show" class="control-wrap" @mouseleave="closeControl()">
+    <div
+      v-show="show"
+      class="control-wrap"
+      @mouseleave="closeControl()"
+      @click="closeControl()"
+      @touchmove.prevent="closeControl()"
+    >
       <div class="control-wrap-top" ref="topRef">
         <div class="title">
           <div
@@ -122,16 +128,15 @@ import injectStrict from '@/utils/injectStrict';
 
 defineOptions({ name: 'PlayerControl' });
 
+const roomStatusClass = ['close', 'live', 'rec', 'def'];
 const { navState } = storeToRefs(usePlayerStore());
 const player = injectStrict(playerProvides);
 const { playerConfig, liveConfig, clearLiveConfig, update } =
   injectStrict(playerWrapProvides);
 const { playerRepo } = injectStrict(repoProvides);
 
-const roomStatusClass = ['close', 'live', 'rec', 'def'];
-
-const show = ref(false);
-const topRef = ref<HTMLElement>(),
+const show = ref(false),
+  topRef = ref<HTMLElement>(),
   bottomRef = ref<HTMLElement>();
 
 const currentLineName = computed(() => {
@@ -179,12 +184,17 @@ const danmuSwitch = () => {
   });
 };
 
+let time = 0;
 const openControl = () => {
   show.value = true;
   navState.value = true;
+  time = setTimeout(() => closeControl(), 5000);
 };
 
-const closeControl = () => (show.value = false);
+const closeControl = () => {
+  show.value = false;
+  clearTimeout(time);
+};
 
 // 获取关闭控制栏时点击需要排除的地方
 function getIgnore(): Ref<HTMLElement | undefined>[] {

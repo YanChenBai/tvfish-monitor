@@ -6,7 +6,7 @@
       @liveEnd="closeLive"
     ></Danmu>
     <div class="video">
-      <video ref="videoRef" autoplay></video>
+      <video ref="videoRef" autoplay v-show="isShow"></video>
     </div>
     <Control ref="controlRef"></Control>
   </div>
@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { autoRefresh, usePlayer } from '@/hooks/usePlayer';
-import { onMounted, provide, watch } from 'vue';
+import { computed, onMounted, provide, watch } from 'vue';
 import { playerProvides, playerWrapProvides } from '@/utils/provides';
 import Control from './control.vue';
 import injectStrict from '@/utils/injectStrict';
@@ -32,7 +32,11 @@ const player = usePlayer(videoRef, liveConfig);
 const { start, clear } = autoRefresh(videoRef, () => {
   player.refresh();
 });
-
+const isShow = computed(
+  () =>
+    playerConfig.value.room !== null &&
+    playerConfig.value.room.status === RoomStatus.LIVE,
+);
 const { start: liveStart, clear: liveCloseClear } = autoRefresh(
   videoRef,
   update,

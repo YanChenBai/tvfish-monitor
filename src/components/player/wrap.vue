@@ -20,6 +20,7 @@ import {
 import injectStrict from '@/utils/injectStrict';
 import { templateRef } from '@vueuse/core';
 import { updateAttr } from '@/utils/updateAttr';
+import { vibrate } from '@/utils/impact';
 
 defineOptions({ name: 'PlayerWrap' });
 
@@ -69,6 +70,7 @@ const [, drop] = useDrop({
       // 情况原有配置
       clearLiveConfig();
       update();
+      vibrate(15);
     } else if (item.type === DragType.PLAYER_DRAG) {
       // 放置的目标是自己的话排除
       const { roomTypeId, id } = item.playerConfig.value;
@@ -87,6 +89,7 @@ const [, drop] = useDrop({
       const tmp = { ...item.liveConfig };
       updateAttr(item.liveConfig, liveConfig);
       updateAttr(liveConfig, tmp);
+      vibrate(15);
     }
   },
   collect(monitor) {
