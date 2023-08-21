@@ -6,7 +6,7 @@
     <div
       class="layout-item"
       v-for="(item, key) in jointLayouts[layoutIndex]"
-      :key="`${item.x}_${item.y}`"
+      :key="key"
       :style="{
         left: `${size * item.x}%`,
         top: `${size * item.y}%`,

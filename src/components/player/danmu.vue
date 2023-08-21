@@ -63,7 +63,7 @@ import { useDouyuDanmu } from '@/hooks/useDouyuDanmu';
 import VueDanmuKu from 'vue3-danmaku';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
-import { nextTick, onMounted, watch } from 'vue';
+import { onMounted, watch } from 'vue';
 import { templateRef, useDebounceFn, promiseTimeout } from '@vueuse/core';
 import { DanmuMsg, Message, SuperChatMsg } from 'blive-message-listener';
 import { IMAGE_PROXY } from '@/config/proxy';
@@ -106,8 +106,6 @@ function addDnamu(msg: {
 function biliDanmu(id: number) {
   const { close } = startListen(id, {
     onIncomeDanmu: (msg: Message<DanmuMsg>) => {
-      console.log(msg.body);
-
       if (msg.body.emoticon !== undefined) {
         addDnamu({
           content: msg.body,
@@ -180,6 +178,7 @@ function danmuStart() {
   }
 }
 
+// 弹幕开关
 function switchDanmu() {
   if (playerConfig.value.danmu) {
     danmuStart();
