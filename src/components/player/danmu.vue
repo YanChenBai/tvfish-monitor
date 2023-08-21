@@ -63,10 +63,13 @@ import { useDouyuDanmu } from '@/hooks/useDouyuDanmu';
 import VueDanmuKu from 'vue3-danmaku';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, ref, watch } from 'vue';
-import { useDebounceFn } from '@vueuse/core';
+import { nextTick, onMounted, watch } from 'vue';
+import { templateRef, useDebounceFn, promiseTimeout } from '@vueuse/core';
 import { DanmuMsg, Message, SuperChatMsg } from 'blive-message-listener';
 import { IMAGE_PROXY } from '@/config/proxy';
+import injectStrict from '@/utils/injectStrict';
+import { playerWrapProvides } from '@/utils/provides';
+import { getDanmuColoe } from '@/utils/decodeDmV2';
 
 defineOptions({ name: 'PlayerDanmu' });
 
@@ -77,18 +80,12 @@ enum DnamuType {
   EMO_IN_MSG = 3,
 }
 
-const { playerList, playerListConfig, layoutIndex } = storeToRefs(
-  usePlayerStore(),
-);
+const { layoutIndex } = storeToRefs(usePlayerStore());
+const { playerConfig } = injectStrict(playerWrapProvides);
 const emit = defineEmits(['liveStart', 'liveEnd', 'titleChange']);
-const props = defineProps<{
-  playerName: string;
-}>();
-const player = computed(() => playerList.value[props.playerName]);
 
-const playerConfig = computed(() => playerListConfig.value[props.playerName]);
 const danmus: any = [],
-  danmakuRef = ref<InstanceType<typeof VueDanmuKu>>();
+  danmakuRef = templateRef<InstanceType<typeof VueDanmuKu>>('danmakuRef');
 
 // 关闭弹幕
 let connectClose = (): any => ({});
@@ -98,7 +95,6 @@ function addDnamu(msg: {
   type: DnamuType;
   color: string;
 }) {
-  if (danmakuRef.value === undefined) return;
   try {
     danmakuRef.value.insert(msg);
   } catch (error) {
@@ -110,6 +106,8 @@ function addDnamu(msg: {
 function biliDanmu(id: number) {
   const { close } = startListen(id, {
     onIncomeDanmu: (msg: Message<DanmuMsg>) => {
+      console.log(msg.body);
+
       if (msg.body.emoticon !== undefined) {
         addDnamu({
           content: msg.body,
@@ -129,13 +127,13 @@ function biliDanmu(id: number) {
         addDnamu({
           content: msg.body.content,
           type: DnamuType.EMO_IN_MSG,
-          color: msg.body.user.badge ? msg.body.user.badge.color : '#fff',
+          color: getDanmuColoe(msg.raw.dm_v2),
         });
       } else {
         addDnamu({
           content: msg.body.content,
           type: DnamuType.DEF,
-          color: msg.body.user.badge ? msg.body.user.badge.color : '#fff',
+          color: getDanmuColoe(msg.raw.dm_v2),
         });
       }
     },
@@ -170,24 +168,19 @@ function douyuDanmu(id: number) {
 
 // 启动弹幕
 function danmuStart() {
-  if (player.value === null) {
-    return;
-  } else {
-    connectClose();
-    switch (player.value.platform) {
-      case Platform.Bili:
-        biliDanmu(player.value.roomId);
-        break;
-      case Platform.Douyu:
-        douyuDanmu(player.value.roomId);
-        break;
-    }
+  connectClose();
+  if (playerConfig.value.room === null) return;
+  switch (playerConfig.value.room.platform) {
+    case Platform.Bili:
+      biliDanmu(playerConfig.value.room.roomId);
+      break;
+    case Platform.Douyu:
+      douyuDanmu(playerConfig.value.room.roomId);
+      break;
   }
 }
 
 function switchDanmu() {
-  if (danmakuRef.value === undefined) return;
-  danmakuRef.value.resize();
   if (playerConfig.value.danmu) {
     danmuStart();
     danmakuRef.value.play();
@@ -197,6 +190,7 @@ function switchDanmu() {
     danmakuRef.value.stop();
     danmakuRef.value.hide();
   }
+  setTimeout(() => danmakuRef.value?.resize(), 10);
 }
 
 function getScaleSize(h: number, w: number, def = 40) {
@@ -208,26 +202,29 @@ function getScaleSize(h: number, w: number, def = 40) {
 }
 
 /** 弹幕容器宽度重新计算 */
+
+async function resize() {
+  await promiseTimeout(100);
+  try {
+    danmakuRef.value.resize();
+  } catch (err) {
+    err;
+  }
+}
+
 // 1. 布局切换
-watch(layoutIndex, () =>
-  setTimeout(() => (danmakuRef.value ? danmakuRef.value.resize() : ''), 0),
-);
+watch(layoutIndex, () => resize());
 
 // 2. 窗口大小切换
-const debouncedFn = useDebounceFn(() => {
-  setTimeout(() => (danmakuRef.value ? danmakuRef.value.resize() : ''), 0);
-}, 1000);
+const debouncedFn = useDebounceFn(() => resize(), 500);
 
 window.addEventListener('resize', debouncedFn);
 
 // 监听当前窗口的配置更新
-watch(player, () => {
-  if (player.value === null) {
-    connectClose();
-  } else {
-    switchDanmu();
-  }
-});
+watch(
+  () => playerConfig.value.roomTypeId,
+  () => switchDanmu(),
+);
 
 // 监听弹幕状态开启或关闭
 watch(
@@ -238,7 +235,6 @@ watch(
 // 初始化
 onMounted(() => {
   switchDanmu();
-  setTimeout(() => danmakuRef.value?.resize(), 0);
 });
 
 defineExpose({
@@ -247,6 +243,12 @@ defineExpose({
 </script>
 
 <style scoped>
+.danmu-wrap {
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+  position: absolute;
+}
 .sc {
   display: flex;
   padding: 4px;

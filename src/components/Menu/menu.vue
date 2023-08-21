@@ -1,12 +1,7 @@
 <template>
   <Transition name="menu">
     <div class="menu-wrap" ref="menuWrapRef" v-show="menuState">
-      <MenuContent
-        ref="menuContentRef"
-        :disabled="disabled"
-        @setting="openSetting"
-        @tips="openTips"
-      />
+      <MenuContent ref="menuContentRef" :disabled="disabled" />
       <Setting ref="settingRef" />
       <Tips ref="tipsRef" />
       <Btns ref="btnsRef" @goTop="goTop" />
@@ -21,17 +16,20 @@ import Tips from '@/components/Menu/tips.vue';
 import Btns from './btns.vue';
 import { useMenu } from '@/hooks/useMenu';
 import { usePlayerStore } from '@/stores/playerStore';
-import { RoomListItem } from '@/types/player';
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, provide, ref } from 'vue';
+import Room from '@/stores/room';
+import { menuProvides } from '@/utils/provides';
+import { templateRef } from '@vueuse/core';
 
 defineOptions({ name: 'menuCompoent' });
 const { menuState } = storeToRefs(usePlayerStore()),
   menuWrapRef = ref(),
-  settingRef = ref<InstanceType<typeof Setting>>(),
-  tipsRef = ref<InstanceType<typeof Tips>>(),
-  btnsRef = ref<InstanceType<typeof Btns>>(),
-  menuContentRef = ref<InstanceType<typeof MenuContent>>();
+  settingRef = templateRef<InstanceType<typeof Setting>>('settingRef'),
+  tipsRef = templateRef<InstanceType<typeof Tips>>('tipsRef'),
+  btnsRef = templateRef<InstanceType<typeof Btns>>('btnsRef'),
+  menuContentRef =
+    templateRef<InstanceType<typeof MenuContent>>('menuContentRef');
 
 const disabled = computed(() => {
   if (btnsRef.value) {
@@ -41,17 +39,15 @@ const disabled = computed(() => {
   }
 });
 
-function openSetting(room: RoomListItem) {
-  if (settingRef.value) settingRef.value.open(room);
+function openSetting(room: Room) {
+  settingRef.value.open(room);
 }
 
-function openTips(room: RoomListItem) {
-  if (tipsRef.value) tipsRef.value.open(room);
+function openTips(room: Room) {
+  tipsRef.value.open(room);
 }
 
-function goTop() {
-  if (menuContentRef.value) menuContentRef.value.goTop();
-}
+const goTop = () => menuContentRef.value.goTop();
 
 onMounted(() => {
   if (settingRef.value && btnsRef.value)
@@ -61,6 +57,11 @@ onMounted(() => {
       menuWrapRef,
       tipsRef,
     ]);
+});
+
+provide(menuProvides, {
+  openSetting,
+  openTips,
 });
 </script>
 

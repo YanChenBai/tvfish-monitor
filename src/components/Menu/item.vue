@@ -1,5 +1,5 @@
 <template>
-  <div class="item-wrap" :class="{ ['is-top']: isTop }">
+  <div class="item-wrap" :class="{ ['is-top']: info.isTop }">
     <div class="item-box" :style="getStyle">
       <div class="face" @click="update">
         <img
@@ -7,7 +7,7 @@
           :src="`${IMAGE_PROXY}?w=80&h=80&url=${info.face}`"
         />
       </div>
-      <div class="info" @click="tips">
+      <div class="info" @click="openTips(info)">
         <div class="name">
           <div class="ellipsis-width">{{ info.name }}</div>
         </div>
@@ -43,7 +43,7 @@
 
         <div
           class="setting"
-          @click.prevent="() => (disabled ? '' : setting())"
+          @click.prevent="() => (disabled ? '' : openSetting(info))"
           v-show="!disabled"
           v-vibration="5"
         >
@@ -65,40 +65,32 @@
 import { IonIcon } from '@ionic/vue';
 import { moveOutline, settingsOutline } from 'ionicons/icons';
 import { usePlayerStore } from '@/stores/playerStore';
-import { DropType } from '@/types/drop';
 import { useDrag, DragPreviewImage } from 'vue3-dnd';
 import { computed, ref } from 'vue';
-import { RoomListItem, RoomStatus } from '@/types/player';
+import { RoomStatus } from '@/types/player';
 import { impactHeavy, vibrate } from '@/utils/impact';
 import { roomStatusClass } from '@/config/status';
-import useRoomList from '@/hooks/useRoomList';
-import useTopRoom from '@/hooks/useTopRoom';
 import { IMAGE_PROXY } from '@/config/proxy';
+import Room from '@/stores/room';
+import { DragType, DragTypeItem } from '@/types/playerNew';
+import injectStrict from '@/utils/injectStrict';
+import { menuProvides, repoProvides } from '@/utils/provides';
+import useRoom from '@/hooks/useRoom';
 
 defineOptions({ name: 'MenuItem' });
 
 const playerStore = usePlayerStore();
-const roomList = useRoomList();
-const topRoom = useTopRoom();
 const emit = defineEmits(['drag', 'setting', 'tips']);
 
 const props = defineProps<{
-  info: RoomListItem;
+  info: Room;
   disabled: boolean;
 }>();
 
+const { roomRepo } = injectStrict(repoProvides);
+const { openSetting, openTips } = injectStrict(menuProvides);
+const useroom = useRoom(roomRepo);
 const keyframeState = ref(true);
-
-const setting = () => emit('setting');
-const tips = () => emit('tips', props.info);
-
-const isTop = computed(
-  () =>
-    topRoom.queryOneIndex({
-      roomId: props.info.roomId,
-      platform: props.info.platform,
-    }) !== -1,
-);
 
 const getStyle = computed(() => ({
   filter:
@@ -107,18 +99,18 @@ const getStyle = computed(() => ({
 
 function update() {
   vibrate(15);
-  roomList.update(props.info.roomId, props.info.platform);
+  useroom.update(props.info.roomId, props.info.platform);
 }
 
 // 用于防止拖拽多次触发
 let dragLock = true;
 // 创建拖拽
 const [, drag, preview] = useDrag({
-  type: DropType.MenuItem,
+  type: DragType.CARD_DRAG,
   item: {
-    type: DropType.MenuItem,
-    info: props.info,
-  },
+    type: DragType.CARD_DRAG,
+    roomTypeId: props.info.roomTypeId,
+  } as DragTypeItem,
   collect: (monitor) => {
     playerStore.menuItemIsDragging = monitor.isDragging();
     if (monitor.isDragging()) {

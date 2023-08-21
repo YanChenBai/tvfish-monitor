@@ -6,20 +6,20 @@
       color="primary"
       placeholder="搜索主播"
       :clear-input="true"
-      v-model:modelValue="keyword"
+      v-model:modelValue="keywordDebounced"
     ></ion-input>
   </div>
 
   <!-- 直播间列表 -->
   <div class="menu-content hide-scrollbar" ref="menuContentRef">
-    <div v-for="item in showList" class="menu-content-item">
+    <div v-for="item in list" class="menu-content-item">
       <MenuItem
         :key="`${item.platform}@${item.roomId}`"
         :disabled="disabled"
         :info="item"
         @drag="() => (playerStore.menuState = false)"
-        @setting="$emit('setting', item)"
-        @tips="$emit('tips', item)"
+        @setting="openSetting(item)"
+        @tips="openTips(item)"
       ></MenuItem>
     </div>
   </div>
@@ -29,53 +29,142 @@
 import { IonInput } from '@ionic/vue';
 import { usePlayerStore } from '@/stores/playerStore';
 import MenuItem from '@/components/Menu/item.vue';
-import { RoomListItem } from '@/types/player';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useScroll, watchDebounced } from '@vueuse/core';
 import { vibrate } from '@/utils/impact';
-import StoreQuery from '@/utils/storeQuey';
+import injectStrict from '@/utils/injectStrict';
+import { menuProvides, repoProvides } from '@/utils/provides';
+import { Platform, RoomStatus } from '@/types/player';
+import RoomStore from '@/stores/room';
 
 defineOptions({ name: 'menuContent' });
-
-defineEmits<{
-  (e: 'setting', item: RoomListItem): void;
-  (e: 'tips', item: RoomListItem): void;
-}>();
 defineProps<{
   disabled: boolean;
 }>();
-
+const { roomRepo } = injectStrict(repoProvides);
+const { openSetting, openTips } = injectStrict(menuProvides);
 const playerStore = usePlayerStore();
-const pinyinListCurd = new StoreQuery(playerStore.pinyinList);
-const showList = ref<RoomListItem[]>(playerStore.roomList),
-  keyword = ref(),
+const keywordDebounced = ref(),
+  keyword = ref(''),
   menuContentRef = ref(),
   { arrivedState } = useScroll(menuContentRef);
 
-function updateShowList() {
-  showList.value = playerStore.roomList.filter((item) => {
-    const findName = item.name.search(keyword.value) !== -1;
-    const findTags = item.tags ? item.tags.search(keyword.value) !== -1 : false;
-    const pinyin = pinyinListCurd.queryOne({
-      roomId: item.roomId,
-      platform: item.platform,
-    });
-    const findPinYin = pinyin
-      ? pinyin.value.findIndex((item) => item.search(keyword.value) !== -1) !==
-        -1
-      : false;
-    return findName || findTags || findPinYin;
-  });
+function searchPlatform(str: string, platform: Platform) {
+  // 筛选平台
+  switch (str) {
+    case 'b站':
+    case '哔哩哔哩':
+    case '哔哩':
+    case 'bl':
+    case 'bili':
+    case 'bilibili':
+      return platform === Platform.Bili;
+    case '斗鱼':
+    case 'douyu':
+    case 'dy':
+      return platform === Platform.Douyu;
+    default:
+      return undefined;
+  }
 }
 
-// 搜索节流
-watchDebounced(keyword, () => updateShowList(), {
-  debounce: 100,
-  maxWait: 1000,
-});
+function searchStatus(str: string, status: RoomStatus) {
+  // 筛选直播状态
+  switch (str) {
+    case 'live':
+    case '直播':
+    case '上班':
+      return status === RoomStatus.LIVE;
+    case 'close':
+    case '下播':
+    case '下班':
+      return status === RoomStatus.CLOSE;
+    case 'rec':
+    case '轮播':
+    case '录像':
+      return status === RoomStatus.REC;
+    default:
+      return undefined;
+  }
+}
 
-// 列表改变的话更新显示的内容
-watch(playerStore.roomList, () => updateShowList());
+const list = computed(() => {
+  let data = roomRepo.orderBy('isTop', 'desc').get();
+
+  try {
+    data = data.filter((item: RoomStore) => {
+      const keys = keyword.value.toLocaleLowerCase().split(' ');
+      // 单条件
+      if (keys.length === 1) {
+        const sp = searchPlatform(keys[0], item.platform);
+        if (sp !== undefined) return sp;
+        const ss = searchStatus(keys[0], item.status);
+        if (ss !== undefined) return ss;
+      } else if (keys.length === 2) {
+        // 算条件筛选
+        const sp = searchPlatform(keys[0], item.platform);
+        const ss = searchStatus(keys[1], item.status);
+        if (sp !== undefined && ss !== undefined) return sp && ss;
+      }
+
+      const status: boolean[] = [];
+      // 标签拼音和缩写
+      status.push(
+        item.tagsPinyin.find(
+          (item: string) => item.search(keyword.value) !== -1,
+        ) !== undefined,
+      );
+
+      // 名字拼音和缩写
+      status.push(
+        item.namePinyin.find(
+          (item: string) => item.search(keyword.value) !== -1,
+        ) !== undefined,
+      );
+
+      // 主播名字
+      status.push(
+        item.name
+          .toLocaleLowerCase()
+          .search(keyword.value.toLocaleLowerCase()) !== -1,
+      );
+
+      // 标签
+      status.push(
+        item.tags
+          .toLocaleLowerCase()
+          .search(keyword.value.toLocaleLowerCase()) !== -1,
+      );
+
+      // 房间标题
+      status.push(
+        item.title
+          .toLocaleLowerCase()
+          .search(keyword.value.toLocaleLowerCase()) !== -1,
+      );
+
+      // 公告
+      status.push(
+        item.news
+          .toLocaleLowerCase()
+          .search(keyword.value.toLocaleLowerCase()) !== -1,
+      );
+      // 真实房间号
+      status.push(item.roomId.toString() === keyword.value);
+
+      // 房间短号
+      status.push(
+        item.shortId === 0 ? false : item.shortId.toString() === keyword.value,
+      );
+
+      return status.indexOf(true) !== -1;
+    });
+  } catch (error) {
+    return data;
+  }
+
+  return data;
+});
 
 // 返回顶部
 function goTop() {
@@ -85,13 +174,21 @@ function goTop() {
   });
 }
 
+watchDebounced(
+  keywordDebounced,
+  (val) => {
+    keyword.value = val;
+  },
+  { debounce: 100, maxWait: 1000 },
+);
+
 // 监听滚动条到底部或者顶部
 watch(arrivedState, (val) => {
   if (val.top || val.bottom) vibrate(10);
 });
 
 defineExpose({
-  showList,
+  list,
   goTop,
 });
 </script>

@@ -24,15 +24,6 @@
       </div>
     </ion-button>
 
-    <!-- 整理顺序 -->
-    <ion-button
-      :disabled="loading.update || loading.input || loading.add"
-      @click="sortList"
-      v-vibration="5"
-    >
-      <ion-icon :icon="swapVerticalOutline"></ion-icon>
-    </ion-button>
-
     <!-- 直播间列表返回顶部 -->
     <ion-button @click="$emit('goTop')" v-vibration="5">
       <ion-icon :icon="arrowUpOutline"></ion-icon>
@@ -95,6 +86,7 @@
             :disabled="loading.input"
           ></ion-input>
         </ion-item>
+
         <ion-button
           style="margin-top: 10px; width: 100%"
           @click="inputData"
@@ -113,16 +105,18 @@
           @click="inputDefData"
           v-vibration="5"
           :disabled="loading.input || loading.add"
-          >导入默认数据</ion-button
         >
+          导入默认数据
+        </ion-button>
 
         <ion-button
           style="margin-top: 10px; width: 100%"
           @click="exportJson"
           v-vibration="5"
           :disabled="loading.input"
-          >导出</ion-button
         >
+          导出
+        </ion-button>
       </div>
     </ion-content>
   </ion-modal>
@@ -145,48 +139,41 @@ import {
   IonRadio,
   IonRadioGroup,
 } from '@ionic/vue';
-import {
-  personAddOutline,
-  swapVerticalOutline,
-  arrowUpOutline,
-  refresh,
-} from 'ionicons/icons';
+import { personAddOutline, arrowUpOutline, refresh } from 'ionicons/icons';
 import '@/theme/hideScrollbar.css';
-import { sortList } from '@/hooks/useMenu';
 import { computed, reactive, ref } from 'vue';
 import { vibrate } from '@/utils/impact';
 import { Platform } from '@/types/player';
-import { usePlayerStore } from '@/stores/playerStore';
 import defRoomList from '@/config/roomList';
 import { Clipboard } from '@capacitor/clipboard';
 import { message } from '@/utils/message';
-import useRoomList from '@/hooks/useRoomList';
+import useRoom from '@/hooks/useRoom';
+import { repoProvides } from '@/utils/provides';
+import injectStrict from '@/utils/injectStrict';
 
 defineOptions({ name: 'MenuBtns' });
 
 defineEmits<{
   (e: 'goTop'): void;
 }>();
-const playerStore = usePlayerStore();
-const menuModalRef = ref<InstanceType<typeof IonModal>>();
-const data = reactive<{
-  roomId: number | undefined;
-  type: Platform;
-}>({
-  roomId: undefined,
-  type: Platform.Bili,
-});
-const loading = reactive({
-  update: false,
-  add: false,
-  input: false,
-});
-const jsonData = ref(''),
-  inputMsg = ref(''),
-  updateMsg = ref('');
-const num = computed(() => playerStore.roomList.length);
 
-const roomList = useRoomList();
+const menuModalRef = ref<InstanceType<typeof IonModal>>();
+const { roomRepo } = injectStrict(repoProvides);
+const useroom = useRoom(roomRepo);
+
+const data = reactive({
+    roomId: undefined,
+    type: Platform.Bili,
+  }),
+  loading = reactive({
+    update: false,
+    add: false,
+    input: false,
+  }),
+  jsonData = ref(''),
+  inputMsg = ref(''),
+  updateMsg = ref(''),
+  num = computed(() => roomRepo.all().length);
 
 function close() {
   if (menuModalRef.value) menuModalRef.value.$el.dismiss(null, 'cancel');
@@ -200,9 +187,7 @@ async function add() {
     if (data.roomId === undefined) throw new Error('roomId为空');
     const type = data.type;
     const roomId = data.roomId;
-
-    await roomList.add(roomId, type);
-    sortList();
+    await useroom.add(roomId, type);
   } catch (error) {
     console.log(error);
     await message('更新失败!');
@@ -213,24 +198,15 @@ async function add() {
 // 更新全部
 async function updateAll() {
   loading.update = true;
-  const count = playerStore.roomList.length;
+  const all = roomRepo.all();
+  const count = all.length;
   let now = 0;
   updateMsg.value = `${now} / ${count}`;
-  for (let index = 0; index < count; index++) {
-    try {
-      await roomList.update(
-        playerStore.roomList[index].roomId,
-        playerStore.roomList[index].platform,
-        false,
-      );
-      now++;
-    } catch (error) {
-      now++;
-    }
-    updateMsg.value = `${now} / ${count}`;
+  for (const item of all) {
+    await useroom.update(item.roomId, item.platform, false);
+    updateMsg.value = `${now++} / ${count}`;
   }
   await message('更新完成!');
-  sortList();
   loading.update = false;
 }
 
@@ -249,12 +225,12 @@ async function inputData() {
     let now = 0;
     inputMsg.value = `0 / ${count}`;
     for (const roomId of list[Platform.Bili]) {
-      await roomList.add(roomId, Platform.Bili, false);
+      await useroom.add(roomId, Platform.Bili, false);
       inputMsg.value = `${now++} / ${count}`;
     }
 
     for (const roomId of list[Platform.Douyu]) {
-      await roomList.add(roomId, Platform.Douyu, false);
+      await useroom.add(roomId, Platform.Douyu, false);
       inputMsg.value = `${now++} / ${count}`;
     }
 
@@ -269,15 +245,17 @@ async function inputData() {
 
 // 导出数据
 async function exportJson() {
-  const biliList = playerStore.roomList.filter(
-    (item) => item.platform === Platform.Bili,
-  );
-  const douyuList = playerStore.roomList.filter(
-    (item) => item.platform === Platform.Douyu,
-  );
+  const biliList = roomRepo
+    .where('platform', Platform.Bili)
+    .get()
+    .map((item) => item.roomId);
+  const douyuList = roomRepo
+    .where('platform', Platform.Douyu)
+    .get()
+    .map((item) => item.roomId);
   const list = {
-    [Platform.Bili]: biliList.map((item) => item.roomId),
-    [Platform.Douyu]: douyuList.map((item) => item.roomId),
+    [Platform.Bili]: biliList,
+    [Platform.Douyu]: douyuList,
   };
   await Clipboard.write({
     string: JSON.stringify(list),
@@ -289,7 +267,6 @@ async function exportJson() {
 async function inputDefData() {
   jsonData.value = defRoomList;
   await inputData();
-  sortList();
 }
 
 defineExpose({

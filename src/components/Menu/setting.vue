@@ -15,103 +15,78 @@
     :is-open="removeIsopen"
     header="确认"
     sub-header="确认删除"
-    :message="currentSelectRoom === null ? '' : `${currentSelectRoom.name}`"
+    :message="
+      selectRoom
+        ? `${selectRoom.platform === Platform.Bili ? 'b站' : '斗鱼'}/${
+            selectRoom.roomId
+          }/${selectRoom.name}`
+        : ''
+    "
     :buttons="alertButtons"
     @didDismiss="() => (removeIsopen = false)"
   ></ion-alert>
 </template>
 
 <script setup lang="ts">
-import { RoomListItem } from '@/types/player';
 import { vibrate } from '@/utils/impact';
 import { ActionSheetButton, IonActionSheet, IonAlert } from '@ionic/vue';
 import { computed, ref } from 'vue';
-import { sortList } from '@/hooks/useMenu';
-import useRoomList from '@/hooks/useRoomList';
-import useTopRoom from '@/hooks/useTopRoom';
+import RoomStore from '@/stores/room';
+import injectStrict from '@/utils/injectStrict';
+import { repoProvides } from '@/utils/provides';
+import { Platform } from '@/types/player';
+import useRoom from '@/hooks/useRoom';
 
 defineOptions({ name: 'MenuSetting' });
 
-const topRoom = useTopRoom();
-const roomList = useRoomList();
+const { roomRepo } = injectStrict(repoProvides);
+const useroom = useRoom(roomRepo);
 
 const actionSheetRef = ref(),
   actionSheetIsOpen = ref(false),
   removeAlertRef = ref(),
   removeIsopen = ref(false),
-  currentSelectRoom = ref<RoomListItem | null>(null);
-
-const getInfo = () => {
-  if (currentSelectRoom.value) {
-    return {
-      roomId: currentSelectRoom.value.roomId,
-      platform: currentSelectRoom.value.platform,
-    };
-  } else {
-    return null;
-  }
-};
+  selectRoom = ref<RoomStore>();
 
 // 处理
-function handler(type: boolean) {
+function handler(status: boolean) {
   vibrate(5);
-  const room = getInfo();
-  if (room) {
-    if (type) {
-      topRoom.create(room);
-    } else {
-      topRoom.remove(room);
-    }
-    sortList();
+  if (selectRoom.value) {
+    roomRepo
+      .where('roomTypeId', selectRoom.value.roomTypeId)
+      .update({ isTop: status });
   }
 }
 
-// 按钮回调
+// 设置按钮回调
 const actionSheetButtons = computed(() => {
-  const room = getInfo();
-  const defBtns: ActionSheetButton[] = [
-    {
-      text: '删除',
-      role: 'delete',
-      cssClass: 'del',
-      handler: () => {
-        vibrate(5);
-        removeIsopen.value = true;
+  if (selectRoom.value === undefined) return [];
+  else {
+    return [
+      {
+        text: selectRoom.value.isTop ? '取消置顶' : '置顶',
+        role: selectRoom.value.isTop ? 'cancelTop' : 'top',
+        handler: () => handler(!selectRoom.value!.isTop),
       },
-    },
-    {
-      text: '取消',
-      role: 'cancel',
-      handler: () => vibrate(5),
-    },
-  ];
-
-  if (room) {
-    const isTop = topRoom.queryOne({
-      roomId: room.roomId,
-      platform: room.platform,
-    });
-    if (isTop === null) {
-      defBtns.unshift({
-        text: '置顶',
-        role: 'top',
-        handler: () => handler(true),
-      });
-      return defBtns;
-    } else {
-      defBtns.unshift({
-        text: '取消置顶',
-        role: 'cancelTop',
-        handler: () => handler(false),
-      });
-      return defBtns;
-    }
-  } else {
-    return defBtns;
+      {
+        text: '删除',
+        role: 'delete',
+        cssClass: 'del',
+        handler: () => {
+          vibrate(5);
+          removeIsopen.value = true;
+        },
+      },
+      {
+        text: '取消',
+        role: 'cancel',
+        handler: () => vibrate(5),
+      },
+    ] as ActionSheetButton[];
   }
 });
 
-// 按钮回调
+// 删除按钮回调
 const alertButtons = [
   {
     text: '取消',
@@ -122,15 +97,15 @@ const alertButtons = [
     role: 'confirm',
     handler() {
       vibrate(5);
-      const room = getInfo();
-      if (room) roomList.remove(room.roomId, room.platform);
+      if (selectRoom.value)
+        useroom.remove(selectRoom.value.roomId, selectRoom.value.platform);
     },
   },
 ];
 
-function open(room: RoomListItem) {
+function open(room: RoomStore) {
   actionSheetIsOpen.value = true;
-  currentSelectRoom.value = room;
+  selectRoom.value = room;
 }
 
 defineExpose({
