@@ -35,6 +35,8 @@ import { vibrate } from '@/utils/impact';
 import injectStrict from '@/utils/injectStrict';
 import { menuProvides, repoProvides } from '@/utils/provides';
 import { Platform, RoomStatus } from '@/types/player';
+import RoomStore from '@/stores/room';
+import { key } from 'ionicons/icons';
 
 defineOptions({ name: 'menuContent' });
 defineProps<{
@@ -48,54 +50,77 @@ const keywordDebounced = ref(),
   menuContentRef = ref(),
   { arrivedState } = useScroll(menuContentRef);
 
+function searchPlatform(str: string, platform: Platform) {
+  // 筛选平台
+  switch (str) {
+    case 'b站':
+    case '哔哩哔哩':
+    case '哔哩':
+    case 'bl':
+    case 'bili':
+    case 'bilibili':
+      return platform === Platform.Bili;
+    case '斗鱼':
+    case 'douyu':
+    case 'dy':
+      return platform === Platform.Douyu;
+    default:
+      return undefined;
+  }
+}
+
+function searchStatus(str: string, status: RoomStatus) {
+  // 筛选直播状态
+  switch (str) {
+    case 'live':
+    case '直播':
+    case '上班':
+      return status === RoomStatus.LIVE;
+    case 'close':
+    case '下播':
+    case '下班':
+      return status === RoomStatus.CLOSE;
+    case 'rec':
+    case '轮播':
+    case '录像':
+      return status === RoomStatus.REC;
+    default:
+      return undefined;
+  }
+}
+
 const list = computed(() => {
   let data = roomRepo.orderBy('isTop', 'desc').get();
 
   try {
-    data = data.filter((item) => {
-      // 直接筛选平台
-      switch (keyword.value.toLocaleLowerCase()) {
-        case 'b站':
-        case '哔哩哔哩':
-        case '哔哩':
-        case 'bl':
-        case 'bili':
-        case 'bilibili':
-          return item.platform === Platform.Bili;
-        case '斗鱼':
-        case 'douyu':
-        case 'dy':
-          return item.platform === Platform.Douyu;
+    data = data.filter((item: RoomStore) => {
+      const keys = keyword.value.toLocaleLowerCase().split(' ');
+      // 单条件
+      if (keys.length === 1) {
+        const sp = searchPlatform(keys[0], item.platform);
+        if (sp !== undefined) return sp;
+        const ss = searchStatus(keys[0], item.status);
+        if (ss !== undefined) return ss;
+      } else if (keys.length === 2) {
+        // 算条件筛选
+        const sp = searchPlatform(keys[0], item.platform);
+        const ss = searchStatus(keys[1], item.status);
+        if (sp !== undefined && ss !== undefined) return sp && ss;
       }
 
-      // 直接筛选直播状态
-      switch (keyword.value.toLocaleLowerCase()) {
-        case 'live':
-        case '直播':
-        case '上班':
-          return item.status === RoomStatus.LIVE;
-        case 'close':
-        case '下播':
-        case '下班':
-          return item.status === RoomStatus.CLOSE;
-        case 'loop':
-        case '轮播':
-        case '录像':
-          return item.status === RoomStatus.REC;
-      }
-
-      const status = [];
-
+      const status: boolean[] = [];
       // 标签拼音和缩写
       status.push(
-        item.tagsPinyin.find((item) => item.search(keyword.value) !== -1) !==
-          undefined,
+        item.tagsPinyin.find(
+          (item: string) => item.search(keyword.value) !== -1,
+        ) !== undefined,
       );
 
       // 名字拼音和缩写
       status.push(
-        item.namePinyin.find((item) => item.search(keyword.value) !== -1) !==
-          undefined,
+        item.namePinyin.find(
+          (item: string) => item.search(keyword.value) !== -1,
+        ) !== undefined,
       );
 
       // 主播名字
@@ -155,7 +180,7 @@ watchDebounced(
   (val) => {
     keyword.value = val;
   },
-  { debounce: 400, maxWait: 1000 },
+  { debounce: 100, maxWait: 1000 },
 );
 
 // 监听滚动条到底部或者顶部

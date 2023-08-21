@@ -154,7 +154,6 @@ router.get('/img', async function name(req, res) {
 });
 
 async function isExist(path: string) {
-  console.log(path);
   try {
     return await fs.promises.stat(path);
   } catch (error) {

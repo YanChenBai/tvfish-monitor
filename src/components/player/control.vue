@@ -110,7 +110,7 @@ import { storeToRefs } from 'pinia';
 import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
-import { refresh as refreshIcon, volumeHigh, close } from 'ionicons/icons';
+import { refresh as refreshIcon, volumeHigh, close, key } from 'ionicons/icons';
 import { Ref, computed, ref } from 'vue';
 import { QualityType, LineType } from '@/types/playerNew';
 import {
