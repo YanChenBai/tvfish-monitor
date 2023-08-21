@@ -3,7 +3,7 @@
     <Danmu
       @click="openControl"
       @liveStart="liveStart"
-      @liveEnd="liveStart"
+      @liveEnd="closeLive"
     ></Danmu>
     <div class="video">
       <video ref="videoRef" autoplay></video>
@@ -33,7 +33,16 @@ const { start, clear } = autoRefresh(videoRef, () => {
   player.refresh();
 });
 
-const { start: liveStart } = autoRefresh(videoRef, update);
+const { start: liveStart, clear: liveCloseClear } = autoRefresh(
+  videoRef,
+  update,
+);
+function closeLive() {
+  clear();
+  liveCloseClear();
+  update();
+  player.destroy();
+}
 
 // 初始化
 onMounted(() => {

@@ -63,8 +63,8 @@ import { useDouyuDanmu } from '@/hooks/useDouyuDanmu';
 import VueDanmuKu from 'vue3-danmaku';
 import { usePlayerStore } from '@/stores/playerStore';
 import { storeToRefs } from 'pinia';
-import { onMounted, watch } from 'vue';
-import { templateRef, useDebounceFn } from '@vueuse/core';
+import { nextTick, onMounted, watch } from 'vue';
+import { templateRef, useDebounceFn, promiseTimeout } from '@vueuse/core';
 import { DanmuMsg, Message, SuperChatMsg } from 'blive-message-listener';
 import { IMAGE_PROXY } from '@/config/proxy';
 import injectStrict from '@/utils/injectStrict';
@@ -202,13 +202,21 @@ function getScaleSize(h: number, w: number, def = 40) {
 }
 
 /** 弹幕容器宽度重新计算 */
+
+async function resize() {
+  await promiseTimeout(100);
+  try {
+    danmakuRef.value.resize();
+  } catch (err) {
+    err;
+  }
+}
+
 // 1. 布局切换
-watch(layoutIndex, () => setTimeout(() => danmakuRef.value.resize(), 0));
+watch(layoutIndex, () => resize());
 
 // 2. 窗口大小切换
-const debouncedFn = useDebounceFn(() => {
-  setTimeout(() => danmakuRef.value.resize(), 0);
-}, 1000);
+const debouncedFn = useDebounceFn(() => resize(), 500);
 
 window.addEventListener('resize', debouncedFn);
 
