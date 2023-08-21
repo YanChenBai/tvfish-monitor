@@ -36,7 +36,6 @@ import injectStrict from '@/utils/injectStrict';
 import { menuProvides, repoProvides } from '@/utils/provides';
 import { Platform, RoomStatus } from '@/types/player';
 import RoomStore from '@/stores/room';
-import { key } from 'ionicons/icons';
 
 defineOptions({ name: 'menuContent' });
 defineProps<{

@@ -3,12 +3,14 @@ import { getUserInfo } from './info';
 import axios from 'axios';
 
 const defParams = {
-  protocol: '0,1',
+  protocol: '1',
   format: '1,2',
   codec: '0',
   qn: 150,
   platform: 'web',
   ptype: 8,
+  dolby: 5,
+  panorama: 1,
   room_id: '',
 };
 

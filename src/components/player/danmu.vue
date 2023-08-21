@@ -69,6 +69,7 @@ import { DanmuMsg, Message, SuperChatMsg } from 'blive-message-listener';
 import { IMAGE_PROXY } from '@/config/proxy';
 import injectStrict from '@/utils/injectStrict';
 import { playerWrapProvides } from '@/utils/provides';
+import { getDanmuColoe } from '@/utils/decodeDmV2';
 
 defineOptions({ name: 'PlayerDanmu' });
 
@@ -105,6 +106,8 @@ function addDnamu(msg: {
 function biliDanmu(id: number) {
   const { close } = startListen(id, {
     onIncomeDanmu: (msg: Message<DanmuMsg>) => {
+      console.log(msg.body);
+
       if (msg.body.emoticon !== undefined) {
         addDnamu({
           content: msg.body,
@@ -124,13 +127,13 @@ function biliDanmu(id: number) {
         addDnamu({
           content: msg.body.content,
           type: DnamuType.EMO_IN_MSG,
-          color: msg.body.user.badge ? msg.body.user.badge.color : '#fff',
+          color: getDanmuColoe(msg.raw.dm_v2),
         });
       } else {
         addDnamu({
           content: msg.body.content,
           type: DnamuType.DEF,
-          color: msg.body.user.badge ? msg.body.user.badge.color : '#fff',
+          color: getDanmuColoe(msg.raw.dm_v2),
         });
       }
     },

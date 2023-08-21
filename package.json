@@ -62,7 +62,8 @@
     "vue": "^3.2.45",
     "vue-router": "^4.1.6",
     "vue3-danmaku": "^1.4.0",
-    "vue3-dnd": "^2.0.2"
+    "vue3-dnd": "^2.0.2",
+    "protobufjs": "^7.2.4"
   },
   "devDependencies": {
     "@capacitor/cli": "5.1.1",

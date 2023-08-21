@@ -38,12 +38,6 @@ function initFlv(el: HTMLMediaElement, url: string) {
 function initHls(el: HTMLMediaElement, url: string) {
   const player = new Hls({
     debug: false,
-    manifestLoadingMaxRetry: 10,
-    levelLoadingMaxRetry: 10,
-    fragLoadingMaxRetry: 10,
-    manifestLoadingMaxRetryTimeout: 6000,
-    levelLoadingMaxRetryTimeout: 4000,
-    nudgeMaxRetry: 5,
   });
   player.attachMedia(el);
   player.loadSource(url);
@@ -106,7 +100,7 @@ export function autoRefresh(
   const tryRefresh = async () => {
     inc();
     refresh();
-    if (count.value >= 10) {
+    if (count.value >= 12) {
       pause();
       reset();
     }
@@ -122,7 +116,7 @@ export function autoRefresh(
     pause();
     timer = setTimeout(() => {
       resume();
-    }, 500);
+    }, 5000);
   }
 
   const start = () => {
