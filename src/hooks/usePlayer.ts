@@ -74,6 +74,22 @@ export function usePlayer(
         config.url,
       );
       player.destroy = () => flvDestroy();
+      let lastDecodedFrame = 0;
+      flvPlayer.on('statistics_info', function (res) {
+        if (lastDecodedFrame == 0) {
+          lastDecodedFrame = res.decodedFrames;
+          return;
+        }
+        if (lastDecodedFrame != res.decodedFrames) {
+          lastDecodedFrame = res.decodedFrames;
+        } else {
+          lastDecodedFrame = 0;
+          if (flvPlayer) {
+            const { destroy: flvDestroy } = initFlv(video.value, config.url);
+            player.destroy = () => flvDestroy();
+          }
+        }
+      });
     }
     if (config.type === ConfigType.Hls) {
       const { destroy: hlsDestroy, player: hlsPlayer } = initHls(

@@ -15,6 +15,7 @@ import type { FitEnum, ResizeOptions } from 'sharp';
 const sharp = require('sharp');
 
 const MODE = process.env.VITE_MODE;
+const isDev = MODE === 'ELECTRON_DEV';
 const cachePath =
   MODE === 'ELECTRON_DEV'
     ? path.resolve(__dirname, './cache')
@@ -141,11 +142,11 @@ router.get('/img', async function name(req, res) {
 
   try {
     const cachedImage = await fs.readFileSync(cacheFilePath);
-    console.log(`cached      [ac=${autoClear}]: `, findname);
+    isDev ? console.log(`cached      [ac=${autoClear}]: `, findname) : '';
     res.setHeader('Content-Type', 'image/png');
     return res.end(cachedImage);
   } catch (error) {
-    console.log(`cached miss [ac=${autoClear}]: `, url, findname);
+    isDev ? console.log(`cached miss [ac=${autoClear}]: `, url, findname) : '';
     const buffer = await getImage(url, cacheFilePath, resize);
     // 返回远程图片
     res.setHeader('Content-Type', ' image/png');
@@ -170,7 +171,7 @@ async function startAutoClear(interval = 1000 * 60 * 60) {
       const stats = fs.statSync(filePath);
       if (stats.isFile()) {
         fs.unlinkSync(filePath);
-        console.log(`clear cache file: ${file}`);
+        isDev ? console.log(`clear cache file: ${file}`) : '';
       }
     });
   }, interval);
