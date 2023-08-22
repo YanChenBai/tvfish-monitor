@@ -1,21 +1,23 @@
-import {
-  LiveConfig,
-  PlayerOrgin,
-  ConfigType,
-  UsePlayer,
-} from '@/types/playerNew';
-import { promiseTimeout, useTimeoutPoll, useCounter } from '@vueuse/core';
-import DPlayer from 'dplayer';
+import { LiveConfig, ConfigType, UsePlayer } from '@/types/playerNew';
+import { useTimeoutPoll, useCounter } from '@vueuse/core';
 import FlvJs from 'flv.js';
 import Hls from 'hls.js';
-import { Ref, onMounted, reactive, ref, watch } from 'vue';
+import { Ref, reactive } from 'vue';
 
 function initFlv(el: HTMLMediaElement, url: string) {
-  const player: FlvJs.Player = FlvJs.createPlayer({
-    isLive: true,
-    type: 'flv',
-    url,
-  });
+  const player: FlvJs.Player = FlvJs.createPlayer(
+    {
+      type: 'flv',
+      isLive: true,
+      url,
+    },
+    {
+      enableStashBuffer: false,
+      enableWorker: false,
+      autoCleanupSourceBuffer: true,
+      fixAudioTimestampGap: false,
+    },
+  );
   player.attachMediaElement(el);
   player.load();
   player.play();
