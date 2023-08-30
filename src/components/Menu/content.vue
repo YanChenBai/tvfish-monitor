@@ -27,15 +27,15 @@
 
 <script setup lang="ts">
 import { IonInput } from '@ionic/vue';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import MenuItem from '@/components/Menu/item.vue';
 import { computed, ref, watch } from 'vue';
 import { useScroll, watchDebounced } from '@vueuse/core';
 import { vibrate } from '@/utils/impact';
 import injectStrict from '@/utils/injectStrict';
 import { menuProvides, repoProvides } from '@/utils/provides';
-import { Platform, RoomStatus } from '@/types/player';
 import RoomStore from '@/stores/room';
+import { useSearch } from '@/hooks/useSearch';
 
 defineOptions({ name: 'menuContent' });
 defineProps<{
@@ -49,120 +49,14 @@ const keywordDebounced = ref(),
   menuContentRef = ref(),
   { arrivedState } = useScroll(menuContentRef);
 
-function searchPlatform(str: string, platform: Platform) {
-  // 筛选平台
-  switch (str) {
-    case 'b站':
-    case '哔哩哔哩':
-    case '哔哩':
-    case 'bl':
-    case 'bili':
-    case 'bilibili':
-      return platform === Platform.Bili;
-    case '斗鱼':
-    case 'douyu':
-    case 'dy':
-      return platform === Platform.Douyu;
-    default:
-      return undefined;
-  }
-}
-
-function searchStatus(str: string, status: RoomStatus) {
-  // 筛选直播状态
-  switch (str) {
-    case 'live':
-    case '直播':
-    case '上班':
-      return status === RoomStatus.LIVE;
-    case 'close':
-    case '下播':
-    case '下班':
-      return status === RoomStatus.CLOSE;
-    case 'rec':
-    case '轮播':
-    case '录像':
-      return status === RoomStatus.REC;
-    default:
-      return undefined;
-  }
-}
-
 const list = computed(() => {
   let data = roomRepo.orderBy('isTop', 'desc').get();
-
+  if (keyword.value.length === 0) return data;
   try {
-    data = data.filter((item: RoomStore) => {
-      const keys = keyword.value.toLocaleLowerCase().split(' ');
-      // 单条件
-      if (keys.length === 1) {
-        const sp = searchPlatform(keys[0], item.platform);
-        if (sp !== undefined) return sp;
-        const ss = searchStatus(keys[0], item.status);
-        if (ss !== undefined) return ss;
-      } else if (keys.length === 2) {
-        // 算条件筛选
-        const sp = searchPlatform(keys[0], item.platform);
-        const ss = searchStatus(keys[1], item.status);
-        if (sp !== undefined && ss !== undefined) return sp && ss;
-      }
-
-      const status: boolean[] = [];
-      // 标签拼音和缩写
-      status.push(
-        item.tagsPinyin.find(
-          (item: string) => item.search(keyword.value) !== -1,
-        ) !== undefined,
-      );
-
-      // 名字拼音和缩写
-      status.push(
-        item.namePinyin.find(
-          (item: string) => item.search(keyword.value) !== -1,
-        ) !== undefined,
-      );
-
-      // 主播名字
-      status.push(
-        item.name
-          .toLocaleLowerCase()
-          .search(keyword.value.toLocaleLowerCase()) !== -1,
-      );
-
-      // 标签
-      status.push(
-        item.tags
-          .toLocaleLowerCase()
-          .search(keyword.value.toLocaleLowerCase()) !== -1,
-      );
-
-      // 房间标题
-      status.push(
-        item.title
-          .toLocaleLowerCase()
-          .search(keyword.value.toLocaleLowerCase()) !== -1,
-      );
-
-      // 公告
-      status.push(
-        item.news
-          .toLocaleLowerCase()
-          .search(keyword.value.toLocaleLowerCase()) !== -1,
-      );
-      // 真实房间号
-      status.push(item.roomId.toString() === keyword.value);
-
-      // 房间短号
-      status.push(
-        item.shortId === 0 ? false : item.shortId.toString() === keyword.value,
-      );
-
-      return status.indexOf(true) !== -1;
-    });
+    data = data.filter((item: RoomStore) => useSearch(keyword.value, item));
   } catch (error) {
     return data;
   }
-
   return data;
 });
 
@@ -214,3 +108,4 @@ defineExpose({
   margin-top: 20px;
 }
 </style>
+@/stores/config

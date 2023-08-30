@@ -1,11 +1,11 @@
-import { LiveConfig, ConfigType, UsePlayer } from '@/types/playerNew';
+import { LiveConfig, ConfigType, UsePlayer } from '@/types/player';
 import { useTimeoutPoll, useCounter } from '@vueuse/core';
 import FlvJs from 'flv.js';
 import Hls from 'hls.js';
 import { Ref, reactive } from 'vue';
 
 function initFlv(el: HTMLMediaElement, url: string) {
-  const player: FlvJs.Player = FlvJs.createPlayer(
+  let player: FlvJs.Player | null = FlvJs.createPlayer(
     {
       type: 'flv',
       isLive: true,
@@ -26,12 +26,15 @@ function initFlv(el: HTMLMediaElement, url: string) {
     player,
     destroy: () => {
       try {
-        player.pause();
-        player.unload();
-        player.detachMediaElement();
-        player.destroy();
+        if (player) {
+          player.pause();
+          player.unload();
+          player.detachMediaElement();
+          player.destroy();
+          player = null;
+        }
       } catch (error) {
-        // console.log(error);
+        console.log(error);
       }
     },
   };
@@ -45,7 +48,13 @@ function initHls(el: HTMLMediaElement, url: string) {
   player.loadSource(url);
   return {
     player,
-    destroy: () => player.destroy(),
+    destroy: () => {
+      try {
+        player.destroy();
+      } catch (error) {
+        console.log(error);
+      }
+    },
   };
 }
 
@@ -138,7 +147,6 @@ export function autoRefresh(
   }
 
   const start = () => {
-    console.log('start');
     video.value.addEventListener('timeupdate', timeUpdate, false);
   };
 

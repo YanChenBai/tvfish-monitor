@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { IonIcon } from '@ionic/vue';
 import { moveOutline, settingsOutline } from 'ionicons/icons';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import { useDrag, DragPreviewImage } from 'vue3-dnd';
 import { computed, ref } from 'vue';
 import { RoomStatus } from '@/types/player';
@@ -72,7 +72,7 @@ import { impactHeavy, vibrate } from '@/utils/impact';
 import { roomStatusClass } from '@/config/status';
 import { IMAGE_PROXY } from '@/config/proxy';
 import Room from '@/stores/room';
-import { DragType, DragTypeItem } from '@/types/playerNew';
+import { DragType, DragTypeItem } from '@/types/player';
 import injectStrict from '@/utils/injectStrict';
 import { menuProvides, repoProvides } from '@/utils/provides';
 import useRoom from '@/hooks/useRoom';
@@ -303,3 +303,4 @@ const [, drag, preview] = useDrag({
   background-color: #ff5e23c2;
 }
 </style>
+@/stores/config @/types/player

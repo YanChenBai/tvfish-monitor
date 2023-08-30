@@ -18,7 +18,7 @@ declare global {
 }
 
 export const usePlayerStore = defineStore(
-  'player',
+  'config',
   () => {
     const configLayout = ref<LayoutList>([]);
     const layoutIndex = ref<number>(isPhone() ? 9 : 15);
@@ -50,10 +50,7 @@ export const usePlayerStore = defineStore(
     }
 
     if (isElecreon()) {
-      window.api.watchConfig((data: LayoutList) => {
-        console.log(data);
-        configLayout.value = data;
-      });
+      window.api.watchConfig((data: LayoutList) => (configLayout.value = data));
     }
 
     return {

@@ -10,13 +10,8 @@ import { useDrag, useDrop } from 'vue3-dnd';
 import { computed, onMounted, provide, reactive, watch } from 'vue';
 import { playerWrapProvides, repoProvides } from '@/utils/provides';
 import { getBiliOrgin, getDouyuOrgin } from '@/api/getOrgin';
-import { Platform, RoomStatus } from '@/types/playerNew';
-import {
-  ConfigType,
-  DragType,
-  DragTypeItem,
-  LiveConfig,
-} from '@/types/playerNew';
+import { Platform, RoomStatus } from '@/types/player';
+import { ConfigType, DragType, DragTypeItem, LiveConfig } from '@/types/player';
 import injectStrict from '@/utils/injectStrict';
 import { templateRef } from '@vueuse/core';
 import { updateAttr } from '@/utils/updateAttr';
@@ -207,3 +202,4 @@ provide(playerWrapProvides, {
 </script>
 
 <style scoped></style>
+@/types/player@/types/player

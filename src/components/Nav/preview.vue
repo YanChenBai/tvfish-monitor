@@ -69,7 +69,7 @@ import {
   IonCol,
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import { computed, ref } from 'vue';
 import '@/theme/hideScrollbar.css';
 defineOptions({ name: 'layoutPreview' });
@@ -157,3 +157,4 @@ function updateLayout(index: number) {
   filter: brightness(1.7);
 }
 </style>
+@/stores/config

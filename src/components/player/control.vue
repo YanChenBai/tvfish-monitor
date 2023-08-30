@@ -111,14 +111,14 @@
 </template>
 
 <script setup lang="ts">
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
 import { refresh as refreshIcon, volumeHigh, close, key } from 'ionicons/icons';
 import { Ref, computed, ref } from 'vue';
-import { QualityType, LineType } from '@/types/playerNew';
+import { QualityType, LineType } from '@/types/player';
 import {
   playerProvides,
   playerWrapProvides,
@@ -300,3 +300,4 @@ defineExpose({
   background-color: #428cff;
 }
 </style>
+@/stores/config @/types/player

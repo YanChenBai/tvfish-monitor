@@ -76,7 +76,7 @@ import {
 import LayoutModal from './preview.vue';
 import MenuPlayer from '@/components/Menu/menu.vue';
 import { hideBar } from '@/utils/barStatus';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { isElecreon, isPhone } from '@/utils/isMobile';
 import { watch } from 'vue';
@@ -149,3 +149,4 @@ useEventListener(window, 'blur', () => {
   align-items: center;
 }
 </style>
+@/stores/config

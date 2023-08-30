@@ -15,7 +15,7 @@ import Setting from '@/components/Menu/setting.vue';
 import Tips from '@/components/Menu/tips.vue';
 import Btns from './btns.vue';
 import { useMenu } from '@/hooks/useMenu';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, provide, ref } from 'vue';
 import Room from '@/stores/room';
@@ -87,3 +87,4 @@ provide(menuProvides, {
   transform: translateX(100%);
 }
 </style>
+@/stores/config

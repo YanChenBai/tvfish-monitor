@@ -29,9 +29,7 @@ const videoRef = templateRef<HTMLMediaElement>('videoRef'),
   controlRef = templateRef<InstanceType<typeof Control>>('controlRef');
 
 const player = usePlayer(videoRef, liveConfig);
-const { start, clear } = autoRefresh(videoRef, () => {
-  player.refresh();
-});
+const { start, clear } = autoRefresh(videoRef, update);
 const isShow = computed(
   () =>
     playerConfig.value.room !== null &&

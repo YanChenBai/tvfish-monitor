@@ -2,7 +2,7 @@ import PlayerStore from '@/stores/player';
 import RoomStore from '@/stores/room';
 import { ComputedRef, InjectionKey } from 'vue';
 import { Repository } from 'pinia-orm';
-import { LiveConfig, UsePlayer } from '@/types/playerNew';
+import { LiveConfig, UsePlayer } from '@/types/player';
 
 export const playerWrapProvides = Symbol() as InjectionKey<{
   playerConfig: ComputedRef<PlayerStore>;

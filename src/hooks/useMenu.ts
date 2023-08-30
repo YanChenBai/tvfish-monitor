@@ -3,7 +3,7 @@ import { Ref } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import { isPhone } from '@/utils/isMobile';
 import { useBackButton } from '@ionic/vue';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 
 // 菜单逻辑
 export function useMenu(el: MaybeElementRef, ignore: Ref<any>[]) {

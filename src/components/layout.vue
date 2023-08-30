@@ -23,7 +23,7 @@
 import PlayerWrap from '@/components/player/wrap.vue';
 import layouts from '@/config/layouts';
 import { storeToRefs } from 'pinia';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import { computed } from 'vue';
 
 defineOptions({ name: 'LayoutWrap' });
@@ -50,3 +50,4 @@ const jointLayouts = computed(() => [...layouts, ...configLayout.value]);
   position: relative;
 }
 </style>
+@/stores/config

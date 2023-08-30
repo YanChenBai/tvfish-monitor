@@ -61,7 +61,7 @@ import { Platform } from '@/types/player';
 import { startListen } from 'blive-message-listener/browser';
 import { useDouyuDanmu } from '@/hooks/useDouyuDanmu';
 import VueDanmuKu from 'vue3-danmaku';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { onMounted, watch } from 'vue';
 import { templateRef, useDebounceFn, promiseTimeout } from '@vueuse/core';
@@ -273,3 +273,4 @@ defineExpose({
   align-items: center;
 }
 </style>
+@/stores/config

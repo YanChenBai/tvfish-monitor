@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { IonButton, IonIcon } from '@ionic/vue';
 import { moonOutline } from 'ionicons/icons';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 defineOptions({ name: 'nightOverlayBtn' });
@@ -27,3 +27,4 @@ watch(showNightOverlay, (val: boolean) => {
 </script>
 
 <style scoped></style>
+@/stores/config

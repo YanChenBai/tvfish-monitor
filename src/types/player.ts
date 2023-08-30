@@ -1,3 +1,19 @@
+import PlayerStore from '@/stores/player';
+import RoomStore from '@/stores/room';
+import FlvJs from 'flv.js';
+import Hls from 'hls.js';
+import { ComputedRef } from 'vue';
+
+export enum ConfigType {
+  Flv = 'flv',
+  Hls = 'hls',
+}
+
+export interface Config {
+  url: string;
+  type: ConfigType;
+}
+
 export interface QualityType {
   name: string;
   qn: number;
@@ -17,8 +33,48 @@ export enum RoomStatus {
   LIVE = 1,
   REC = 2,
 }
+export interface PlayerOrginItem<T, P> {
+  type: T;
+  player: P;
+}
 
-export interface RoomListItem {
+export type PlayerOrgin =
+  | PlayerOrginItem<ConfigType.Hls, Hls>
+  | PlayerOrginItem<ConfigType.Flv, FlvJs.Player>;
+
+export interface LiveConfig {
+  line: string | null;
+  lines: LineType[];
+  quality: number | null;
+  qualitys: QualityType[];
+  type: ConfigType;
+  url: string;
+}
+
+export interface UsePlayer {
+  destroy: { (): void };
+  refresh: { (): void };
+  changePlayer: { (): void };
+  setVolume: { (val: number): void };
+}
+
+export enum DragType {
+  CARD_DRAG = 'card_drag',
+  PLAYER_DRAG = 'player_drag',
+}
+
+export type DragTypeItem =
+  | {
+      type: DragType.PLAYER_DRAG;
+      playerConfig: ComputedRef<PlayerStore>;
+      liveConfig: LiveConfig;
+    }
+  | {
+      type: DragType.CARD_DRAG;
+      roomTypeId: string;
+    };
+
+export interface Room {
   roomId: number;
   platform: Platform;
   name: string;
@@ -31,24 +87,28 @@ export interface RoomListItem {
   tags: string;
 }
 
-export interface PlayerItem {
-  roomId: number;
-  platform: Platform;
+export interface ResType<T = any> {
+  code: number;
+  data: T;
+  message: string;
+}
+interface OrginType {
+  url: string;
+  quality: QualityType[];
+  qn: number;
+  lines: LineType[];
+  line: string;
+  info: Room;
 }
 
-export interface PlayerList {
-  [key: string]: PlayerItem | null;
+interface OrginTypeLive extends ResType {
+  code: 200;
+  data: OrginType;
 }
 
-interface PlayerConfigItem {
-  volume: number;
-  danmu: boolean;
+interface OrginTypeClose extends ResType {
+  code: -5;
+  data: Room;
 }
 
-export interface PlayerConfigList {
-  [key: string]: PlayerConfigItem;
-}
-
-export interface PinyinInfo extends PlayerItem {
-  value: string[];
-}
+export type GetOrgin = OrginTypeLive | OrginTypeClose;

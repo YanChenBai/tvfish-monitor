@@ -77,7 +77,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { usePlayerStore } from '@/stores/playerStore';
+import { usePlayerStore } from '@/stores/config';
 import {
   IonInput,
   IonButtons,
@@ -138,3 +138,4 @@ async function requestPermissions() {
 </script>
 
 <style scoped></style>
+@/stores/config

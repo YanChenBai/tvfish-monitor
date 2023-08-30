@@ -1,5 +1,5 @@
 import { RoomListItem } from '@/types/player';
-import { GetOrgin } from '@/types/playerNew';
+import { GetOrgin } from '@/types/player';
 import axios from 'axios';
 
 switch (import.meta.env.VITE_MODE) {

@@ -3,7 +3,7 @@ import { Str, Num, Bool, Uid, HasOne } from 'pinia-orm/dist/decorators';
 import Room from './room';
 
 export default class PlayerStore extends Model {
-  static entity = 'playerNew';
+  static entity = 'player';
   static primaryKey = 'id';
 
   @Uid()
