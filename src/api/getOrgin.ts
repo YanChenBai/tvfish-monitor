@@ -1,6 +1,6 @@
-import { RoomListItem } from '@/types/player';
+import { ResType, RoomListItem, RoomListItemMany } from '@/types/player';
 import { GetOrgin } from '@/types/player';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 switch (import.meta.env.VITE_MODE) {
   case 'ELECTRON_DEV':
@@ -54,6 +54,20 @@ export async function getRoomInfo(
 ): Promise<RoomListItem | false> {
   try {
     const res = await axios(`/getRoomInfo?roomId=${roomId}&type=${type}`);
+    return res.data.data;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function getRoomInfoManyBili(
+  uids: string[],
+): Promise<RoomListItemMany | false> {
+  try {
+    const res = await axios<any, AxiosResponse<ResType<RoomListItemMany>>>(
+      `/getRoomInfoManyBili`,
+      { params: { uids } },
+    );
     return res.data.data;
   } catch (error) {
     return false;

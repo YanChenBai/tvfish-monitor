@@ -1,7 +1,7 @@
 import { Platform } from '@/types/player';
 import RoomStore from '@/stores/room';
 import { Repository } from 'pinia-orm';
-import { getRoomInfo } from '@/api/getOrgin';
+import { getRoomInfo, getRoomInfoManyBili } from '@/api/getOrgin';
 import { message } from '@/utils/message';
 import { pinyin } from 'pinyin-pro';
 
@@ -39,6 +39,17 @@ export default function useRoom(roomRepo: Repository<RoomStore>) {
     }
   }
 
+  async function updateManyBili() {
+    const data = roomRepo.where('platform', 'bili').get();
+    const uids = data.map((item) => item.uid);
+    const res = await getRoomInfoManyBili(uids);
+    if (res) {
+      for (const uid in res) {
+        roomRepo.where('uid', uid).update(res[uid]);
+      }
+    }
+  }
+
   async function update(roomId: number, platform: Platform, msg = true) {
     try {
       const res = await getRoomInfo(roomId, platform);
@@ -68,5 +79,5 @@ export default function useRoom(roomRepo: Repository<RoomStore>) {
     }
   }
 
-  return { add, update, remove };
+  return { add, update, remove, updateManyBili };
 }

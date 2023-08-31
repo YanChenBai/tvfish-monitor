@@ -12,6 +12,9 @@ export default class RoomStore extends Model {
   @Num(0, { notNullable: true })
   declare roomId: number;
 
+  @Num(0, { notNullable: true })
+  declare uid: string;
+
   @Str(Platform.Bili, { notNullable: true })
   declare platform: Platform;
 

@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import express from 'express';
 import { getLiveInfo } from './bili/live';
-import { getUserInfo } from './bili/info';
+import { getUserInfo, getRoomInfoMany } from './bili/info';
 import { getUserInfoDouyu } from './douyu/info';
 import { getRealUrl } from './douyu/live';
 import { getResponseBody } from './utils';
@@ -80,6 +80,18 @@ router.get('/getRoomInfo', async (req, res) => {
     res.json(await getUserInfo(roomId));
   } else if (type === 'douyu') {
     res.json(await getUserInfoDouyu(roomId));
+  }
+});
+
+router.get('/getRoomInfoManyBili', async (req, res) => {
+  try {
+    const schema = Joi.object({
+      uids: Joi.array().items(Joi.number()).required(),
+    });
+    const value = await schema.validateAsync(req.query);
+    res.json(await getRoomInfoMany(value.uids));
+  } catch (error) {
+    res.json(getResponseBody(400, '请求错误！'));
   }
 });
 

@@ -198,10 +198,14 @@ async function add() {
 // 更新全部
 async function updateAll() {
   loading.update = true;
-  const all = roomRepo.all();
+  const all = roomRepo.where('platform', 'douyu').get();
   const count = all.length;
   let now = 0;
   updateMsg.value = `${now} / ${count}`;
+
+  // 单独批量更新b站数据
+  await useroom.updateManyBili();
+
   for (const item of all) {
     await useroom.update(item.roomId, item.platform, false);
     updateMsg.value = `${now++} / ${count}`;

@@ -1,5 +1,34 @@
 import { getResponseBody } from '../utils';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
+
+interface RoomByUid {
+  title: string;
+  room_id: number;
+  uid: number;
+  online: number;
+  live_time: number;
+  live_status: number;
+  short_id: number;
+  area: number;
+  area_name: string;
+  area_v2_id: number;
+  area_v2_name: string;
+  area_v2_parent_name: string;
+  area_v2_parent_id: number;
+  uname: string;
+  face: string;
+  tag_name: string;
+  tags: string;
+  cover_from_user: string;
+  keyframe: string;
+  lock_till: string;
+  hidden_till: string;
+  broadcast_type: number;
+}
+
+interface RoomByUids {
+  [key: string]: RoomByUid;
+}
 
 // 获取用户信息
 export async function getUserInfo(rooomId: string) {
@@ -16,7 +45,6 @@ export async function getUserInfo(rooomId: string) {
         news: data.room_news.content,
         platform: 'bili',
       };
-      delete roomInfo['uid'];
       return getResponseBody(200, 'Ok.', { ...user_info, ...roomInfo });
     } else {
       return getResponseBody(500, '请求错误！');
@@ -59,5 +87,45 @@ async function getRoomInfo(roomId: string) {
     };
   } else {
     throw new Error('请求错误');
+  }
+}
+
+export async function getRoomInfoMany(uids: string[]) {
+  try {
+    const res = await axios.get<any, AxiosResponse<{ data: RoomByUids }>>(
+      `https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids`,
+      {
+        params: { uids },
+      },
+    );
+    const data = res.data.data;
+    const rooms: any = {};
+    for (const key in data) {
+      const {
+        face,
+        uname,
+        room_id,
+        short_id,
+        live_status,
+        title,
+        keyframe,
+        tags,
+      } = data[key];
+      rooms[room_id] = {
+        face,
+        name: uname,
+        platform: 'bili',
+        roomId: room_id,
+        shortId: short_id,
+        status: live_status,
+        title,
+        keyframe,
+        tags,
+        liveTime: null,
+      };
+    }
+    return getResponseBody(200, 'Ok.', rooms);
+  } catch (error) {
+    return getResponseBody(500, '请求错误！');
   }
 }

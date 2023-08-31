@@ -33,6 +33,28 @@ export enum RoomStatus {
   LIVE = 1,
   REC = 2,
 }
+
+export interface RoomListItem {
+  roomId: number;
+  platform: Platform;
+  name: string;
+  face: string;
+  title: string;
+  news: string;
+  keyframe: string;
+  status: RoomStatus;
+  shortId: number;
+  tags: string;
+}
+
+export interface RoomListItemMany {
+  [key: string]: RoomListItem;
+}
+
+export interface PlayerItem {
+  roomId: number;
+  platform: Platform;
+}
 export interface PlayerOrginItem<T, P> {
   type: T;
   player: P;

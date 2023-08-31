@@ -32,6 +32,7 @@ export async function getUserInfoDouyu(roomId: string) {
       status = data.videoLoop === 1 ? 2 : 1;
     }
     const reqData = {
+      uid: data.owner_uid,
       face: data.owner_avatar,
       news: data.show_details,
       name: data.nickname,
