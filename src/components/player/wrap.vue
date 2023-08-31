@@ -145,11 +145,19 @@ async function update() {
           roomRepo
             .where('roomTypeId', playerConfig.value.roomTypeId)
             .update(res.data);
-          playerRef.value.destroy();
+          try {
+            playerRef.value.destroy();
+          } catch (error) {
+            /** */
+          }
         } else if (res.code === 200) {
           return res.data;
         } else {
-          playerRef.value.destroy();
+          try {
+            playerRef.value.destroy();
+          } catch (error) {
+            /** */
+          }
           throw new Error('请求异常!');
         }
       })
@@ -169,13 +177,25 @@ async function update() {
           roomRepo
             .where('roomTypeId', playerConfig.value.roomTypeId)
             .update(res.info);
-          playerRef.value.refresh();
+          try {
+            playerRef.value.refresh();
+          } catch (error) {
+            /** */
+          }
         } else {
-          playerRef.value.destroy();
+          try {
+            playerRef.value.destroy();
+          } catch (error) {
+            /** */
+          }
         }
       });
   } else {
-    playerRef.value.destroy();
+    try {
+      playerRef.value.destroy();
+    } catch (error) {
+      /** */
+    }
   }
 }
 

@@ -12,10 +12,12 @@ function initFlv(el: HTMLMediaElement, url: string) {
       url,
     },
     {
-      enableStashBuffer: false,
       enableWorker: false,
+      enableStashBuffer: false,
       autoCleanupSourceBuffer: true,
+      reuseRedirectedURL: true,
       fixAudioTimestampGap: false,
+      isLive: true,
     },
   );
   player.attachMediaElement(el);

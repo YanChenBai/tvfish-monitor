@@ -43,7 +43,11 @@ function closeLive() {
   clear();
   liveCloseClear();
   update();
-  player.destroy();
+  try {
+    player.destroy();
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // 初始化
