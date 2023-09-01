@@ -48,7 +48,7 @@ export interface RoomListItem {
 }
 
 export interface RoomListItemMany {
-  [key: string]: RoomListItem;
+  [key: string]: Omit<RoomListItem, 'news'>;
 }
 
 export interface PlayerItem {
