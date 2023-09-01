@@ -116,7 +116,7 @@ import { storeToRefs } from 'pinia';
 import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
 import PlayerSlider from './slider.vue';
-import { refresh as refreshIcon, volumeHigh, close, key } from 'ionicons/icons';
+import { refresh as refreshIcon, volumeHigh, close } from 'ionicons/icons';
 import { Ref, computed, ref } from 'vue';
 import { QualityType, LineType } from '@/types/player';
 import {
@@ -185,15 +185,19 @@ const danmuSwitch = () => {
 };
 
 let time = 0;
+let closeTime = 0;
 const openControl = () => {
   show.value = true;
   navState.value = true;
+  clearTimeout(time);
+  clearTimeout(closeTime);
   time = setTimeout(() => closeControl(), 5000);
 };
 
 const closeControl = () => {
-  show.value = false;
   clearTimeout(time);
+  clearTimeout(closeTime);
+  closeTime = setTimeout(() => (show.value = false), 1000);
 };
 
 // 获取关闭控制栏时点击需要排除的地方

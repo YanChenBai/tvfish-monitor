@@ -40,12 +40,14 @@ export default function useRoom(roomRepo: Repository<RoomStore>) {
   }
 
   async function updateManyBili() {
-    const data = roomRepo.where('platform', 'bili').get();
+    const data = roomRepo.where('platform', Platform.Bili).get();
     const uids = data.map((item) => item.uid);
     const res = await getRoomInfoManyBili(uids);
+
     if (res) {
-      for (const uid in res) {
-        roomRepo.where('uid', uid).update(res[uid]);
+      for (const roomId in res) {
+        const roomTypeId = `${Platform.Bili}@${roomId}`;
+        roomRepo.where('roomTypeId', roomTypeId).update(res[roomId]);
       }
     }
   }

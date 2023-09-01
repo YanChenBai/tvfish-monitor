@@ -110,8 +110,10 @@ export async function getRoomInfoMany(uids: string[]) {
         title,
         keyframe,
         tags,
+        uid,
       } = data[key];
       rooms[room_id] = {
+        uid,
         face,
         name: uname,
         platform: 'bili',
