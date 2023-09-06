@@ -141,7 +141,7 @@ import {
 } from '@ionic/vue';
 import { personAddOutline, arrowUpOutline, refresh } from 'ionicons/icons';
 import '@/theme/hideScrollbar.css';
-import { computed, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { vibrate } from '@/utils/impact';
 import { Platform } from '@/types/player';
 import defRoomList from '@/config/roomList';
@@ -174,6 +174,8 @@ const data = reactive({
   inputMsg = ref(''),
   updateMsg = ref(''),
   num = computed(() => roomRepo.all().length);
+
+onMounted(() => useroom.updateManyBili());
 
 function close() {
   if (menuModalRef.value) menuModalRef.value.$el.dismiss(null, 'cancel');

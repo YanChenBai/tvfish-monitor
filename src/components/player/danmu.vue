@@ -9,7 +9,7 @@
       :speeds="50"
       :fontSize="22"
       :debounce="200"
-      useSlot
+      :useSlot="true"
       :isSuspend="true"
     >
       <template v-slot:dm="{ danmu }">
