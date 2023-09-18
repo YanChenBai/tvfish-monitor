@@ -1,5 +1,4 @@
 import PlayerStore from '@/stores/player';
-import RoomStore from '@/stores/room';
 import FlvJs from 'flv.js';
 import Hls from 'hls.js';
 import { ComputedRef } from 'vue';
@@ -134,3 +133,7 @@ interface OrginTypeClose extends ResType {
 }
 
 export type GetOrgin = OrginTypeLive | OrginTypeClose;
+
+export type LayoutList = Array<
+  { x: number; y: number; w: number; h: number }[]
+>;
