@@ -61,7 +61,7 @@ import { Platform } from '@/types/player';
 import { startListen } from 'blive-message-listener/browser';
 import { useDouyuDanmu } from '@/hooks/useDouyuDanmu';
 import VueDanmuKu from 'vue3-danmaku';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { onMounted, watch } from 'vue';
 import { templateRef, useDebounceFn, promiseTimeout } from '@vueuse/core';
@@ -80,7 +80,7 @@ enum DnamuType {
   EMO_IN_MSG = 3,
 }
 
-const { layoutIndex } = storeToRefs(usePlayerStore());
+const { layoutIndex } = storeToRefs(useConfigStore());
 const { playerConfig } = injectStrict(playerWrapProvides);
 const emit = defineEmits(['liveStart', 'liveEnd', 'titleChange']);
 

@@ -9,6 +9,27 @@
       <video ref="videoRef" autoplay v-show="isShow"></video>
     </div>
     <Control ref="controlRef"></Control>
+    <div
+      v-if="
+        playerConfig.room &&
+        playerConfig.room.status !== RoomStatus.LIVE &&
+        playerConfig.room.keyframe
+      "
+      class="video-preview"
+    >
+      <div v-if="config.closeLivePreview.text" class="video-preview-text">
+        <div>
+          <div>{{ playerConfig.room.name }}</div>
+          <div style="font-size: 14px">{{ playerConfig.room.title }}</div>
+        </div>
+      </div>
+      <img
+        v-if="config.closeLivePreview.image"
+        draggable="false"
+        class="video-preview-image"
+        :src="`${IMAGE_PROXY}?ac=true&url=${playerConfig.room.keyframe}`"
+      />
+    </div>
   </div>
 </template>
 
@@ -21,9 +42,13 @@ import injectStrict from '@/utils/injectStrict';
 import { templateRef } from '@vueuse/core';
 import Danmu from './danmu.vue';
 import { RoomStatus } from '@/types/player';
+import { IMAGE_PROXY } from '@/config/proxy';
+import { useConfigStore } from '@/stores/config';
+import { storeToRefs } from 'pinia';
 
 defineOptions({ name: 'PlayerComponent' });
 
+const { config } = storeToRefs(useConfigStore());
 const { playerConfig, liveConfig, update } = injectStrict(playerWrapProvides);
 const videoRef = templateRef<HTMLMediaElement>('videoRef'),
   controlRef = templateRef<InstanceType<typeof Control>>('controlRef');
@@ -90,7 +115,8 @@ defineExpose(player);
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0);
+  /* background-color: rgba(0, 0, 0, 0.8); */
 }
 .video video {
   width: 100%;
@@ -104,5 +130,31 @@ defineExpose(player);
   min-height: 100px;
   position: absolute;
   z-index: 99;
+}
+.video-preview {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.video-preview-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  filter: blur(2px) brightness(80%);
+  opacity: 0.1;
+}
+
+.video-preview-text {
+  position: absolute;
+  color: rgb(87, 87, 87);
+  width: 100%;
+  height: 100%;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 </style>

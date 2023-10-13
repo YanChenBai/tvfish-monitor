@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { IonButton, IonIcon } from '@ionic/vue';
 import PopoverSelect from './select.vue';
@@ -129,7 +129,7 @@ import injectStrict from '@/utils/injectStrict';
 defineOptions({ name: 'PlayerControl' });
 
 const roomStatusClass = ['close', 'live', 'rec', 'def'];
-const { navState } = storeToRefs(usePlayerStore());
+const { navState } = storeToRefs(useConfigStore());
 const player = injectStrict(playerProvides);
 const { playerConfig, liveConfig, clearLiveConfig, update } =
   injectStrict(playerWrapProvides);
@@ -197,7 +197,7 @@ const openControl = () => {
 const closeControl = () => {
   clearTimeout(time);
   clearTimeout(closeTime);
-  closeTime = setTimeout(() => (show.value = false), 1000);
+  closeTime = setTimeout(() => (show.value = false), 0);
 };
 
 // 获取关闭控制栏时点击需要排除的地方

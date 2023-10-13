@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
 import { isElecreon, isPhone } from '@/utils/isMobile';
+import { LayoutList } from '@/types/player';
 import { BackgroundMode } from '@anuradev/capacitor-background-mode';
 
-type LayoutList = Array<{ x: number; y: number; w: number; h: number }[]>;
 declare global {
   interface Window {
     api: {
@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-export const usePlayerStore = defineStore(
+export const useConfigStore = defineStore(
   'config',
   () => {
     const configLayout = ref<LayoutList>([]);
@@ -35,6 +35,11 @@ export const usePlayerStore = defineStore(
       backgroundMode: true,
       autoUpdateMaxCount: 10,
       autoUpdateMaxInterval: 2000,
+      autoUpdateRoomList: 0,
+      closeLivePreview: {
+        image: true,
+        text: true,
+      },
     });
 
     function switchBackgroundMode(state: boolean) {

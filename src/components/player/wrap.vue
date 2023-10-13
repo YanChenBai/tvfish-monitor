@@ -222,4 +222,3 @@ provide(playerWrapProvides, {
 </script>
 
 <style scoped></style>
-@/types/player@/types/player

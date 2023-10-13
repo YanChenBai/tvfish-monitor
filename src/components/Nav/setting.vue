@@ -42,6 +42,22 @@
           >
         </ion-item>
 
+        <ion-item>
+          <ion-toggle
+            v-model:modelValue="config.closeLivePreview.image"
+            v-vibration="5"
+            >未开播预览图</ion-toggle
+          >
+        </ion-item>
+
+        <ion-item>
+          <ion-toggle
+            v-model:modelValue="config.closeLivePreview.text"
+            v-vibration="5"
+            >未开播预览文字</ion-toggle
+          >
+        </ion-item>
+
         <!-- <ion-item>
           <ion-label>检查通知权限</ion-label>
           <ion-button @click="requestPermissions" v-vibration="5"
@@ -77,7 +93,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import {
   IonInput,
   IonButtons,
@@ -100,7 +116,7 @@ import { message } from '@/utils/message';
 import { isElecreon } from '@/utils/isMobile';
 
 defineOptions({ name: 'NavSetting' });
-const { nightOverlayOpacity, config } = storeToRefs(usePlayerStore());
+const { nightOverlayOpacity, config } = storeToRefs(useConfigStore());
 const settingModal = ref();
 
 function cancel() {
@@ -138,4 +154,3 @@ async function requestPermissions() {
 </script>
 
 <style scoped></style>
-@/stores/config

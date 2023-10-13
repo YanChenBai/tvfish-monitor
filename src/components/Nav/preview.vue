@@ -69,7 +69,7 @@ import {
   IonCol,
 } from '@ionic/vue';
 import { storeToRefs } from 'pinia';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import { computed, ref } from 'vue';
 import '@/theme/hideScrollbar.css';
 defineOptions({ name: 'layoutPreview' });
@@ -77,7 +77,7 @@ import layouts from '@/config/layouts';
 
 const size = 100 / 12;
 const layoutModal = ref();
-const { layoutIndex, configLayout } = storeToRefs(usePlayerStore());
+const { layoutIndex, configLayout } = storeToRefs(useConfigStore());
 const jointLayouts = computed(() => [...layouts, ...configLayout.value]);
 function cancel() {
   layoutModal.value.$el.dismiss(null, 'cancel');

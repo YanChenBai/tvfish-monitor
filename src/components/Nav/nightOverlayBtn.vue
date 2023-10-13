@@ -14,11 +14,11 @@
 <script setup lang="ts">
 import { IonButton, IonIcon } from '@ionic/vue';
 import { moonOutline } from 'ionicons/icons';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 defineOptions({ name: 'nightOverlayBtn' });
-const { showNightOverlay, navState } = storeToRefs(usePlayerStore());
+const { showNightOverlay, navState } = storeToRefs(useConfigStore());
 
 // 打开遮罩时关闭导航
 watch(showNightOverlay, (val: boolean) => {

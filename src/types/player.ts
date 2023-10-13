@@ -134,6 +134,10 @@ interface OrginTypeClose extends ResType {
 
 export type GetOrgin = OrginTypeLive | OrginTypeClose;
 
-export type LayoutList = Array<
-  { x: number; y: number; w: number; h: number }[]
->;
+export interface Layout {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+export type LayoutList = Array<Layout[]>;

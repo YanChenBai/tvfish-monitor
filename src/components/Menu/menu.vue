@@ -15,7 +15,7 @@ import Setting from '@/components/Menu/setting.vue';
 import Tips from '@/components/Menu/tips.vue';
 import Btns from './btns.vue';
 import { useMenu } from '@/hooks/useMenu';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, provide, ref } from 'vue';
 import Room from '@/stores/room';
@@ -23,7 +23,7 @@ import { menuProvides } from '@/utils/provides';
 import { templateRef } from '@vueuse/core';
 
 defineOptions({ name: 'menuCompoent' });
-const { menuState } = storeToRefs(usePlayerStore()),
+const { menuState } = storeToRefs(useConfigStore()),
   menuWrapRef = ref(),
   settingRef = templateRef<InstanceType<typeof Setting>>('settingRef'),
   tipsRef = templateRef<InstanceType<typeof Tips>>('tipsRef'),

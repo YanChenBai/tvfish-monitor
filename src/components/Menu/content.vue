@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { IonInput } from '@ionic/vue';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import MenuItem from '@/components/Menu/item.vue';
 import { computed, ref, watch } from 'vue';
 import { useScroll, watchDebounced } from '@vueuse/core';
@@ -43,7 +43,7 @@ defineProps<{
 }>();
 const { roomRepo } = injectStrict(repoProvides);
 const { openSetting, openTips } = injectStrict(menuProvides);
-const playerStore = usePlayerStore();
+const playerStore = useConfigStore();
 const keywordDebounced = ref(),
   keyword = ref(''),
   menuContentRef = ref(),

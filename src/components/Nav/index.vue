@@ -25,7 +25,7 @@
         <ion-icon :icon="peopleOutline"></ion-icon>
       </ion-button>
       <List />
-      <ion-button
+      <!-- <ion-button
         size="small"
         color="light"
         fill="clear"
@@ -34,7 +34,7 @@
         v-if="isPhone()"
       >
         <ion-icon :icon="eyeOffOutline"></ion-icon>
-      </ion-button>
+      </ion-button> -->
       <ion-button
         size="small"
         color="light"
@@ -76,14 +76,14 @@ import {
 import LayoutModal from './preview.vue';
 import MenuPlayer from '@/components/Menu/menu.vue';
 import { hideBar } from '@/utils/barStatus';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { isElecreon, isPhone } from '@/utils/isMobile';
 import { watch } from 'vue';
 import { useEventListener } from '@vueuse/core';
 
 defineOptions({ name: 'PlayerIndex' });
-const playerStore = usePlayerStore();
+const playerStore = useConfigStore();
 const { navState, menuState, config } = storeToRefs(playerStore);
 
 // 自动关闭导航

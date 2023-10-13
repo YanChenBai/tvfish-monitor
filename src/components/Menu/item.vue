@@ -1,3 +1,4 @@
+div
 <template>
   <div class="item-wrap" :class="{ ['is-top']: info.isTop }">
     <div class="item-box" :style="getStyle">
@@ -53,6 +54,7 @@
         <img
           v-if="keyframeState"
           draggable="false"
+          style="object-fit: contain"
           :src="`${IMAGE_PROXY}?ac=true&w=400&url=${info.keyframe}`"
           @error="() => (keyframeState = false)"
         />
@@ -64,7 +66,7 @@
 <script setup lang="ts">
 import { IonIcon } from '@ionic/vue';
 import { moveOutline, settingsOutline } from 'ionicons/icons';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import { useDrag, DragPreviewImage } from 'vue3-dnd';
 import { computed, ref } from 'vue';
 import { RoomStatus } from '@/types/player';
@@ -79,7 +81,7 @@ import useRoom from '@/hooks/useRoom';
 
 defineOptions({ name: 'MenuItem' });
 
-const playerStore = usePlayerStore();
+const playerStore = useConfigStore();
 const emit = defineEmits(['drag', 'setting', 'tips']);
 
 const props = defineProps<{
@@ -133,7 +135,6 @@ const [, drag, preview] = useDrag({
 <style scoped>
 .item-wrap {
   width: 280px;
-  background: rgb(56, 56, 56);
   border-radius: 5px;
   color: #fff;
   border: 2px solid rgba(255, 255, 255, 0.089);
@@ -303,4 +304,3 @@ const [, drag, preview] = useDrag({
   background-color: #ff5e23c2;
 }
 </style>
-@/stores/config @/types/player

@@ -39,7 +39,7 @@ import '@ionic/vue/css/ionic-swiper.css';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { arrowForwardOutline } from 'ionicons/icons';
 import { IonIcon } from '@ionic/vue';
-import { usePlayerStore } from '@/stores/config';
+import { useConfigStore } from '@/stores/config';
 import { storeToRefs } from 'pinia';
 import { onLongPress } from '@vueuse/core';
 import { ref, watch } from 'vue';
@@ -48,7 +48,7 @@ import { vibrate } from '@/utils/impact';
 
 defineOptions({ name: 'nightOverlay' });
 
-const { showNightOverlay, nightOverlayOpacity } = storeToRefs(usePlayerStore());
+const { showNightOverlay, nightOverlayOpacity } = storeToRefs(useConfigStore());
 const nightOverlayRef = ref(),
   tipsState = ref(false);
 
