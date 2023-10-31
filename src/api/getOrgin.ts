@@ -2,9 +2,11 @@ import { ResType, RoomListItem, RoomListItemMany } from '@/types/player';
 import { GetOrgin } from '@/types/player';
 import axios, { AxiosResponse } from 'axios';
 
+let IS_ELECTRON = false;
 switch (import.meta.env.VITE_MODE) {
   case 'ELECTRON_DEV':
   case 'ELECTRON_PRO':
+    IS_ELECTRON = true;
     axios.defaults.baseURL = import.meta.env.VITE_ELECTRON_SERVER;
     break;
   case 'IONIC_DEV':

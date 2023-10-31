@@ -11,6 +11,7 @@ import PlayerStore from '@/stores/player';
 import RoomStore from '@/stores/room';
 import { provide } from 'vue';
 import { repoProvides } from './utils/provides';
+import { ipcRenderer } from 'electron';
 const playerRepo = useRepo(PlayerStore);
 const roomRepo = useRepo(RoomStore);
 

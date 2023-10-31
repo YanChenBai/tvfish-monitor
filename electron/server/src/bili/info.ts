@@ -56,7 +56,7 @@ export async function getUserInfo(rooomId: string) {
 }
 
 // 获取房间数据
-async function getRoomInfo(roomId: string) {
+export async function getRoomInfo(roomId: string) {
   const res = await axios({
     method: 'GET',
     url: 'https://api.live.bilibili.com/room/v1/Room/get_info',
@@ -90,6 +90,7 @@ async function getRoomInfo(roomId: string) {
   }
 }
 
+// 批量获取房间数据
 export async function getRoomInfoMany(uids: string[]) {
   try {
     const res = await axios.get<any, AxiosResponse<{ data: RoomByUids }>>(

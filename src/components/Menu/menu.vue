@@ -87,4 +87,3 @@ provide(menuProvides, {
   transform: translateX(100%);
 }
 </style>
-@/stores/config

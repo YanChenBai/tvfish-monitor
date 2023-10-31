@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import { Platform } from '@/types/player';
-import { startListen } from 'blive-message-listener/browser';
+// import { startListen } from 'blive-message-listener/browser';
 import { useDouyuDanmu } from '@/hooks/useDouyuDanmu';
 import VueDanmuKu from 'vue3-danmaku';
 import { useConfigStore } from '@/stores/config';
@@ -70,6 +70,7 @@ import { IMAGE_PROXY } from '@/config/proxy';
 import injectStrict from '@/utils/injectStrict';
 import { playerWrapProvides } from '@/utils/provides';
 import { getDanmuColoe } from '@/utils/decodeDmV2';
+import { startListen } from '@/utils/biliDanmuDecode';
 
 defineOptions({ name: 'PlayerDanmu' });
 
@@ -105,45 +106,44 @@ function addDnamu(msg: {
 // 启动b站弹幕
 function biliDanmu(id: number) {
   const { close } = startListen(id, {
-    onIncomeDanmu: (msg: Message<DanmuMsg>) => {
-      if (msg.body.emoticon !== undefined) {
+    onIncomeDanmu: (msg: DanmuMsg) => {
+      if (msg.emoticon !== undefined) {
         addDnamu({
-          content: msg.body,
+          content: msg,
           type: DnamuType.EMO,
           color: '',
         });
-      } else if (msg.body.in_message_emoticon !== undefined) {
-        for (const key in msg.body.in_message_emoticon) {
-          const item = msg.body.in_message_emoticon[key];
+      } else if (msg.in_message_emoticon !== undefined) {
+        for (const key in msg.in_message_emoticon) {
+          const item = msg.in_message_emoticon[key];
           const scale = getScaleSize(item.height, item.width, 30);
-          msg.body.content = msg.body.content.replaceAll(
+          msg.content = msg.content.replaceAll(
             key,
             `<img src='${IMAGE_PROXY}?h=30&url=${item.url}' style='height:${scale.height};width:${scale.width};margin-left:4px' />`,
           );
         }
-
         addDnamu({
-          content: msg.body.content,
+          content: msg.content,
           type: DnamuType.EMO_IN_MSG,
-          color: getDanmuColoe(msg.raw.dm_v2),
+          color: '#fff',
         });
       } else {
         addDnamu({
-          content: msg.body.content,
+          content: msg.content,
           type: DnamuType.DEF,
-          color: getDanmuColoe(msg.raw.dm_v2),
+          color: '#fff',
         });
       }
     },
     onLiveStart: () => emit('liveStart'),
     onLiveEnd: () => emit('liveEnd'),
-    onIncomeSuperChat: (msg: Message<SuperChatMsg>) =>
+    onIncomeSuperChat: (msg: SuperChatMsg) =>
       addDnamu({
-        content: msg.body,
+        content: msg,
         type: DnamuType.SC,
         color: '#fff',
       }),
-    onRoomInfoChange: (msg) => emit('titleChange', msg.body.title),
+    // onRoomInfoChange: (msg) => emit('titleChange', msg.body.title),
   });
   connectClose = close;
 }

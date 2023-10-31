@@ -15,7 +15,7 @@ export async function getRealId(roomId: string) {
 }
 
 // 获取主播信息
-export async function getUserInfoDouyu(roomId: string) {
+export async function getUserInfo(roomId: string) {
   try {
     const realId = await getRealId(roomId);
     if (realId === null) return getResponseBody(404, '没找到对应主播！');

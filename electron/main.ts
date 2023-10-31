@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
-import { startServers } from './server/server';
+import initIpcMain from './ipcmain';
 import path from 'path';
+import { startServers } from './server/src/main';
 
 const MODE = process.env.VITE_MODE as 'ELECTRON_PRO' | 'ELECTRON_DEV';
 let win;
@@ -20,6 +21,9 @@ function createWindow() {
   } else {
     win.loadFile(path.resolve(__dirname, '../dist/index.html'));
   }
+
+  initIpcMain();
+  startServers(9000);
 
   // 窗口关闭时清除引用
   win.on('closed', () => {
@@ -45,7 +49,7 @@ if (gotTheLock) {
 
   app.whenReady().then(() => {
     createWindow();
-    startServers(9000);
+    // startServers(9000);
   });
 } else {
   app.quit();

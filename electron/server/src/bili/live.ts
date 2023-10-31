@@ -15,7 +15,7 @@ const defParams = {
 };
 
 // 获取直播源
-export async function getLiveInfo(roomId: string, qn = 150, line = 0) {
+export default async function getLiveInfo(roomId: string, qn = 150, line = 0) {
   let res;
   const params = { ...defParams };
   if (line === null) {

@@ -1,6 +1,8 @@
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 import path from 'path';
 import fs from 'fs';
+import { Platform, ImageParams, LiveInfoParams } from './server/src/type';
+
 const MODE = process.env.VITE_MODE;
 
 const configPath =
@@ -22,9 +24,21 @@ function watchConfig(cb: { (config) }) {
   cb(getConfig());
   fs.watchFile(configPath, () => cb(getConfig()));
 }
-
+interface GetRoomInfoType {
+  roomId: string;
+  type: Platform;
+}
 contextBridge.exposeInMainWorld('api', {
   getConfig,
   watchConfig,
+  liveApi: {
+    getRoomInfo: (data: GetRoomInfoType) =>
+      ipcRenderer.invoke('getRoomInfo', data),
+    getLiveInfo: (data: LiveInfoParams) =>
+      ipcRenderer.invoke('getLiveInfo', data),
+    getRoomInfoManyBili: (uids: string[]) =>
+      ipcRenderer.invoke('getRoomInfoManyBili', uids),
+    getImage: (data: ImageParams) => ipcRenderer.invoke('getImage', data),
+  },
   __dirname: path.resolve(process.resourcesPath, './cache'),
 });

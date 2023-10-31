@@ -1,10 +1,10 @@
 import md5 from 'js-md5';
 import axios from 'axios';
 import { executeStrJs, getResponseBody } from '../utils';
-import { getUserInfoDouyu } from './info';
+import { getUserInfo } from './info';
 
 // 获取真实url
-export async function getRealUrl(
+export default async function getLiveInfo(
   roomId: string,
   qn: number | null = null,
   line: string | null = null,
@@ -26,7 +26,7 @@ export async function getRealUrl(
   :param rate: 1流畅；2高清；3超清；4蓝光4M；0蓝光8M或10M
   :return: JSON格式
   `;
-  const roomInfo = await getUserInfoDouyu(roomId);
+  const roomInfo = await getUserInfo(roomId);
   const realId = roomInfo.data.roomId;
 
   const res = await axios.get('https://www.douyu.com/' + realId);

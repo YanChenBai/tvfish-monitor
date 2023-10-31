@@ -195,9 +195,10 @@ const openControl = () => {
 };
 
 const closeControl = () => {
+  navState.value = true;
   clearTimeout(time);
   clearTimeout(closeTime);
-  closeTime = setTimeout(() => (show.value = false), 0);
+  closeTime = setTimeout(() => (show.value = false), 1000);
 };
 
 // 获取关闭控制栏时点击需要排除的地方
