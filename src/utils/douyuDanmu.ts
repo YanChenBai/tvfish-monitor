@@ -71,7 +71,7 @@ export class Ex_WebSocket_UnLogin {
         WebSocket_Packet('type@=joingroup/rid@=' + rid + '/gid@=-9999/'),
       );
       // this.ws.send(WebSocket_Packet("type@=sub/mt@=asr_caption/"));
-      this.timer = setInterval(() => {
+      this.timer = window.setInterval(() => {
         this.ws.send(WebSocket_Packet('type@=mrkl/'));
       }, 40000);
     };

@@ -67,7 +67,7 @@ let lock: number | null = null;
 function showTips() {
   if (lock !== null) clearTimeout(lock);
   tipsState.value = true;
-  lock = setTimeout(() => {
+  lock = window.setTimeout(() => {
     tipsState.value = false;
   }, 5000);
 }

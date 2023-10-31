@@ -26,10 +26,8 @@ export default ({ mode }) => {
         entry: [
           'electron/main.ts',
           'electron/preload.ts',
-          'electron/ipcmain.ts',
-          'electron/server/src/main.ts',
-          'electron/server/src/service.ts',
-          'electron/server/src/image.ts',
+          // 'electron/ipcmain.ts',
+          'electron/server/server.ts',
         ],
         onstart(args) {
           if (MODE === 'ELECTRON_DEV' || MODE === 'ELECTRON_PRO') {

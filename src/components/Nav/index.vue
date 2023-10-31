@@ -92,7 +92,7 @@ function autoCloseNav() {
   if (!config.value.autoCloseNav) return;
   if (navState.value === true) {
     if (timer !== null) clearTimeout(timer);
-    timer = setTimeout(() => {
+    timer = window.setTimeout(() => {
       timer !== null ? clearTimeout(timer) : '';
       navState.value = false;
     }, 10000);

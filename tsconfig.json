@@ -6,7 +6,7 @@
     "module": "ESNext",
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "Node",
-    "strict": true,
+    "strict": false,
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,

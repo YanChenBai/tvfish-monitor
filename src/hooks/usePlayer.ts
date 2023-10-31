@@ -143,7 +143,7 @@ export function autoRefresh(
   function timeUpdate() {
     clearTimeout(timer);
     pause();
-    timer = setTimeout(() => {
+    timer = window.setTimeout(() => {
       resume();
     }, 5000);
   }

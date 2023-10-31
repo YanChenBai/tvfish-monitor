@@ -23,7 +23,7 @@ export function useAutoUpdatePlayer(
 
     if (status.value !== RoomStatus.LIVE) return;
     // 自动刷新，如果超过两秒没有上报time的话就开始自动循环10次刷新如果有重新上报那就中断
-    updateTimer = setInterval(() => {
+    updateTimer = window.setInterval(() => {
       autoUpdateCount++;
       cb();
       console.log('刷新' + autoUpdateCount, 'max', max, 'interval', interval);
