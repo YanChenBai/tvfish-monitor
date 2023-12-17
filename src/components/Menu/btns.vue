@@ -208,10 +208,14 @@ async function updateAll() {
   // 单独批量更新b站数据
   await useroom.updateManyBili();
 
-  for (const item of all) {
-    await useroom.update(item.roomId, item.platform, false);
-    updateMsg.value = `${now++} / ${count}`;
-  }
+  await Promise.all(
+    all.map(async (item) => {
+      const res = await useroom.update(item.roomId, item.platform, false);
+      updateMsg.value = `${now++} / ${count}`;
+      return res;
+    }),
+  );
+
   await message('更新完成!');
   loading.update = false;
 }
@@ -230,15 +234,22 @@ async function inputData() {
     const count = list[Platform.Bili].length + list[Platform.Douyu].length;
     let now = 0;
     inputMsg.value = `0 / ${count}`;
-    for (const roomId of list[Platform.Bili]) {
-      await useroom.add(roomId, Platform.Bili, false);
-      inputMsg.value = `${now++} / ${count}`;
-    }
-
-    for (const roomId of list[Platform.Douyu]) {
-      await useroom.add(roomId, Platform.Douyu, false);
-      inputMsg.value = `${now++} / ${count}`;
-    }
+    await Promise.all([
+      Promise.all(
+        list[Platform.Bili].map(async (roomId) => {
+          const res = await useroom.add(roomId, Platform.Bili, false);
+          inputMsg.value = `${now++} / ${count}`;
+          return res;
+        }),
+      ),
+      Promise.all(
+        list[Platform.Douyu].map(async (roomId) => {
+          const res = await useroom.add(roomId, Platform.Douyu, false);
+          inputMsg.value = `${now++} / ${count}`;
+          return res;
+        }),
+      ),
+    ]);
 
     await message('更新成功!');
   } catch (error) {
