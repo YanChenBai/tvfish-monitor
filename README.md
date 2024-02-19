@@ -4,8 +4,11 @@
     <br>
     <p align="center"> 电视鱼直播监控  </p>
 </p>
+
 ## 写的乱七八糟的，过段时间大改一下吧
-> `TVFISH-Monitor` 是基于 `ionic7`+`capacitor`+`Vue3`+`TypeScript` 开发的 
+
+## `TVFISH-Monitor` 是基于 `ionic7`+`capacitor`+`Vue3`+`TypeScript` 开发的 
+
 ## 感谢以下仓库作者
 - https://github.com/qianjiachun/douyu-monitor
 - https://github.com/angeloraso/capacitor-plugin-background-mode
